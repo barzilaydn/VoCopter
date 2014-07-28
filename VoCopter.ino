@@ -33,14 +33,131 @@ THE SOFTWARE.
 
 const int IO_PIN_AMOUNT = 34;
 
+//define PID values
+double pitch_setpoint, pitch_input, pitch_output, pitch_kpid{/* kp,ki,kd*/};
+double roll_setpoint, roll_input, roll_output, roll_kpid{/* kp,ki,kd*/};
+double yaw_setpoint, yaw_input, yaw_output, yaw_kpid{/* kp,ki,kd*/};
+
+//specify the links and initial tuning parameters
+PID pitch_PID(&pitch_input, &pitch_output, &pitch_setpoint,pitch_kpid[0], pitch_kpid[1],pitch_kpid[2], DIRECT);
+PID  roll_PID(&roll_input, &roll_output, &roll_output,roll_kpid[0], roll_kpid[1],roll_kpid[2], DIRECT);
+PID  yaw_PID(&yaw_input, &yaw_output, &yaw_output,yaw_kpid[0], yaw_kpid[1],yaw_kpid[2], DIRECT);
+
 void setup(void) {
-	
+	pitch_PID.SetOutputLimits(0,100);
+	roll_PID.SetOutputLimits(0,100);
+	yaw_PID.SetOutputLimits(0,100);
 }
 
 void loop(void) {
 	//TODO: implement a state-machine.
 	//TODO: remember using the low power library.
 	//TODO: implement idle state wake-up on RX receive via pin (!! pin 11 !!). see DeepSleep_Simple.ino example.
+	
+	
+	/*
+	 * Set thrust
+	 */
+	if (thrust > thrust_setpoint)      //if thrust is bigger than thrust_setpoint
+	{
+		thrust--; //decrease thrust
+	}
+	else if (thrust < thrust_setpoint) //if thrust is smaller than thrust_setpoint
+	{
+		thrust++; //increase thrust
+	}
+	else;                              //thrust matches thrust_setpoint
+	
+	//set engines values with thrust
+	FR = thrust; //front right
+	FL = thrust; //front left
+	BR = thrust; //back right
+	BL = thrust; //back left
+	
+	/*
+	 * Pitch
+	 */
+	
+	//initalize pitch_PID Setpont and Process Variable
+	pitch_input =  map(GET_PITCH,-90,90,0,100);
+	pitch_setpoint = GET_PITCH_SETPOINT;
+
+	//turn the pitch_PID on
+	pitch_PID.SetMode(AUTOMATIC);
+	
+	//compute PID
+	pitch_PID.Compute();
+	
+	if (pitch_setpoint > pitch_input)
+	{
+		//pitch axis is on the back
+		//reduce thrust on the front
+		FL -= output;
+		FR -= output;
+	}
+	else
+	{
+		//pitch axis is on the front
+		//reduce thrust on the back
+		BL -= output;
+		BR -= output;
+	}
+	
+	/*
+	 * Roll
+	 */
+	
+	//initalize roll_PID Setpont and Process Variable
+	roll_input =  map(GET_ROLL,-90,90,0,100);
+	roll_setpoint = GET_ROLL_SETPOINT;
+
+	//turn the roll_PID on
+	roll_PID.SetMode(AUTOMATIC);
+	
+	//compute PID
+	roll_PID.Compute();
+	
+	if (roll_setpoint > roll_input)
+	{
+		//roll axis is on the right
+		//reduce thrust on the left
+		FL -= output;
+		BL -= output;
+	}
+	else
+	{
+		//roll axis is on the left
+		//reduce thrust on the right
+		FR -= output;
+		BR -= output;
+	}
+	
+	/*
+	 * Yaw
+	 */
+	
+	//initalize yaw_PID Setpont and Process Variable
+	yaw_input =  map(GET_YAW,-90,90,0,100);
+	yaw_setpoint = GET_YAW_SETPOINT;
+
+	//turn the yaw_PID on
+	yaw_PID.SetMode(AUTOMATIC);
+	
+	//compute PID
+	yaw_PID.Compute();
+	
+	if (yaw_setpoint > yaw_input)
+	{
+		//yaw to the right
+		FR -= output;
+		BL -= output;
+	}
+	else
+	{
+		//yaw to the left
+		FL -= output;
+		BR -= output;
+	}
 }
 
 /**
@@ -69,3 +186,6 @@ int mVtoL(int mV) {
 /**
  * Setup for the Low Voltage Warning interrupt. Available for Teensy only.
  */
+
+
+ 
