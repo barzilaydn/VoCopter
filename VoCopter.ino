@@ -92,15 +92,15 @@ void loop(void) {
 	{
 		//pitch axis is on the back
 		//reduce thrust on the front
-		FL -= output;
-		FR -= output;
+		FL -= pitch_output;
+		FR -= pitch_output;
 	}
 	else
 	{
 		//pitch axis is on the front
 		//reduce thrust on the back
-		BL -= output;
-		BR -= output;
+		BL -= pitch_output;
+		BR -= pitch_output;
 	}
 	
 	/*
@@ -121,15 +121,15 @@ void loop(void) {
 	{
 		//roll axis is on the right
 		//reduce thrust on the left
-		FL -= output;
-		BL -= output;
+		FL -= roll_output;
+		BL -= roll_output;
 	}
 	else
 	{
 		//roll axis is on the left
 		//reduce thrust on the right
-		FR -= output;
-		BR -= output;
+		FR -= roll_output;
+		BR -= roll_output;
 	}
 	
 	/*
@@ -149,14 +149,14 @@ void loop(void) {
 	if (yaw_setpoint > yaw_input)
 	{
 		//yaw to the right
-		FR -= output;
-		BL -= output;
+		FR -= yaw_output;
+		BL -= yaw_output;
 	}
 	else
 	{
 		//yaw to the left
-		FL -= output;
-		BR -= output;
+		FL -= yaw_output;
+		BR -= yaw_output;
 	}
 }
 
