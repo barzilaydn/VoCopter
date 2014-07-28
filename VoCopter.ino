@@ -34,16 +34,13 @@ THE SOFTWARE.
 const int IO_PIN_AMOUNT = 34;
 
 void setup(void) {
-	#ifdef CORE_TEENSY
-		LWV_Setup(); //Setup LVW.
-	#endif
+	
 }
 
 void loop(void) {
 	//TODO: implement a state-machine.
 	//TODO: remember using the low power library.
 	//TODO: implement idle state wake-up on RX receive via pin (!! pin 11 !!). see DeepSleep_Simple.ino example.
-	//TODO: implement power down routine.
 }
 
 /**
@@ -72,22 +69,3 @@ int mVtoL(int mV) {
 /**
  * Setup for the Low Voltage Warning interrupt. Available for Teensy only.
  */
-void LWV_Setup(void) {	
-	analogReference(EXTERNAL);
-	analogReadResolution(12);
-	analogReadAveraging(32);
-	PMC_LVDSC1 =  PMC_LVDSC1_LVDV(1);  // Enable warning for highest voltage possible.
-	PMC_LVDSC2 = PMC_LVDSC2_LVWIE | PMC_LVDSC2_LVWV(3); // Low V INT at 2.92-3.08v
-	NVIC_ENABLE_IRQ(IRQ_LOW_VOLTAGE);
-}
-
-/**
- * Interrupt routine for a low voltage warning. Available for Teensy only.
- */
-void low_voltage_isr(void) {
-	//TODO: report back and set-up for safe landing. remember to use volatile if sharing variables.
-	
-	// Acknowledge handling (By writing to the ACK bit)
-	PMC_LVDSC2 |= PMC_LVDSC2_LVWACK;  
-	PMC_LVDSC1 |= PMC_LVDSC1_LVDACK;
-}
