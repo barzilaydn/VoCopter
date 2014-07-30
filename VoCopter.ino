@@ -31,8 +31,6 @@ THE SOFTWARE.
 	#include <LowPower_Teensy3.h>
 #endif
 
-const int IO_PIN_AMOUNT = 34;
-
 //define PID values
 double pitch_setpoint, pitch_input, pitch_output, pitch_kpid{/* kp,ki,kd*/};
 double roll_setpoint, roll_input, roll_output, roll_kpid{/* kp,ki,kd*/};
