@@ -12,23 +12,20 @@
 *    reliable defaults, so we need to have the user set them.
 ***************************************************************************/
 PID::PID(double* Input, double* Output, double* Setpoint,
-double Kp, double Ki, double Kd, int ControllerDirection)
+double Kp, double Ki, double Kd, int ControllerDirection, int msSampleTime = 100)
 {
-    
+    PID::SetsampleTime(msSampleTime);             //default is 100ms (0.1 seconds)
     myOutput = Output;
     myInput = Input;
     mySetpoint = Setpoint;
     inAuto = false;
     
-    PID::SetOutputLimits(0, 255);				//default output limit corresponds to 
-    //the arduino pwm limits
-
-    sampleTime = 100;							//default Controller Sample Time is 0.1 seconds
+    PID::SetOutputLimits(0, 255);				//default output limit corresponds to the arduino pwm limits
 
     PID::SetControllerDirection(ControllerDirection);
     PID::SetTunings(Kp, Ki, Kd);
 
-    lastTime = millis()-sampleTime;				
+    lastTime = millis() - msSampleTime;				
 }
 
 
@@ -46,7 +43,7 @@ bool PID::Compute() volatile
         unsigned long now = millis();
         unsigned long timeChange = (now - lastTime);
     }
-    if(timeChange>=sampleTime || masterAttached)
+    if(timeChange >= sampleTime || masterAttached)
     {
         /*Compute all the working error variables*/
         double input = *myInput;
@@ -86,8 +83,8 @@ bool PID::Compute() volatile
 **********************************************************************************/ 
 int PID::AttachToMaster()
 {
-    masterAttached = true; //Mark as attached for master.
-    return sampleTime; //
+    masterAttached = true;
+    return sampleTime;
 }
 
 /* SetTunings(...)*************************************************************
@@ -97,7 +94,7 @@ int PID::AttachToMaster()
 ******************************************************************************/ 
 void PID::SetTunings(double Kp, double Ki, double Kd)
 {
-    if (Kp<0 || Ki<0 || Kd<0) return;
+    if (Kp < 0 || Ki < 0 || Kd < 0) return;
 
     dispKp = Kp; dispKi = Ki; dispKd = Kd;
 
@@ -195,7 +192,7 @@ void PID::Initialize()
 ******************************************************************************/
 void PID::SetControllerDirection(int Direction)
 {
-    if(inAuto && Direction !=controllerDirection)
+    if(inAuto && Direction != controllerDirection)
     {
         kp = (0 - kp);
         ki = (0 - ki);
@@ -204,14 +201,14 @@ void PID::SetControllerDirection(int Direction)
     controllerDirection = Direction;
 }
 
-/* Status Funcions*************************************************************
+/* Status Functions*************************************************************
 * Just because you set the Kp=-1 doesn't mean it actually happened.  these
 * functions query the internal state of the PID.  they're here for display 
 * purposes.  this are the functions the PID Front-end uses for example
 ******************************************************************************/
-double PID::GetKp(){ return  dispKp; }
-double PID::GetKi(){ return  dispKi;}
-double PID::GetKd(){ return  dispKd;}
-int PID::GetMode(){ return  inAuto ? AUTOMATIC : MANUAL;}
-int PID::GetDirection(){ return controllerDirection;}
+double PID::GetKp(){ return dispKp; }
+double PID::GetKi(){ return dispKi; }
+double PID::GetKd(){ return dispKd; }
+int PID::GetMode(){ return inAuto ? AUTOMATIC : MANUAL; }
+int PID::GetDirection(){ return controllerDirection; }
 

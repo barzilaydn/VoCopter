@@ -28,15 +28,15 @@ public:
 #define REVERSE  1
 
     //commonly used functions **************************************************************************
-    PID(double*, double*, double*,       // * constructor.  links the PID to the Input, Output, and 
-    double, double, double, int, bool);  //   Setpoint.  Initial tuning parameters are also set here
+    PID(double*, double*, double*,          // * constructor.  links the PID to the Input, Output, and 
+    double, double, double, int, bool, int);//   Setpoint.  Initial tuning parameters are also set here
     
-    void SetMode(int Mode);              // * sets PID to either Manual (0) or Auto (non-0)
+    void SetMode(int Mode);                 // * sets PID to either Manual (0) or Auto (non-0)
 
-    bool Compute() volatile;             // * performs the PID calculation.  it should be
-    //   called every time loop() cycles. ON/OFF and
-    //   calculation frequency can be set using SetMode
-    //   SetSampleTime respectively
+    bool Compute() volatile;                // * performs the PID calculation.  it should be
+                                            //   called every time loop() cycles. ON/OFF and
+                                            //   calculation frequency can be set using SetMode
+                                            //   SetSampleTime respectively
 
     void SetOutputLimits(double, double);//clamps the output to a specific range. 0-255 by default, but
     //it's likely the user will want to change this depending on
@@ -52,9 +52,7 @@ public:
                                      //   means the output will increase when error is positive. REVERSE
                                      //   means the opposite.  it's very unlikely that this will be needed
                                      //   once it is set in the constructor.
-    void SetSampleTime(int);         // * sets the frequency, in Milliseconds, with which 
-                                     //   the PID calculation is performed.  default is 100
-    
+  
     int AttachToMaster();
     
     //Display functions ****************************************************************
@@ -67,6 +65,8 @@ public:
 
 private:
     void Initialize();
+    void SetSampleTime(int);      // * sets the frequency, in Milliseconds, with which 
+                                  //   the PID calculation is performed.  default is 100
     
     double dispKp;                // * we'll hold on to the tuning parameters in user-entered 
     double dispKi;                //   format for display purposes
