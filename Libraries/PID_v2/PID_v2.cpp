@@ -11,7 +11,7 @@
 *    The parameters specified here are those for for which we can't set up 
 *    reliable defaults, so we need to have the user set them.
 ***************************************************************************/
-PID::PID(double* Input, double* Output, double* Setpoint,
+void PID::PID(double* Input, double* Output, double* Setpoint,
 double Kp, double Ki, double Kd, int ControllerDirection, int msSampleTime = 100)
 {
     PID::SetsampleTime(msSampleTime);             //default is 100ms (0.1 seconds)
@@ -35,7 +35,7 @@ double Kp, double Ki, double Kd, int ControllerDirection, int msSampleTime = 100
 *   pid Output needs to be computed.  returns true when the output is computed,
 *   false when nothing has been done.
 **********************************************************************************/ 
-bool PID::Compute() volatile
+bool PID::Compute()
 {
     if(!inAuto) return false;
     if(!masterAttached)
@@ -43,12 +43,12 @@ bool PID::Compute() volatile
         unsigned long now = millis();
         unsigned long timeChange = (now - lastTime);
     }
-    if(timeChange >= sampleTime || masterAttached)
+    if(masterAttached || (!masterAttached && (timeChange >= sampleTime)))
     {
         /*Compute all the working error variables*/
         double input = *myInput;
         double error = *mySetpoint - input;
-        ITerm+= (ki * error);
+        ITerm += (ki * error);
 
         double dInput = (input - lastInput);
 
@@ -71,14 +71,18 @@ bool PID::Compute() volatile
 
         /*Remember some variables for next time*/
         lastInput = input;
-        lastTime = now;
+        
+        if(!masterAttached)
+            lastTime = now;
+        
         return true;
     }
-    else return false;
+    return false;
 }
 
-/* int AttachToMaster() **********************************************************************
+/* AttachToMaster() **********************************************************************
 *  Activates interrupt mode instead of polling by connecting this instance to a PIDMaster.
+*
 *  Returns the current sampleTime for the master to use.
 **********************************************************************************/ 
 int PID::AttachToMaster()
@@ -103,7 +107,7 @@ void PID::SetTunings(double Kp, double Ki, double Kd)
     ki = Ki * sampleTimeInSec;
     kd = Kd / sampleTimeInSec;
 
-    if(controllerDirection ==REVERSE)
+    if(controllerDirection == REVERSE)
     {
         kp = (0 - kp);
         ki = (0 - ki);
@@ -116,6 +120,8 @@ void PID::SetTunings(double Kp, double Ki, double Kd)
 ******************************************************************************/
 void PID::SetsampleTime(int NewsampleTime)
 {
+    if(inAuto) return;
+    
     if (NewsampleTime > 0)
     {
         double ratio  = (double)NewsampleTime
@@ -137,7 +143,7 @@ void PID::SetsampleTime(int NewsampleTime)
 void PID::SetOutputLimits(double Min, double Max)
 {
     if(Min >= Max) return;
-
+    
     outMin = Min;
     outMax = Max;
 
@@ -211,4 +217,4 @@ double PID::GetKi(){ return dispKi; }
 double PID::GetKd(){ return dispKd; }
 int PID::GetMode(){ return inAuto ? AUTOMATIC : MANUAL; }
 int PID::GetDirection(){ return controllerDirection; }
-
+bool PID::GetMasterAttached(){ return masterAttached; }

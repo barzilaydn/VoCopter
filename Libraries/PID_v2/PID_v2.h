@@ -15,8 +15,6 @@
 #include "WProgram.h"
 #endif
 
-#include <TimerOne.h>
-
 class PID
 {
 public:
@@ -33,7 +31,7 @@ public:
     
     void SetMode(int Mode);                 // * sets PID to either Manual (0) or Auto (non-0)
 
-    bool Compute() volatile;                // * performs the PID calculation.  it should be
+    bool Compute();                // * performs the PID calculation.  it should be
                                             //   called every time loop() cycles. ON/OFF and
                                             //   calculation frequency can be set using SetMode
                                             //   SetSampleTime respectively
@@ -62,34 +60,35 @@ public:
     int GetMode();                //  inside the PID.
     int GetDirection();           
     unsigned long GetSampleTime();
-
+    bool GetMasterAttached();
+    
 private:
     void Initialize();
-    void SetSampleTime(int);      // * sets the frequency, in Milliseconds, with which 
-                                  //   the PID calculation is performed.  default is 100
+    void SetSampleTime(int);    // * sets the frequency, in Milliseconds, with which 
+                                //   the PID calculation is performed.  default is 100
     
-    double dispKp;                // * we'll hold on to the tuning parameters in user-entered 
-    double dispKi;                //   format for display purposes
-    double dispKd;                //
+    double dispKp;              // * we'll hold on to the tuning parameters in user-entered 
+    double dispKi;              //   format for display purposes
+    double dispKd;              //
     
-    double kp;                    // * (P)roportional Tuning Parameter
-    double ki;                    // * (I)ntegral Tuning Parameter
-    double kd;                    // * (D)erivative Tuning Parameter
+    volatile double kp;                  // * (P)roportional Tuning Parameter
+    volatile double ki;                  // * (I)ntegral Tuning Parameter
+    volatile double kd;                  // * (D)erivative Tuning Parameter
 
     int controllerDirection;
 
-    double *myInput;              // * Pointers to the Input, Output, and Setpoint variables
-    volatile double *myOutput;    //   This creates a hard link between the variables and the 
-    double *mySetpoint;           //   PID, freeing the user from having to constantly tell us
-    //   what these values are.  with pointers we'll just know.
+    volatile double *myInput;   // * Pointers to the Input, Output, and Setpoint variables
+    volatile double *myOutput;  //   This creates a hard link between the variables and the 
+    volatile double *mySetpoint;//   PID, freeing the user from having to constantly tell us
+                                //   what these values are.  with pointers we'll just know.
     
     unsigned long lastTime;
-    double ITerm, lastInput;
-    unsigned long sampleTime;
-    volatile bool masterAttached;
+    volatile double ITerm, lastInput;
+    volatile unsigned long sampleTime;
+    bool masterAttached;
     
-    double outMin, outMax;
-    bool inAuto;
+    volatile double outMin, outMax;
+    volatile bool inAuto;
 };
 #endif
 
