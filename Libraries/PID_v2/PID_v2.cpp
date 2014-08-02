@@ -1,4 +1,4 @@
-/**********************************************************************************************
+﻿/**********************************************************************************************
 * Arduino PID Library - Version 2.0
 * v1.0 by Brett Beauregard <br3ttb@gmail.com> brettbeauregard.com
 * v2.0 by Dan Barzilay <barzilaydn@gmail.com>
@@ -11,10 +11,10 @@
 *    The parameters specified here are those for for which we can't set up 
 *    reliable defaults, so we need to have the user set them.
 ***************************************************************************/
-void PID::PID(double* Input, double* Output, double* Setpoint,
+PID::PID(double* Input, double* Output, double* Setpoint,
 double Kp, double Ki, double Kd, int ControllerDirection, int msSampleTime = 100)
 {
-    PID::SetsampleTime(msSampleTime);             //default is 100ms (0.1 seconds)
+    PID::SetSampleTime(msSampleTime);             //default is 100ms (0.1 seconds)
     myOutput = Output;
     myInput = Input;
     mySetpoint = Setpoint;
@@ -22,12 +22,28 @@ double Kp, double Ki, double Kd, int ControllerDirection, int msSampleTime = 100
     
     PID::SetOutputLimits(0, 255);				//default output limit corresponds to the arduino pwm limits
 
-    PID::SetControllerDirection(ControllerDirection);
+    PID::ReverseControllerDirection(ControllerDirection);
     PID::SetTunings(Kp, Ki, Kd);
 
     lastTime = millis() - msSampleTime;				
 }
 
+PID::PID(volatile double* Input, volatile double* Output, volatile double* Setpoint,
+double Kp, double Ki, double Kd, int ControllerDirection, int msSampleTime = 100)
+{
+    PID::SetSampleTime(msSampleTime);             //default is 100ms (0.1 seconds)
+    myOutput = Output;
+    myInput = Input;
+    mySetpoint = Setpoint;
+    inAuto = false;
+    
+    PID::SetOutputLimits(0, 255);				//default output limit corresponds to the arduino pwm limits
+
+    PID::ReverseControllerDirection(ControllerDirection);
+    PID::SetTunings(Kp, Ki, Kd);
+
+    lastTime = millis() - msSampleTime;				
+}
 
 /* Compute() **********************************************************************
 *     This, as they say, is where the magic happens.  this function should be called
@@ -38,11 +54,10 @@ double Kp, double Ki, double Kd, int ControllerDirection, int msSampleTime = 100
 bool PID::Compute()
 {
     if(!inAuto) return false;
-    if(!masterAttached)
-    {
-        unsigned long now = millis();
-        unsigned long timeChange = (now - lastTime);
-    }
+
+    unsigned long now = millis();
+    unsigned long timeChange = (now - lastTime);
+    
     if(masterAttached || (!masterAttached && (timeChange >= sampleTime)))
     {
         /*Compute all the working error variables*/
@@ -58,12 +73,12 @@ bool PID::Compute()
         /* Anti integral wind-up and output limiting*/
         if(output > outMax)
         {
-            ITerm -= output – outMax;
+            ITerm -= (output - outMax);
             output = outMax;
         }
         else if(output < outMin)
         {
-            ITerm += outMin – output;
+            ITerm += (outMin - output);
             output = outMin;
         }
 
@@ -107,7 +122,7 @@ void PID::SetTunings(double Kp, double Ki, double Kd)
     ki = Ki * sampleTimeInSec;
     kd = Kd / sampleTimeInSec;
 
-    if(controllerDirection == REVERSE)
+    if(controllerDirection)
     {
         kp = (0 - kp);
         ki = (0 - ki);
@@ -115,10 +130,10 @@ void PID::SetTunings(double Kp, double Ki, double Kd)
     }
 }
 
-/* SetsampleTime(...) *********************************************************
+/* SetSampleTime(...) *********************************************************
 * sets the period, in Milliseconds, at which the calculation is performed	
 ******************************************************************************/
-void PID::SetsampleTime(int NewsampleTime)
+void PID::SetSampleTime(int NewsampleTime)
 {
     if(inAuto) return;
     
@@ -152,12 +167,12 @@ void PID::SetOutputLimits(double Min, double Max)
         /* Anti integral wind-up and output limiting*/
         if(*myOutput > outMax)
         {
-            ITerm -= *myOutput – outMax;
+            ITerm -= (*myOutput - outMax);
             *myOutput = outMax;
         }
         else if(*myOutput < outMin)
         {
-            ITerm += outMin – *myOutput;
+            ITerm += (outMin - *myOutput);
             *myOutput = outMin;
         }
     }
@@ -170,12 +185,11 @@ void PID::SetOutputLimits(double Min, double Max)
 ******************************************************************************/ 
 void PID::SetMode(int Mode)
 {
-    bool newAuto = (Mode == AUTOMATIC);
-    if(newAuto == !inAuto)
+    if(Mode == !inAuto)
     {  /*we just went from manual to auto*/
         PID::Initialize();
     }
-    inAuto = newAuto;
+    inAuto = Mode;
 }
 
 /* Initialize()****************************************************************
@@ -190,13 +204,13 @@ void PID::Initialize()
     else if(ITerm < outMin) ITerm = outMin;
 }
 
-/* SetControllerDirection(...)*************************************************
+/* ReverseControllerDirection(...)*************************************************
 * The PID will either be connected to a DIRECT acting process (+Output leads 
 * to +Input) or a REVERSE acting process(+Output leads to -Input.)  we need to
 * know which one, because otherwise we may increase the output when we should
 * be decreasing.  This is called from the constructor.
 ******************************************************************************/
-void PID::SetControllerDirection(int Direction)
+void PID::ReverseControllerDirection(int Direction)
 {
     if(inAuto && Direction != controllerDirection)
     {
@@ -212,9 +226,10 @@ void PID::SetControllerDirection(int Direction)
 * functions query the internal state of the PID.  they're here for display 
 * purposes.  this are the functions the PID Front-end uses for example
 ******************************************************************************/
-double PID::GetKp(){ return dispKp; }
-double PID::GetKi(){ return dispKi; }
-double PID::GetKd(){ return dispKd; }
-int PID::GetMode(){ return inAuto ? AUTOMATIC : MANUAL; }
-int PID::GetDirection(){ return controllerDirection; }
-bool PID::GetMasterAttached(){ return masterAttached; }
+double                 PID::GetKp()            { return dispKp;              }
+double                 PID::GetKi()            { return dispKi;              }
+double                 PID::GetKd()            { return dispKd;              }
+int                    PID::GetMode()          { return inAuto;              }
+bool                   PID::GetDirection()     { return controllerDirection; }
+bool                   PID::GetMasterAttached(){ return masterAttached;      }
+volatile unsigned long PID::GetSampleTime()    { return sampleTime;          }

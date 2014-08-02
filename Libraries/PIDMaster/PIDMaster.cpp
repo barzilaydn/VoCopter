@@ -6,33 +6,38 @@
 **********************************************************************************************/
 #include <PIDMaster.h>
 
+PIDMaster* PIDMaster::self;
+
 /* Constructor (int k, PID&, ...)******************************************
 *  Load the children, Sets up the timer.
 ***************************************************************************/
-void PIDMaster::PIDMaster(PID* pid, ... )
+PIDMaster::PIDMaster(PID* pid, ... )
 {
+    self = this;
     PID* p;
+    unsigned long t;
+
     va_list argptr;               // A place to store the list of arguments
     va_start ( argptr, pid );     // Initializing arguments to store all values after first.
     
-    unsigned long gcdTempTime = *pid.GetSampleTime() * 1000; //temp to avoid multiple readings of volatile.
+    unsigned long gcdTempTime = (*pid).GetSampleTime() * 1000; //temp to avoid multiple readings of volatile.
     unsigned long maxTempTime = gcdTempTime; //temp to avoid multiple readings of volatile.
 
     //Re-compute minSampleTime
     for(p = pid; p != NULL; p = va_arg(argptr, PID*))
     {
-        t = *p.AttachToMaster() * 1000; //milliseconds to microseconds.
+        t = (unsigned long)((*p).AttachToMaster()) * 1000; //milliseconds to microseconds.
         
-        gcdTempTime = GCD(t, gcdTempTime);
+        gcdTempTime = PIDMaster::GCD(t, gcdTempTime);
         
         if(t > maxTempTime)
             maxTempTime = t;
         
-        chilren.push_back(p);   //Add new PIDs
+        children.push_back(p);   //Add new PIDs
     }
     
     Timer1.initialize(gcdTempTime); //In microseconds.
-    Timer1.attachInterrupt(PIDMaster::Compute); // Compute to run every minimum sample time.
+    Timer1.stop();
     
     gcdSampleTime = gcdTempTime;
     maxSampleTime = maxTempTime;
@@ -46,6 +51,7 @@ void PIDMaster::Attach(PID* pid, ... )
 
     PID* p;
     unsigned long t;
+    
     va_list argptr;                // A place to store the list of arguments
     va_start ( argptr, pid );      // Initializing arguments to store all values after first.
     
@@ -55,28 +61,35 @@ void PIDMaster::Attach(PID* pid, ... )
     //Re-compute minSampleTime
     for(p = pid; p != NULL; p = va_arg(argptr, PID*))
     {
-        t = *p.AttachToMaster() * 1000;
+        t = (unsigned long)((*p).AttachToMaster()) * 1000; //milliseconds to microseconds.
         
         gcdTempTime = GCD(t, gcdTempTime);
         
         if(t > maxTempTime)
             maxTempTime = t;
         
-        chilren.push_back(p);   //Add new PIDs
+        children.push_back(p);   //Add new PIDs
     }
     
     Timer1.setPeriod(gcdTempTime); //In microseconds.
-    Timer1.attachInterrupt(PIDMaster::Compute); // Compute to run every GCD sample time.
+    Timer1.attachInterrupt(computeWrapper); // Compute to run every GCD sample time.
     
     gcdSampleTime = gcdTempTime;
     maxSampleTime = maxTempTime;
 
     va_end ( argptr );             // Cleans up the list
+    
+    PIDMaster::Resume();    //Resumes
 }
 
-unsigned long GCD(unsigned long u, unsigned long v)
+unsigned long PIDMaster::GCD(unsigned long u, unsigned long v)
 {
-    return (v != 0) ? GCD(v, u%v) : u;
+    return (v != 0) ? PIDMaster::GCD(v, u%v) : u;
+}
+
+void computeWrapper()
+{
+    (*(PIDMaster::self)).Compute();
 }
 
 void PIDMaster::Compute()
@@ -89,8 +102,8 @@ void PIDMaster::Compute()
     for (size_t i = 0; i < children.size(); ++i)
     {
         p = children[i];
-        if(sample * count % (*p.GetSampleTime() * 1000) == 0 && (*p.GetMode() != 0) && *p.GetMasterAttached())
-            *p.Compute(); //Compute only when PID child is active and sample time arrived.
+        if(sample * count % ((*p).GetSampleTime() * 1000) == 0 && ((*p).GetMode() != 0) && (*p).GetMasterAttached())
+            (*p).Compute(); //Compute only when PID child is active and sample time arrived.
     }
     
     if(count < (unsigned int)(maxSampleTime / sample))
@@ -108,8 +121,19 @@ void PIDMaster::Start()
     if(children.size() != 0)
     {
         count = 0; //Restart count
-        Timer1.attachInterrupt(function);
+        Timer1.attachInterrupt(computeWrapper);
         Timer1.start();
+    }
+    
+    return;
+}
+
+void PIDMaster::Restart()
+{
+    if(children.size() != 0)
+    {
+        count = 0; //Restart count
+        Timer1.attachInterrupt(computeWrapper);
         Timer1.restart();
     }
     
@@ -126,8 +150,11 @@ void PIDMaster::Stop()
 
 void PIDMaster::Resume()
 {
-    Timer1.attachInterrupt(function);
-    Timer1.resume();
+    if(children.size() != 0)
+    {
+        Timer1.attachInterrupt(computeWrapper);
+        Timer1.resume();
+    }
     
     return;
 }

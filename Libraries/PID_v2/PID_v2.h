@@ -19,16 +19,14 @@ class PID
 {
 public:
 
-    //Constants used in some of the functions below
-#define AUTOMATIC	1
-#define MANUAL	0
-#define DIRECT  0
-#define REVERSE  1
-
     //commonly used functions **************************************************************************
     PID(double*, double*, double*,          // * constructor.  links the PID to the Input, Output, and 
-    double, double, double, int, bool, int);//   Setpoint.  Initial tuning parameters are also set here
-    
+    double, double, double, int, int);//   Setpoint.  Initial tuning parameters are also set here
+
+    PID(volatile double*, volatile double*, volatile double*,          // * constructor.  links the PID to the Input, Output, and 
+    double, double, double, int, int);//   Setpoint.  Initial tuning parameters are also set here
+       
+   
     void SetMode(int Mode);                 // * sets PID to either Manual (0) or Auto (non-0)
 
     bool Compute();                // * performs the PID calculation.  it should be
@@ -46,7 +44,7 @@ public:
     void SetTunings(double, double,  // * While most users will set the tunings once in the 
     double);                         //   constructor, this function gives the user the option
                                      //   of changing tunings during runtime for Adaptive control
-    void SetControllerDirection(int);// * Sets the Direction, or "Action" of the controller. DIRECT
+    void ReverseControllerDirection(int);// * Sets the Direction, or "Action" of the controller. DIRECT
                                      //   means the output will increase when error is positive. REVERSE
                                      //   means the opposite.  it's very unlikely that this will be needed
                                      //   once it is set in the constructor.
@@ -58,8 +56,8 @@ public:
     double GetKi();               //  they were created mainly for the pid front-end,
     double GetKd();               // where it's important to know what is actually 
     int GetMode();                //  inside the PID.
-    int GetDirection();           
-    unsigned long GetSampleTime();
+    bool GetDirection();           
+    volatile unsigned long GetSampleTime();
     bool GetMasterAttached();
     
 private:
@@ -75,7 +73,7 @@ private:
     volatile double ki;                  // * (I)ntegral Tuning Parameter
     volatile double kd;                  // * (D)erivative Tuning Parameter
 
-    int controllerDirection;
+    bool controllerDirection;
 
     volatile double *myInput;   // * Pointers to the Input, Output, and Setpoint variables
     volatile double *myOutput;  //   This creates a hard link between the variables and the 
