@@ -2,10 +2,17 @@
 * Arduino PID Library - Version 2.0
 * v1.0 by Brett Beauregard <br3ttb@gmail.com> brettbeauregard.com
 * v2.0 by Dan Barzilay <barzilaydn@gmail.com>
+
+* v2.0 Changes:
+*   - Added support for PIDMaster
+*   - Improved Anti integral wind-up.
 *
 * This Library is licensed under a GPLv3 License
 **********************************************************************************************/
 #include <PID_v2.h>
+
+#define intDisable()      ({ uint8_t sreg = SREG; cli(); sreg; })
+#define intRestore(sreg)  SREG = sreg
 
 /*Constructor (...)*********************************************************
 *    The parameters specified here are those for for which we can't set up 
@@ -85,10 +92,8 @@ bool PID::Compute()
         *myOutput = output;
 
         /*Remember some variables for next time*/
-        lastInput = input;
-        
-        if(!masterAttached)
-            lastTime = now;
+        lastInput = input;        
+        lastTime = now;
         
         return true;
     }
@@ -113,6 +118,8 @@ int PID::AttachToMaster()
 ******************************************************************************/ 
 void PID::SetTunings(double Kp, double Ki, double Kd)
 {
+    uint8_t sreg = intDisable();
+
     if (Kp < 0 || Ki < 0 || Kd < 0) return;
 
     dispKp = Kp; dispKi = Ki; dispKd = Kd;
@@ -128,6 +135,8 @@ void PID::SetTunings(double Kp, double Ki, double Kd)
         ki = (0 - ki);
         kd = (0 - kd);
     }
+    
+    intRestore(sreg);
 }
 
 /* SetSampleTime(...) *********************************************************
@@ -135,6 +144,8 @@ void PID::SetTunings(double Kp, double Ki, double Kd)
 ******************************************************************************/
 void PID::SetSampleTime(int NewsampleTime)
 {
+    uint8_t sreg = intDisable();
+
     if(inAuto) return;
     
     if (NewsampleTime > 0)
@@ -145,6 +156,8 @@ void PID::SetSampleTime(int NewsampleTime)
         kd /= ratio;
         sampleTime = (unsigned long)NewsampleTime;
     }
+    
+    intRestore(sreg);
 }
 
 /* SetOutputLimits(...)****************************************************
@@ -157,6 +170,8 @@ void PID::SetSampleTime(int NewsampleTime)
 **************************************************************************/
 void PID::SetOutputLimits(double Min, double Max)
 {
+    uint8_t sreg = intDisable();
+    
     if(Min >= Max) return;
     
     outMin = Min;
@@ -176,6 +191,8 @@ void PID::SetOutputLimits(double Min, double Max)
             *myOutput = outMin;
         }
     }
+    
+    intRestore(sreg);
 }
 
 /* SetMode(...)****************************************************************
@@ -185,11 +202,15 @@ void PID::SetOutputLimits(double Min, double Max)
 ******************************************************************************/ 
 void PID::SetMode(int Mode)
 {
-    if(Mode == !inAuto)
+    uint8_t sreg = intDisable();
+    
+    if(Mode && !inAuto)
     {  /*we just went from manual to auto*/
         PID::Initialize();
     }
     inAuto = Mode;
+    
+    intRestore(sreg);
 }
 
 /* Initialize()****************************************************************
@@ -212,6 +233,8 @@ void PID::Initialize()
 ******************************************************************************/
 void PID::ReverseControllerDirection(int Direction)
 {
+    uint8_t sreg = intDisable();
+    
     if(inAuto && Direction != controllerDirection)
     {
         kp = (0 - kp);
@@ -219,6 +242,8 @@ void PID::ReverseControllerDirection(int Direction)
         kd = (0 - kd);
     }   
     controllerDirection = Direction;
+    
+    intRestore(sreg);
 }
 
 /* Status Functions*************************************************************
@@ -226,10 +251,10 @@ void PID::ReverseControllerDirection(int Direction)
 * functions query the internal state of the PID.  they're here for display 
 * purposes.  this are the functions the PID Front-end uses for example
 ******************************************************************************/
-double                 PID::GetKp()            { return dispKp;              }
-double                 PID::GetKi()            { return dispKi;              }
-double                 PID::GetKd()            { return dispKd;              }
-int                    PID::GetMode()          { return inAuto;              }
-bool                   PID::GetDirection()     { return controllerDirection; }
-bool                   PID::GetMasterAttached(){ return masterAttached;      }
-volatile unsigned long PID::GetSampleTime()    { return sampleTime;          }
+double                 PID::GetKp()                     { return dispKp;              }
+double                 PID::GetKi()                     { return dispKi;              }
+double                 PID::GetKd()                     { return dispKd;              }
+int                    PID::GetMode() volatile          { return inAuto;              }
+bool                   PID::GetDirection() volatile     { return controllerDirection; }
+bool                   PID::GetMasterAttached()         { return masterAttached;      }
+volatile unsigned long PID::GetSampleTime() volatile    { return sampleTime;          }

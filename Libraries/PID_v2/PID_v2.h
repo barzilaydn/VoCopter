@@ -2,6 +2,10 @@
 * Arduino PID Library - Version 2.0
 * v1.0 by Brett Beauregard <br3ttb@gmail.com> brettbeauregard.com
 * v2.0 by Dan Barzilay <barzilaydn@gmail.com>
+
+* v2.0 Changes:
+*   - Added support for PIDMaster
+*   - Improved Anti integral wind-up.
 *
 * This Library is licensed under a GPLv3 License
 **********************************************************************************************/
@@ -21,16 +25,16 @@ public:
 
     //commonly used functions **************************************************************************
     PID(double*, double*, double*,          // * constructor.  links the PID to the Input, Output, and 
-    double, double, double, int, int);//   Setpoint.  Initial tuning parameters are also set here
+    double, double, double, int, int);      //   Setpoint.  Initial tuning parameters are also set here
 
-    PID(volatile double*, volatile double*, volatile double*,          // * constructor.  links the PID to the Input, Output, and 
-    double, double, double, int, int);//   Setpoint.  Initial tuning parameters are also set here
+    PID(volatile double*, volatile double*, volatile double*,   // * constructor.  links the PID to the Input, Output, and 
+    double, double, double, int, int);                          //   Setpoint.  Initial tuning parameters are also set here
        
    
-    void SetMode(int Mode);                 // * sets PID to either Manual (0) or Auto (non-0)
+    void SetMode(int Mode);                 // * 1 turns ON the PID and 0 turns it off.
 
     bool Compute();                // * performs the PID calculation.  it should be
-                                            //   called every time loop() cycles. ON/OFF and
+                                            //   called every time loop() cycles when not in Interrupt mode. ON/OFF and
                                             //   calculation frequency can be set using SetMode
                                             //   SetSampleTime respectively
 
@@ -55,9 +59,9 @@ public:
     double GetKp();               // These functions query the pid for interal values.
     double GetKi();               //  they were created mainly for the pid front-end,
     double GetKd();               // where it's important to know what is actually 
-    int GetMode();                //  inside the PID.
-    bool GetDirection();           
-    volatile unsigned long GetSampleTime();
+    int GetMode() volatile;                //  inside the PID.
+    bool GetDirection() volatile;           
+    volatile unsigned long GetSampleTime() volatile;
     bool GetMasterAttached();
     
 private:
