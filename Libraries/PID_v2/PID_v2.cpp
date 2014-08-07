@@ -1,4 +1,4 @@
-﻿/**********************************************************************************************
+/**********************************************************************************************
 * Arduino PID Library - Version 2.0
 * v1.0 by Brett Beauregard <br3ttb@gmail.com> brettbeauregard.com
 * v2.0 by Dan Barzilay <barzilaydn@gmail.com>
@@ -150,8 +150,7 @@ void PID::SetSampleTime(int NewsampleTime)
     
     if (NewsampleTime > 0)
     {
-        double ratio  = (double)NewsampleTime
-        / (double)sampleTime;
+        double ratio  = (double)NewsampleTime / (double)sampleTime;
         ki *= ratio;
         kd /= ratio;
         sampleTime = (unsigned long)NewsampleTime;
@@ -258,3 +257,51 @@ int                    PID::GetMode() volatile          { return inAuto;        
 bool                   PID::GetDirection() volatile     { return controllerDirection; }
 bool                   PID::GetMasterAttached()         { return masterAttached;      }
 volatile unsigned long PID::GetSampleTime() volatile    { return sampleTime;          }
+
+/* *myInput Setter & Getter */
+void PID::SetInput(volatile double i) volatile
+{ 
+    uint8_t sreg = intDisable();
+    *myInput = i;
+    intRestore(sreg);
+}
+
+volatile double PID::GetInput() volatile
+{
+    uint8_t sreg = intDisable();
+    volatile double i = *myInput;
+    intRestore(sreg);
+    return i;
+}
+
+/* *myOutput Setter & Getter */
+void PID::SetOutput(double o) volatile
+{ 
+    uint8_t sreg = intDisable();
+    *myOutput = o;
+    intRestore(sreg);
+}
+
+volatile double PID::GetOutput() volatile
+{
+    uint8_t sreg = intDisable();
+    volatile double o = *myOutput;
+    intRestore(sreg);
+    return o;
+}
+
+/* *mySetpoint Setter & Getter */
+void PID::SetSetpoint(double s) volatile
+{ 
+    uint8_t sreg = intDisable();
+    *mySetpoint = s;
+    intRestore(sreg);
+}
+
+volatile double PID::GetSetpoint() volatile
+{
+    uint8_t sreg = intDisable();
+    volatile double s = *mySetpoint;
+    intRestore(sreg);
+    return s;
+}

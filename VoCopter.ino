@@ -28,7 +28,7 @@ THE SOFTWARE.
 ===============================================
 */
 #ifdef CORE_TEENSY
-#include <LowPower_Teensy3.h>
+    #include <LowPower_Teensy3.h>
 #endif
 
 #include <TimerOne.h>
