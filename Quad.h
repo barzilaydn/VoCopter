@@ -36,12 +36,16 @@ THE SOFTWARE.
     #include "Arduino.h"
 #endif
 
+#include <EEPROM.h>
+#define ACTIVE 200 //Random value, just to mark that settings are already written.
+
 #include <PID_v1.h>
 #include <PID_AutoTune_v0.h>
 #undef USE_SIMULATION
 
 #include "I2Cdev.h"
 #include "MPU6050.h"
+#include "HMC5883L.h"
 
 #include <i2c_t3.h>
 //#include <Wire.h>
@@ -70,13 +74,21 @@ THE SOFTWARE.
 #define YAW   2
 /*---------*/
 
+#define EAST 1
+#define WEST -1
+
+#define MAG_DECLINATION     EAST
+#define MAG_DECLINATION_DEG 4
+
 class Quad {
     public:
         Quad(const double, const double, const int, const int, const int, const int);
         void Setup(int*);
         bool TunePID(int);
         bool Fly();
-        
+        void Stop();
+        bool Calibrate();
+
         //Getters / Setters
         int* GetThrust();
         
@@ -95,6 +107,10 @@ class Quad {
         double GetYawI();
         double GetYawO();   
         
+        int GetTemp();
+        
+        float GetHeading();
+        
         //MPU6050 Interrupt flag
         static volatile bool mpuInterrupt;
 
@@ -102,7 +118,9 @@ class Quad {
         void StartDMP();
         void StopDMP();
         void OrientationUpdate();
-        
+        void restoreOffSets();
+        void meanSensors();
+
         void CancelTune();
         void changeAutoTune(int);
         void AutoTuneHelper(int, bool);
@@ -110,7 +128,7 @@ class Quad {
         PID_ATune* ChooseTuner(int);
         
         void SetMotors();
-        
+                
         //Motors
         int *motors;
         int *thrust;
@@ -143,6 +161,23 @@ class Quad {
         
         //Sensors
         MPU6050 mpu;
+        HMC5883L mag;
+        
+        //Calibrating variables
+        bool finishedCal;
+        unsigned long lastTime;
+        int calState;
+        const int buffersize;    //Amount of readings used to average, make it higher to get more precision but sketch will be slower  (default:1000)
+        const int acel_deadzone; //Acelerometer error allowed, make it lower to get more precision, but sketch may not converge  (default:8)
+        const int gyro_deadzone; //gyro error allowed, make it lower to get more precision, but sketch may not converge  (default:1)
+        int16_t ax, ay, az, gx, gy, gz;
+        int mean_ax, mean_ay, mean_az, mean_gx, mean_gy, mean_gz;
+        int ax_offset, ay_offset, az_offset, gx_offset, gy_offset, gz_offset;
+        
+        //Mag vars
+        int16_t mx, my, mz;
+        float heading;
+        float init_heading;
         
         // MPU control/status vars
         const int intPin;
@@ -152,7 +187,8 @@ class Quad {
         uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
         uint16_t fifoCount;     // count of all bytes currently in FIFO
         uint8_t fifoBuffer[64]; // FIFO storage buffer
-
+        uint16_t temperature;
+        
         // orientation/motion vars
         Quaternion q;           // [w, x, y, z]         quaternion container
         VectorInt16 aa;         // [x, y, z]            accel sensor measurements

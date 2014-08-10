@@ -33,6 +33,8 @@ THE SOFTWARE.
     #include "Arduino.h"
 #endif
 
+#include <EEPROM.h>
+
 //#ifdef CORE_TEENSY
 //    #include <LowPower_Teensy3.h>
 //#else
@@ -43,6 +45,7 @@ THE SOFTWARE.
 
 #include "I2Cdev.h"
 #include "MPU6050.h"
+#include "HMC5883L.h"
 #include <i2c_t3.h>
 //#include <Wire.h>
 
@@ -56,7 +59,9 @@ THE SOFTWARE.
 #define SLEEP     0
 #define FLY       1
 #define CALIBRATE 2
-#define MOVE      3
+#define TUNE      3
+#define MOVE      4
+#define IDLE      5
 /*---------*/
 
 
@@ -87,30 +92,47 @@ void loop(void)
     switch(STATE)
     {
         case FLY:
+            //TODO: update PID to run as fast as possible? or at least have it with correct time samples..
             VoCopter.Fly();
             break;
             
-        case CALIBRATE:
+        case TUNE:
             if(VoCopter.TunePID(PARAMS[0]))
+            {
                 //TODO: Output that we finished tuning..
-                STATE = FLY;
+                STATE = IDLE;
+            }
             break;
-            
+        
+        case CALIBRATE:
+            if(VoCopter.Calibrate())
+            {
+                //TODO: Output that we finished tuning..
+                STATE = IDLE;
+            }
+            break;
+        
         case MOVE:
             VoCopter.SetBaseThrust(PARAMS[0]);
             VoCopter.SetPitchS(PARAMS[1]);
             VoCopter.SetPitchS(PARAMS[2]);
             VoCopter.SetPitchS(PARAMS[3]);
+            STATE = IDLE;
             break;
             
-        default:
         case SLEEP:
             //Land, if finished -> sleep..
             VoCopter.SetBaseThrust(0);
+            //TODO: make Sleep blocking
             if(VoCopter.GetBaseThrust() != 0)            
-                VoCopter.Fly();            
+                VoCopter.Stop();
             else
                 Sleep();
+            break;
+            
+        default:
+        case IDLE:
+            VoCopter.Stop();
             break;
     }
 }
