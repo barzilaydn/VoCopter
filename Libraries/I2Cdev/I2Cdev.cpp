@@ -61,18 +61,16 @@ THE SOFTWARE.
             #warning - Repeated starts conditions
             #warning - Timeout detection (some Wire requests block forever)
         #elif ARDUINO > 100
-		/*
             #warning Using current Arduino IDE with Wire library is functionally limiting.
             #warning Arduino IDE v1.0.1+ with I2CDEV_BUILTIN_FASTWIRE implementation is recommended.
             #warning This I2Cdev implementation does not support:
             #warning - Timeout detection (some Wire requests block forever)
-		*/
         #endif
     #endif
 
 #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
 
-    #error The I2CDEV_BUILTIN_FASTWIRE implementation is known to be broken right now. Patience, Iago!
+    //#error The I2CDEV_BUILTIN_FASTWIRE implementation is known to be broken right now. Patience, Iago!
 
 #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_NBWIRE
 
@@ -268,7 +266,7 @@ int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8
         
                 Wire.endTransmission();
             }
-        #elif (ARDUINO > 100) || defined CORE_TEENSY
+        #elif (ARDUINO > 100)
             // Arduino v1.0.1+, Wire library
             // Adds official support for repeated start condition, yay!
 
@@ -406,7 +404,7 @@ int8_t I2Cdev::readWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint1
         
                 Wire.endTransmission();
             }
-        #elif (ARDUINO > 100) || defined CORE_TEENSY
+        #elif (ARDUINO > 100)
             // Arduino v1.0.1+, Wire library
             // Adds official support for repeated start condition, yay!
 

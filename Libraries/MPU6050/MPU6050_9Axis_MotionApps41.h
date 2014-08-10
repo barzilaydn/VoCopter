@@ -849,4 +849,4 @@ uint16_t MPU6050::dmpGetFIFOPacketSize() {
     return dmpPacketSize;
 }
 
-#endif /* _MPU6050_9AXIS_MOTIONAPPS41_H_ */
+#endif // _MPU6050_9AXIS_MOTIONAPPS41_H_

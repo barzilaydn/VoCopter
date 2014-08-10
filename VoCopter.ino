@@ -27,65 +27,123 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ===============================================
 */
-#ifdef CORE_TEENSY
-    #include <LowPower_Teensy3.h>
+#if ARDUINO < 100
+    #include "WProgram.h"
+#else
+    #include "Arduino.h"
 #endif
 
-#include <TimerOne.h>
-#include <PID_v2.h>
-#include <PIDMaster.h>
+//#ifdef CORE_TEENSY
+//    #include <LowPower_Teensy3.h>
+//#else
+//    #include <LowPower.h>
+//#endif
 
-//PID variables
-volatile double Pitch_S, Pitch_I, Pitch_O;
-volatile double Roll_S, Roll_I, Roll_O;
-volatile double Yaw_S, Yaw_I, Yaw_O;
+#include "Quad.h"
 
-//PID for each rotation type.
-PID PitchPID(&Pitch_I, &Pitch_O, &Pitch_S, 0.0, 0.0, 0.0, false, 10);
-PID RollPID (&Roll_I , &Roll_O , &Roll_S , 0.0, 0.0, 0.0, false, 10);
-PID YawPID  (&Yaw_I  , &Yaw_O  , &Yaw_S  , 0.0, 0.0, 0.0, false, 10);
-PIDMaster masterPID (&PitchPID, &RollPID, &YawPID);
+#include "I2Cdev.h"
+#include "MPU6050.h"
+#include <i2c_t3.h>
+//#include <Wire.h>
 
-void setup(void) {
-    PitchPID.SetOutputLimits(0,100);
-    RollPID.SetOutputLimits(0,100);
-    YawPID.SetOutputLimits(0,100);
-    masterPID.Start();
+#include <PID_v1.h>
+#include <PID_AutoTune_v0.h>
+#undef USE_SIMULATION
+
+/**
+* States
+*/
+#define SLEEP     0
+#define FLY       1
+#define CALIBRATE 2
+#define MOVE      3
+/*---------*/
+
+
+Quad VoCopter(20, 0.5, 1, 10, X_CONF, 20); // (OutputStep, Noise, LookBackSec, SampleTime(ms), Configuration, MPU6050 Interrupt Pin)
+int STATE = SLEEP;
+int PARAMS[10];
+
+void setup(void)
+{
+    Serial3.begin(115200);
+    
+    int motorPins[] = { 5, 6, 9, 10 }; // {FrontLeft, FrontRight, BackRight, BackLeft}
+    VoCopter.Setup(motorPins); //(Motors)
 }
 
-void loop(void) {
-    //TODO: implement a state-machine.
+void loop(void)
+{
+    //TODO: implement landing via altitude sensor.    
+    
     //TODO: remember using the low power library.
     //TODO: implement idle state wake-up on RX receive via pin (!! pin 11 !!). see DeepSleep_Simple.ino example.
+    
+    //Here we should receive user data.
+    //
+    //--
+    
+    // The main state machine
+    switch(STATE)
+    {
+        case FLY:
+            VoCopter.Fly();
+            break;
+            
+        case CALIBRATE:
+            if(VoCopter.TunePID(PARAMS[0]))
+                //TODO: Output that we finished tuning..
+                STATE = FLY;
+            break;
+            
+        case MOVE:
+            VoCopter.SetBaseThrust(PARAMS[0]);
+            VoCopter.SetPitchS(PARAMS[1]);
+            VoCopter.SetPitchS(PARAMS[2]);
+            VoCopter.SetPitchS(PARAMS[3]);
+            break;
+            
+        default:
+        case SLEEP:
+            //Land, if finished -> sleep..
+            VoCopter.SetBaseThrust(0);
+            if(VoCopter.GetBaseThrust() != 0)            
+                VoCopter.Fly();            
+            else
+                Sleep();
+            break;
+    }
 }
+
+void Sleep()
+{
+    //TODO: implement..
+}
+
 
 /**
 * Read the battery level from an analog pin
-* @param pin The number of the analog pin to read from.
+* @param pin : The number of the analog pin to read from.
 * @return Returns the battery level measured on the pin.
 */
 int BatLevel(int pin) {
-    return mVtoL(1195 * 4096 /analogRead(pin));
+    return mVtoL(1195 * 4096 / analogRead(pin));
 }
 
 /**
 * Convert millivolts to battery level in %. (Calibrated for LiPo 3.7v 300mah)
-* @param mV The voltage in millivolts.
+* @param mV : The voltage in millivolts.
 * @return Returns battery level in %.
 */
 int mVtoL(int mV) {
     double l = -191.04 * pow(1000 * mV, 3) + 2132.6 * pow(1000 * mV, 2) - 7778.9 * 1000 * mV + 9309;
     if (l > 100)
-    l = 100;
+        l = 100;
     else if (l < 0)
-    l = 0;
+        l = 0;
     return (int)l;
 }
 
 /**
 * Setup for the Low Voltage Warning interrupt. Available for Teensy only.
 */
-
-
-
-

@@ -70,23 +70,23 @@ THE SOFTWARE.
 // -----------------------------------------------------------------------------
 //#define I2CDEV_SERIAL_DEBUG
 
-#if defined ARDUINO || defined CORE_TEENSY
+#if defined ARDUINO
     #if ARDUINO < 100
         #include "WProgram.h"
     #else
         #include "Arduino.h"
     #endif
     #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
-        #ifdef CORE_TEENSY
+        #ifdef CORE_TEENSY && __arm__
     		#include <i2c_t3.h>
-			#define BUFFER_LENGTH 259
+            #define BUFFER_LENGTH 259
     	#else
 	        #include <Wire.h>
-	#endif
+        #endif
     #else
-    #if I2CDEV_IMPLEMENTATION == I2CDEV_I2CMASTER_LIBRARY
-        #include <I2C.h>
-    #endif
+        #if I2CDEV_IMPLEMENTATION == I2CDEV_I2CMASTER_LIBRARY
+            #include <I2C.h>
+        #endif
     #endif
 #else
     #include "ArduinoWrapper.h"
@@ -274,4 +274,4 @@ class I2Cdev {
 
 #endif // I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_NBWIRE
 
-#endif /* _I2CDEV_H_ */
+#endif // _I2CDEV_H_
