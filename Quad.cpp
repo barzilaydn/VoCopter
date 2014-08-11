@@ -64,6 +64,16 @@ void Quad::Setup(int *Motors)
     }
     motors = Motors;
     
+    analogWrite(motors[0], 64);
+    analogWrite(motors[1], 64);
+    analogWrite(motors[2], 64);
+    analogWrite(motors[3], 64);
+    delay(1000);    //Start motors for a sec to show activity.
+    analogWrite(motors[0], 0);
+    analogWrite(motors[1], 0);
+    analogWrite(motors[2], 0);
+    analogWrite(motors[3], 0);
+    
     baseThrust = 0;
     baseThrust_S = 0;
     
@@ -176,7 +186,11 @@ bool Quad::Fly()
 void Quad::Stop()
 {
     if(tuning) Quad::CancelTune();
-    if(!dmpReady) Quad::StopDMP();
+    if(!dmpReady) Quad::StartDMP();
+    
+    //Update Inputs.
+    Quad::OrientationUpdate();
+    
     Quad::SetBaseThrust(0);
     Quad::SetPitchS(0);
     Quad::SetRollS(0);

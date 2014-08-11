@@ -230,7 +230,7 @@ int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8
                 Wire.send(regAddr);
                 Wire.endTransmission();
                 Wire.beginTransmission(devAddr);
-                Wire.requestFrom(devAddr, (uint8_t)min(length - k, BUFFER_LENGTH));
+                Wire.requestFrom(devAddr, (size_t)min(length - k, BUFFER_LENGTH));
 
                 for (; Wire.available() && (timeout == 0 || millis() - t1 < timeout); count++) {
                     data[count] = Wire.receive();
@@ -254,7 +254,7 @@ int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8
                 Wire.write(regAddr);
                 Wire.endTransmission();
                 Wire.beginTransmission(devAddr);
-                Wire.requestFrom(devAddr, (uint8_t)min(length - k, BUFFER_LENGTH));
+                Wire.requestFrom(devAddr, (size_t)min(length - k, BUFFER_LENGTH));
         
                 for (; Wire.available() && (timeout == 0 || millis() - t1 < timeout); count++) {
                     data[count] = Wire.read();
@@ -278,7 +278,7 @@ int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8
                 Wire.write(regAddr);
                 Wire.endTransmission();
                 Wire.beginTransmission(devAddr);
-                Wire.requestFrom(devAddr, (uint8_t)min(length - k, BUFFER_LENGTH));
+                Wire.requestFrom(devAddr, (size_t)min(length - k, BUFFER_LENGTH));
         
                 for (; Wire.available() && (timeout == 0 || millis() - t1 < timeout); count++) {
                     data[count] = Wire.read();
@@ -350,7 +350,7 @@ int8_t I2Cdev::readWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint1
                 Wire.send(regAddr);
                 Wire.endTransmission();
                 Wire.beginTransmission(devAddr);
-                Wire.requestFrom(devAddr, (uint8_t)(length * 2)); // length=words, this wants bytes
+                Wire.requestFrom(devAddr, (size_t)(length * 2)); // length=words, this wants bytes
     
                 bool msb = true; // starts with MSB, then LSB
                 for (; Wire.available() && count < length && (timeout == 0 || millis() - t1 < timeout);) {
@@ -383,7 +383,7 @@ int8_t I2Cdev::readWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint1
                 Wire.write(regAddr);
                 Wire.endTransmission();
                 Wire.beginTransmission(devAddr);
-                Wire.requestFrom(devAddr, (uint8_t)(length * 2)); // length=words, this wants bytes
+                Wire.requestFrom(devAddr, (size_t)(length * 2)); // length=words, this wants bytes
     
                 bool msb = true; // starts with MSB, then LSB
                 for (; Wire.available() && count < length && (timeout == 0 || millis() - t1 < timeout);) {
@@ -416,7 +416,7 @@ int8_t I2Cdev::readWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint1
                 Wire.write(regAddr);
                 Wire.endTransmission();
                 Wire.beginTransmission(devAddr);
-                Wire.requestFrom(devAddr, (uint8_t)(length * 2)); // length=words, this wants bytes
+                Wire.requestFrom(devAddr, (size_t)(length * 2)); // length=words, this wants bytes
         
                 bool msb = true; // starts with MSB, then LSB
                 for (; Wire.available() && count < length && (timeout == 0 || millis() - t1 < timeout);) {
@@ -444,7 +444,7 @@ int8_t I2Cdev::readWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint1
         // Fastwire library
         // no loop required for fastwire
         uint16_t intermediate[(uint8_t)length];
-        uint8_t status = Fastwire::readBuf(devAddr << 1, regAddr, (uint8_t *)intermediate, (uint8_t)(length * 2));
+        uint8_t status = Fastwire::readBuf(devAddr << 1, regAddr, (uint8_t *)intermediate, (size_t)(length * 2));
         if (status == 0) {
             count = length; // success
             for (uint8_t i = 0; i < length; i++) {
