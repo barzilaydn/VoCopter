@@ -42,29 +42,10 @@ THE SOFTWARE.
 
 /*-----------------
     Defines
-  -----------------*/
-  
+  -----------------*/  
 #define PITCH 0
 #define ROLL  1
 #define YAW   2
-
-#define X_CONF    0
-#define PLUS_CONF 1
-/*-----------------
-    Debug
-  -----------------*/
-//#define QDEBUG
-#ifdef QDEBUG
-    #define QDEBUG_PRINT(x) Serial3.print(x)
-    #define QDEBUG_PRINTF(x, y) Serial3.print(x, y)
-    #define QDEBUG_PRINTLN(x) Serial3.println(x)
-    #define QDEBUG_PRINTLNF(x, y) Serial3.println(x, y)
-#else
-    #define QDEBUG_PRINT(x)
-    #define QDEBUG_PRINTF(x, y)
-    #define QDEBUG_PRINTLN(x)
-    #define QDEBUG_PRINTLNF(x, y)
-#endif 
 
 /*-----------------
     Includes
@@ -74,6 +55,8 @@ THE SOFTWARE.
 #else
     #include "Arduino.h"
 #endif
+
+#include "Qconfig.h"
 
 #include <PID_v1.h>
 #include <PID_AutoTune_v0.h>
@@ -123,13 +106,12 @@ THE SOFTWARE.
 #include "FreeIMU.h"
 
 #define HAS_GPS 0
-  
 /*-----------------
     Main Class Header
   -----------------*/
 class Quad {
     public:
-        Quad(const double, const double, const int, const int, const int);
+        Quad(const double, const double, const int, const int);
         void SetupMotors(int*);
         void Init(bool);
         bool TunePID(int);
@@ -160,7 +142,7 @@ class Quad {
         float GetHeading();
         float GetAltitude();
 
-    private:
+    private:     
         void UpdateIMU();
         void restoreOffSets();
 
@@ -177,7 +159,6 @@ class Quad {
         int *thrust;
         int baseThrust;
         int baseThrust_S;
-        const int CONFIG;
         
         //Tuner parameters
         byte ATuneModeRemember;

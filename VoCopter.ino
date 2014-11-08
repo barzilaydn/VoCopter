@@ -6,6 +6,7 @@
 //     2014-07-20 - initial release
 //
 // TODO:
+//     * Setup for the Low Voltage Warning interrupt. Available for Teensy only.
 //    -* Quad: Make calibration real and better (check with FreeIMU software).
 //     * Quad: Make more tests, check param if it's ok.
 //     * Verify params are good for states
@@ -48,12 +49,15 @@ THE SOFTWARE.
     #include "Arduino.h"
 #endif
 
+#include "Qconfig.h"
+
 /*---LowPower---*/
-//#ifdef CORE_TEENSY
-//    #include <LowPower_Teensy3.h>
-//#else
-//    #include <LowPower.h>
-//#endif
+#ifdef CORE_TEENSY
+    #include <LowPower_Teensy3.h>
+    TEENSY3_LP LP = TEENSY3_LP();
+#else
+    //#include <LowPower.h>
+#endif
 /*------*/
 
 #include <PID_v1.h>
@@ -72,6 +76,7 @@ THE SOFTWARE.
  * FreeIMU library serial communication protocol
 */
 
+#include <EEPROM.h>
 #include <ADXL345.h>
 #include <HMC58X3.h>
 #include <LSM303.h>
@@ -90,10 +95,6 @@ THE SOFTWARE.
 #include <Wire.h>
 //#include <i2c_t3.h> //For Teensy 3.0 and 3.1
 #include <SPI.h>
-
-#if defined(__AVR__)
-	#include <EEPROM.h>
-#endif
 
 //#define DEBUG
 #include "DebugUtils.h"
@@ -118,14 +119,61 @@ THE SOFTWARE.
 /*---------------------------------------------------------------------
     Main Code
   ---------------------------------------------------------------------*/
-Quad VoCopter(20, 0.5, 1, 10, X_CONF); // Quad(OutputStep, Noise, LookBackSec, SampleTime(ms), Configuration)
+Quad VoCopter(OUTPUT_STEP, NOISE, LOOK_BACK_SEC, SAMPLE_TIME); // Quad(OutputStep, Noise, LookBackSec, SampleTime(ms), Configuration)
 int STATE = SLEEP;
 int PARAMS[10];
 bool STATE_FLAG = false;
 
+void wakeUp()
+{
+    // On wake up
+    VoCopter.Init(true); //Restart systems.
+    STATE = FLY;
+}
+
+void Sleep()
+{
+    #ifdef CORE_TEENSY
+        // Set DeepSleep on RX pin so that unit will wake up on SERIAL receive.
+        pinMode(RX_PIN, INPUT_PULLUP);
+        LP.DeepSleep(GPIO_WAKE, PIN_RX_PIN); // Go to sleep... ZzZz
+        //-- BLOCKING sleep --//
+        wakeUp();
+    #else
+        attachInterrupt(RX_PIN, wakeUp, LOW);
+        LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF); 
+        //-- BLOCKING sleep --//
+        detachInterrupt(0);
+    #endif
+}
+
+/**
+* Convert millivolts to battery level in %. (Calibrated for LiPo 3.7v 300mah)
+* @param mV : The voltage in millivolts.
+* @return Returns battery level in %.
+*/
+int mVtoL(int mV) {
+    double l = -191.04 * pow(1000 * mV, 3) + 2132.6 * pow(1000 * mV, 2) - 7778.9 * 1000 * mV + 9309;
+    if (l > 100)
+        l = 100;
+    else if (l < 0)
+        l = 0;
+    return (int)l;
+}
+
+/**
+* Read the battery level from an analog pin
+* @param pin : The number of the analog pin to read from.
+* @return Returns the battery level measured on the pin.
+*/
+int level = 0;
+void UpdateBatLevel(int pin) {
+    level = level*.6 + (mVtoL(1195 * 4096 / analogRead(pin)))*.4;
+}
+
 void setup(void)
 {
-    Serial3.begin(115200);
+    SERIAL_BEGIN(115200);
     
     int motorPins[] = { 5, 6, 9, 10 }; // {FrontLeft, FrontRight, BackRight, BackLeft}
     VoCopter.SetupMotors(motorPins); //(Motors)
@@ -180,9 +228,8 @@ void loop(void)
             
         case SLEEP:
             //Land, if finished -> sleep..
-            //TODO: make Sleep blocking
             if(VoCopter.Stop())            
-                STATE = FLY;            
+                Sleep();
             break;
         
         case TEST:
@@ -196,41 +243,3 @@ void loop(void)
             break;            
     }
 }
-
-void Sleep()
-{
-    //TODO: implement..
-    
-    //When waking-up:
-    VoCopter.Init(true);
-    STATE = FLY;
-}
-
-
-/**
-* Read the battery level from an analog pin
-* @param pin : The number of the analog pin to read from.
-* @return Returns the battery level measured on the pin.
-*/
-int level = 0;
-void UpdateBatLevel(int pin) {
-    level = level*.6 + (mVtoL(1195 * 4096 / analogRead(pin)))*.4;
-}
-
-/**
-* Convert millivolts to battery level in %. (Calibrated for LiPo 3.7v 300mah)
-* @param mV : The voltage in millivolts.
-* @return Returns battery level in %.
-*/
-int mVtoL(int mV) {
-    double l = -191.04 * pow(1000 * mV, 3) + 2132.6 * pow(1000 * mV, 2) - 7778.9 * 1000 * mV + 9309;
-    if (l > 100)
-        l = 100;
-    else if (l < 0)
-        l = 0;
-    return (int)l;
-}
-
-/**
-* Setup for the Low Voltage Warning interrupt. Available for Teensy only.
-*/

@@ -46,7 +46,7 @@ THE SOFTWARE.
 #include "Quad.h"
 
 //Constructor
-Quad::Quad(const double aStep, const double aNoise, const int aLookBack, const int ST, const int conf) :
+Quad::Quad(const double aStep, const double aNoise, const int aLookBack, const int ST) :
                 PitchPID(&Pitch_I, &Pitch_O, &Pitch_S, 1.0, 0.0, 0.0, DIRECT),
                 PitchTune(&Pitch_I, &Pitch_O),
                 RollPID(&Roll_I, &Roll_O, &Roll_S, 1.0, 0.0, 0.0, DIRECT),
@@ -56,8 +56,7 @@ Quad::Quad(const double aStep, const double aNoise, const int aLookBack, const i
                 aTuneStep(aStep),
                 aTuneNoise(aNoise),
                 aTuneLookBack(aLookBack),
-                sampleTime(ST),
-                CONFIG(conf)
+                sampleTime(ST)
 {}
 
 // Maps motors to pins
@@ -140,20 +139,17 @@ void Quad::SetMotors(bool forceThrust)
     baseThrust += forceThrust ? baseThrust_S - baseThrust : (baseThrust_S - baseThrust > 0) - (baseThrust_S - baseThrust < 0);
 
     //Calculate value for each motor.
-    if(CONFIG == X_CONF)
-    {
+    #ifdef X_CONFIG
         thrust[0] = (baseThrust != 0) ? constrain(baseThrust - Pitch_O + Roll_O + Yaw_O, 0, 255) : 0;
         thrust[1] = (baseThrust != 0) ? constrain(baseThrust - Pitch_O - Roll_O - Yaw_O, 0, 255) : 0;
         thrust[2] = (baseThrust != 0) ? constrain(baseThrust + Pitch_O - Roll_O + Yaw_O, 0, 255) : 0;
         thrust[3] = (baseThrust != 0) ? constrain(baseThrust + Pitch_O + Roll_O - Yaw_O, 0, 255) : 0;
-    }
-    else //+_CONF
-    {
+    #else
         thrust[0] = (baseThrust != 0) ? constrain(baseThrust + Pitch_O + Yaw_O, 0, 255) : 0;
         thrust[1] = (baseThrust != 0) ? constrain(baseThrust - Roll_O  - Yaw_O, 0, 255) : 0;
         thrust[2] = (baseThrust != 0) ? constrain(baseThrust - Pitch_O + Yaw_O, 0, 255) : 0;
         thrust[3] = (baseThrust != 0) ? constrain(baseThrust + Roll_O  - Yaw_O, 0, 255) : 0;
-    }
+    #endif
     
     //Assign to motors.
     analogWrite(motors[0], thrust[0]);
@@ -346,24 +342,24 @@ bool Quad::Calibrate()
     if(tuning) Quad::CancelTune();
     
     const uint8_t eepromsize = sizeof(float) * 6 + sizeof(int) * 6;
-    while(Serial3.available() < eepromsize)  // Send raw data until calibration data is received.
+    while(SERIAL_AVAILABLE() < eepromsize)  // Send raw data until calibration data is received.
     {
         my3IMU.getValues(val);
         for(int i=0; i<9; i++) {
-            Serial3.print(val[i], 4);
-            Serial3.print('\t');
+            SERIAL_PRINT(val[i], 4);
+            SERIAL_PRINT('\t');
         }
         #if HAS_PRESS()
         // with baro - pressure temp
-        Serial3.print(my3IMU.getBaroTemperature()); Serial3.print(",");
-        Serial3.print('\t');
-        Serial3.print(my3IMU.getBaroPressure()); Serial3.print(",");
+        SERIAL_PRINT(my3IMU.getBaroTemperature()); SERIAL_PRINT(",");
+        SERIAL_PRINT('\t');
+        SERIAL_PRINT(my3IMU.getBaroPressure()); SERIAL_PRINT(",");
         #endif
-        Serial3.print('\n');
+        SERIAL_PRINT('\n');
     }
     EEPROM.write(FREEIMU_EEPROM_BASE, FREEIMU_EEPROM_SIGNATURE);
     for(uint8_t i = 1; i<(eepromsize + 1); i++) {
-        EEPROM.write(FREEIMU_EEPROM_BASE + i, (char) Serial3.read());
+        EEPROM.write(FREEIMU_EEPROM_BASE + i, (char) SERIAL_READ());
     }
     my3IMU.calLoad(); // reload calibration
     // toggle LED after calibration store.

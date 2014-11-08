@@ -241,8 +241,7 @@ MovingAvarageFilter motion_detect_ma(7);
 uint8_t num_gyros = 1;
 uint8_t INS_MAX_INSTANCES = 2;
 
-FreeIMU::FreeIMU() {
-
+FreeIMU::FreeIMU() {    
   //pinMode(12,OUTPUT);
   
   #if HAS_ADXL345()
