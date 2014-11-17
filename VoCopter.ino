@@ -7,10 +7,10 @@
 //
 // TODO:
 //     * Setup for the Low Voltage Warning interrupt. Available for Teensy only.
+//     * Quad: Make more tests in Test function.
+//     * Quad: Verify that Test function input is valid.
 //    -* Quad: Make calibration real and better (check with FreeIMU software).
-//     * Quad: Make more tests, check param if it's ok.
 //     * Verify params are good for states
-//     * Make SLEEP state.
 //     * Add SETTINGS state where user can change definitions (i.e motor pins).
 //     * Think about making all Serial communication outside of the state machine (before it).
 //    ~* Change WIRE to i2c_t3
@@ -124,59 +124,9 @@ int STATE = SLEEP;
 int PARAMS[10];
 bool STATE_FLAG = false;
 
-void wakeUp()
-{
-    // On wake up
-    VoCopter.Init(true); //Restart systems.
-    STATE = FLY;
-}
-
-void Sleep()
-{
-    #ifdef CORE_TEENSY
-        // Set DeepSleep on RX pin so that unit will wake up on SERIAL receive.
-        pinMode(RX_PIN, INPUT_PULLUP);
-        LP.DeepSleep(GPIO_WAKE, PIN_RX_PIN); // Go to sleep... ZzZz
-        //-- BLOCKING sleep --//
-        wakeUp();
-    #else
-        attachInterrupt(RX_PIN, wakeUp, LOW);
-        LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF); 
-        //-- BLOCKING sleep --//
-        detachInterrupt(0);
-    #endif
-}
-
-/**
-* Convert millivolts to battery level in %. (Calibrated for LiPo 3.7v 300mah)
-* @param mV : The voltage in millivolts.
-* @return Returns battery level in %.
-*/
-int mVtoL(int mV) {
-    double l = -191.04 * pow(1000 * mV, 3) + 2132.6 * pow(1000 * mV, 2) - 7778.9 * 1000 * mV + 9309;
-    if (l > 100)
-        l = 100;
-    else if (l < 0)
-        l = 0;
-    return (int)l;
-}
-
-/**
-* Read the battery level from an analog pin
-* @param pin : The number of the analog pin to read from.
-* @return Returns the battery level measured on the pin.
-*/
-int level = 0;
-void UpdateBatLevel(int pin) {
-    level = level*.6 + (mVtoL(1195 * 4096 / analogRead(pin)))*.4;
-}
-
 void setup(void)
 {
     SERIAL_BEGIN(115200);
-    
-    int motorPins[] = { 5, 6, 9, 10 }; // {FrontLeft, FrontRight, BackRight, BackLeft}
-    VoCopter.SetupMotors(motorPins); //(Motors)
     VoCopter.Init(false);
 }
 
@@ -242,4 +192,51 @@ void loop(void)
             VoCopter.Fly();
             break;            
     }
+}
+
+void wakeUp()
+{
+    // On wake up
+    VoCopter.Init(true); //Restart systems.
+    STATE = FLY;
+}
+
+void Sleep()
+{
+    #ifdef CORE_TEENSY
+        // Set DeepSleep on RX pin so that unit will wake up on SERIAL receive.
+        pinMode(RX_PIN, INPUT_PULLUP);
+        LP.DeepSleep(GPIO_WAKE, PIN_RX_PIN); // Go to sleep... ZzZz
+        //-- BLOCKING sleep --//
+        wakeUp();
+    #else
+        attachInterrupt(RX_PIN, wakeUp, LOW);
+        LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF); 
+        //-- BLOCKING sleep --//
+        detachInterrupt(0);
+    #endif
+}
+
+/**
+* Convert millivolts to battery level in %. (Calibrated for LiPo 3.7v 300mah)
+* @param mV : The voltage in millivolts.
+* @return Returns battery level in %.
+*/
+int mVtoL(int mV) {
+    double l = -191.04 * pow(1000 * mV, 3) + 2132.6 * pow(1000 * mV, 2) - 7778.9 * 1000 * mV + 9309;
+    if (l > 100)
+        l = 100;
+    else if (l < 0)
+        l = 0;
+    return (int)l;
+}
+
+/**
+* Read the battery level from an analog pin
+* @param pin : The number of the analog pin to read from.
+* @return Returns the battery level measured on the pin.
+*/
+RunningAverage BatLvl(10);
+void UpdateBatLevel(int pin) {
+    BatLvl.addValue(mVtoL(1195 * 4096 / analogRead(pin)));
 }

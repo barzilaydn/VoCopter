@@ -1,19 +1,38 @@
-//Serial port
-#define SERIAL_PORT Serial
+/*-----------------
+    Serial Port
+  -----------------*/
+
+#define SERIAL_PORT Serial3
 #define RX_PIN 11
 #define PIN_RX_PIN PIN_11
 
-//Quad configuration
-#define X_CONFIG
+/*-------------------------
+    Quad Configuration 
+  -------------------------*/
+
+  #define X_CONFIG
 //#define PLUS_CONFIG
 
-//PID controllers settings
+// Motor pins:
+#define FRONT_LEFT  5
+#define FRONT_RIGHT 6
+#define BACK_RIGHT  9
+#define BACK_LEFT   10
+
+/*------------------------------
+    PID controllers settings
+  ------------------------------*/
+
 #define OUTPUT_STEP 20
 #define NOISE 0.5
 #define LOOK_BACK_SEC 1
 #define SAMPLE_TIME 10
 
-//Enable debugging
+/*--------------
+    Debugging
+  --------------*/
+
+// Enable debugging:
 //#define QDEBUG
 
 /**********!!!!! DON'T EDIT BELOW THIS LINE !!!!!**********/

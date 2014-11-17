@@ -77,6 +77,11 @@ void Quad::SetupMotors(int *Motors)
 // Start systems.
 void Quad::Init(bool fromSleep) 
 {
+    if(fromSleep = false)
+    {
+        int motorPins[] = { FRONT_LEFT, FRONT_RIGHT, BACK_RIGHT, BACK_LEFT };
+        Quad::SetupMotors(motorPins);
+    }
     //--MOTORS--
     //Start motors for a sec to show activity.
     baseThrust = 60;
@@ -308,33 +313,33 @@ void Quad::UpdateIMU()
     //Get Orientation.
     my3IMU.getYawPitchRoll(ypr);
 
-    //Get temp.
-    temperature = my3IMU.getBaroTemperature();
-    QDEBUG_PRINT(F("DEBUG: Temperature is "));
-    QDEBUG_PRINT(temperature);
-    QDEBUG_PRINTLN(F("C degrees."));
+    #ifdef DEBUG
     
-    my3IMU.getQ(q, val);
+        //Get temp.
+        temperature = my3IMU.getBaroTemperature();
+        QDEBUG_PRINT(F("DEBUG: Temperature is "));
+        QDEBUG_PRINT(temperature);
+        QDEBUG_PRINTLN(F("C degrees."));
     
-    //Get altitude.
-    altitude = val[10];
-    QDEBUG_PRINT(F("DEBUG: Altitude is "));
-    QDEBUG_PRINT(altitude);
-    QDEBUG_PRINTLN(F("m."));    
+        my3IMU.getQ(q, val);
+        
+        //Get altitude.
+        altitude = val[10];
+        QDEBUG_PRINT(F("DEBUG: Altitude is "));
+        QDEBUG_PRINT(altitude);
+        QDEBUG_PRINTLN(F("m."));    
+        
+        //Get heading.
+        heading = val[9];
+        QDEBUG_PRINT(F("DEBUG: Heading is "));
+        QDEBUG_PRINT(heading);
+        QDEBUG_PRINTLN(F(" degrees."));
+        
+    #endif
     
-    //Get heading.
-    heading = val[9];
-    QDEBUG_PRINT(F("DEBUG: Heading is "));
-    QDEBUG_PRINT(heading);
-    QDEBUG_PRINTLN(F(" degrees."));
-    
-    //If motion detected, update values.
-    if(val[11] == 1.0f)
-    {
-        Yaw_I   = ypr[0];
-        Pitch_I = ypr[1];
-        Roll_I  = ypr[2];
-    }
+    Yaw_I   = ypr[0];
+    Pitch_I = ypr[1];
+    Roll_I  = ypr[2];
 }
 
 bool Quad::Calibrate()
@@ -357,11 +362,15 @@ bool Quad::Calibrate()
         #endif
         SERIAL_PRINT('\n');
     }
+    
+    // Write the received calibration data to EEPROM.
     EEPROM.write(FREEIMU_EEPROM_BASE, FREEIMU_EEPROM_SIGNATURE);
     for(uint8_t i = 1; i<(eepromsize + 1); i++) {
         EEPROM.write(FREEIMU_EEPROM_BASE + i, (char) SERIAL_READ());
     }
+    
     my3IMU.calLoad(); // reload calibration
+    
     // toggle LED after calibration store.
     digitalWrite(13, HIGH);
     delay(1000);
