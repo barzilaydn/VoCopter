@@ -143,53 +143,65 @@ void setup(void)
 
 void loop(void)
 {
+    UpdateBatLevel(39);
     uptime = millis();
 
 /**
  * Send / Receive user data.
 */
-
-    ///  --- SEND ---  ///
-
-    UpdateBatLevel(39);
-    // FORMAT: ' VCSTAT ; UP_TIME ; YAW,PITCH,ROLL,HEADING,ALTITUDE ; BAT_LVL '
-    sprintf(sts_str, "VCSTAT;%u;%d,%d,%d,%d,%d;%d",
-                                                    (unsigned int)(uptime * 1000),
-                                                    (int)VoCopter.GetYawI(),
-                                                    (int)VoCopter.GetPitchI(),
-                                                    (int)VoCopter.GetRollI(),
-                                                    (int)VoCopter.GetHeading(),
-                                                    (int)VoCopter.GetAltitude(),
-                                                    BatLvl.getAverage());
-    SERIAL_PRINTLN(sts_str);
-    
     /// --- RECEIVE --- ///
     
-    for(int i = 0; SERIAL_AVAILABLE() > 0 && i < COMMAND_CNTRL_SIZE; i++)          
-        cntrl_str[i] = SERIAL_READ();
-    cntrl_str[i+1] = NULL; // Add null byte for end.
-        
-    // FORMAT: ' VCCTRL ; STATE ; PARAMS,PARAMS,PARAMS.. '
-    char* command = strtok(cntrl_str, ";");
-
-    if(command == "VCCTRL")
+    if(SERIAL_AVAILABLE() > 0)
     {
-        // Set the state.
-        command = strtok(NULL, ";");
-        int st = atoi(command);
-        if(st > SLEEP && st < SETTINGS)
-            STATE = st; 
-        
-        //Set the params.
-        for (int c = 0; command != NULL && c < MAX_CNTRL_PARAMS; c++)
+        int i = 0;
+        for(; SERIAL_AVAILABLE() > 0 && i < COMMAND_CNTRL_SIZE; i++)          
+            cntrl_str[i] = SERIAL_READ();
+        cntrl_str[i+1] = NULL; // Add null byte for end.
+            
+        // FORMAT: ' VCCTRL ; STATE ; PARAMS,PARAMS,PARAMS.. '
+        char* command = strtok(cntrl_str, ";");
+
+        if(command == "VCCTRL")
         {
-            PARAMS[c] = atoi(command);     
-            command = strtok(NULL, ";"); // Find the next param in command string.
-        }
+            // Set the state.
+            command = strtok(NULL, ";");
+            int st = atoi(command);
+            if(st > SLEEP && st < SETTINGS)
+                STATE = st; 
+            
+            //Set the params.
+            for (int c = 0; command != NULL && c < MAX_CNTRL_PARAMS; c++)
+            {
+                PARAMS[c] = atoi(command);     
+                command = strtok(NULL, ";"); // Find the next param in command string.
+            }
+            
+            zero_time = uptime;
+        }    
         
-        zero_time = uptime;
-    }    
+        
+        ///  --- SEND ---  ///
+
+        // FORMAT: ' VCSTAT ; UP_TIME ; STATE ; YAW,PITCH,ROLL,HEADING,ALTITUDE ; BAT_LVL '
+        sprintf(sts_str, "VCSTAT;%u;%d;%d,%d,%d,%d,%d;%d",
+                                                        (unsigned int)(uptime * 1000),
+                                                        STATE,
+                                                        (int)VoCopter.GetYawI(),
+                                                        (int)VoCopter.GetPitchI(),
+                                                        (int)VoCopter.GetRollI(),
+                                                        (int)VoCopter.GetHeading(),
+                                                        (int)VoCopter.GetAltitude(),
+                                                        BatLvl.getAverage());
+        SERIAL_PRINTLN(sts_str);
+    }
     
+    // Go to sleep if too low battery.
+    if(BatLvl.getAverage() < SLEEP_BAT)
+    {
+        STATE = SLEEP;
+        SERIAL_PRINTLN("VCALRT;LB");
+    }
+
 /**
  * The main state machine.
 */
@@ -231,7 +243,7 @@ void loop(void)
         case SLEEP:
             //Land, if finished -> sleep..
             if(VoCopter.Stop())            
-                //TODO: send OK sleeping
+                SERIAL_PRINTLN("VCSLEP;OK"); // "OK SLEEPING"
                 Sleep();
             break;
         
@@ -256,6 +268,7 @@ void wakeUp()
     // On wake up
     VoCopter.Init(true); //Restart systems.
     STATE = FLY;
+    SERIAL_PRINTLN("VCSLEP;WAKEUP"); // "WAKEUP"
 }
 
 void Sleep()

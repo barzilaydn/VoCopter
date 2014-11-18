@@ -10,7 +10,9 @@
     Quad Configuration 
   -------------------------*/
 
-  #define X_CONFIG
+#define SLEEP_BAT 10 // Percent
+  
+#define X_CONFIG
 //#define PLUS_CONFIG
 
 // Motor pins:
@@ -19,10 +21,10 @@
 #define BACK_RIGHT  9
 #define BACK_LEFT   10
 
-#define GO_TO_SLEEP_TIME 30 //Seconds
+#define GO_TO_SLEEP_TIME 30 // Seconds
 
 #define MAX_CNTRL_PARAMS 10
-#define COMMAND_STAT_SIZE 83
+#define COMMAND_STAT_SIZE 84
 
 #define COMMAND_CNTRL_SIZE (11 * MAX_CNTRL_PARAMS + 7)
 
