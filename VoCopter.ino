@@ -6,12 +6,14 @@
 //     2014-07-20 - initial release
 //
 // TODO:
-//     * Setup for the Low Voltage Warning interrupt. Available for Teensy only.
+//    ~* Setup for the Low Voltage Warning interrupt. Available for Teensy only.
 //     * Quad: Make more tests in Test function.
 //     * Quad: Verify that Test function input is valid.
 //    -* Quad: Make calibration real and better (check with FreeIMU software).
 //     * Verify params are good for states
 //     * Add SETTINGS state where user can change definitions (i.e motor pins).
+//     * Implement landing via altitude sensor.  
+//     * Encrypt communication.  
 //     * Think about making all Serial communication outside of the state machine (before it).
 //    ~* Change WIRE to i2c_t3
 //
@@ -115,32 +117,82 @@ THE SOFTWARE.
 #define TUNE      3
 #define MOVE      4
 #define TEST      5
+#define SETTINGS  6
 
 /*---------------------------------------------------------------------
     Main Code
   ---------------------------------------------------------------------*/
 Quad VoCopter(OUTPUT_STEP, NOISE, LOOK_BACK_SEC, SAMPLE_TIME); // Quad(OutputStep, Noise, LookBackSec, SampleTime(ms), Configuration)
 int STATE = SLEEP;
-int PARAMS[10];
+int PARAMS[MAX_CNTRL_PARAMS];
 bool STATE_FLAG = false;
+unsigned long uptime;
+unsigned long zero_time;
+RunningAverage BatLvl(10);
+char sts_str[COMMAND_STAT_SIZE + 1];
+char cntrl_str[COMMAND_CNTRL_SIZE + 1];
 
 void setup(void)
 {
+    zero_time = millis();
+
     SERIAL_BEGIN(115200);
     VoCopter.Init(false);
 }
 
+
 void loop(void)
 {
-    //TODO: implement landing via altitude sensor.    
+    uptime = millis();
+
+/**
+ * Send / Receive user data.
+*/
+
+    ///  --- SEND ---  ///
+
+    UpdateBatLevel(39);
+    // FORMAT: ' VCSTAT ; UP_TIME ; YAW,PITCH,ROLL,HEADING,ALTITUDE ; BAT_LVL '
+    sprintf(sts_str, "VCSTAT;%u;%d,%d,%d,%d,%d;%d",
+                                                    (unsigned int)(uptime * 1000),
+                                                    (int)VoCopter.GetYawI(),
+                                                    (int)VoCopter.GetPitchI(),
+                                                    (int)VoCopter.GetRollI(),
+                                                    (int)VoCopter.GetHeading(),
+                                                    (int)VoCopter.GetAltitude(),
+                                                    BatLvl.getAverage());
+    SERIAL_PRINTLN(sts_str);
     
-    //TODO: implement idle state wake-up on RX receive via pin (!! pin 11 !!). see DeepSleep_Simple.ino example.
+    /// --- RECEIVE --- ///
     
-    //Here we should send/receive user data.
-    //
-    //--
+    for(int i = 0; SERIAL_AVAILABLE() > 0 && i < COMMAND_CNTRL_SIZE; i++)          
+        cntrl_str[i] = SERIAL_READ();
+    cntrl_str[i+1] = NULL; // Add null byte for end.
+        
+    // FORMAT: ' VCCTRL ; STATE ; PARAMS,PARAMS,PARAMS.. '
+    char* command = strtok(cntrl_str, ";");
+
+    if(command == "VCCTRL")
+    {
+        // Set the state.
+        command = strtok(NULL, ";");
+        int st = atoi(command);
+        if(st > SLEEP && st < SETTINGS)
+            STATE = st; 
+        
+        //Set the params.
+        for (int c = 0; command != NULL && c < MAX_CNTRL_PARAMS; c++)
+        {
+            PARAMS[c] = atoi(command);     
+            command = strtok(NULL, ";"); // Find the next param in command string.
+        }
+        
+        zero_time = uptime;
+    }    
     
-    // The main state machine
+/**
+ * The main state machine.
+*/
     switch(STATE)
     {
         case TUNE:
@@ -179,6 +231,7 @@ void loop(void)
         case SLEEP:
             //Land, if finished -> sleep..
             if(VoCopter.Stop())            
+                //TODO: send OK sleeping
                 Sleep();
             break;
         
@@ -187,11 +240,15 @@ void loop(void)
             break;
         
         default:
-        case FLY:
+        case FLY:          
             //TODO: update PID to run as fast as possible? or at least have it with correct time samples..
             VoCopter.Fly();
             break;            
     }
+    
+    // Go to sleep if no commands received for more than 30 Secs.
+    if(uptime - zero_time > 1000 * GO_TO_SLEEP_TIME)
+        STATE = SLEEP;    
 }
 
 void wakeUp()
@@ -236,7 +293,6 @@ int mVtoL(int mV) {
 * @param pin : The number of the analog pin to read from.
 * @return Returns the battery level measured on the pin.
 */
-RunningAverage BatLvl(10);
 void UpdateBatLevel(int pin) {
     BatLvl.addValue(mVtoL(1195 * 4096 / analogRead(pin)));
 }

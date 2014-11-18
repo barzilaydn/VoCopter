@@ -369,7 +369,9 @@ bool Quad::Calibrate()
         EEPROM.write(FREEIMU_EEPROM_BASE + i, (char) SERIAL_READ());
     }
     
-    my3IMU.calLoad(); // reload calibration
+    QDEBUG_PRINTLN(F("DEBUG: Restarting FreeIMU..."));
+    my3IMU.init(true);
+    my3IMU.setTempCalib(1);
     
     // toggle LED after calibration store.
     digitalWrite(13, HIGH);

@@ -19,6 +19,13 @@
 #define BACK_RIGHT  9
 #define BACK_LEFT   10
 
+#define GO_TO_SLEEP_TIME 30 //Seconds
+
+#define MAX_CNTRL_PARAMS 10
+#define COMMAND_STAT_SIZE 83
+
+#define COMMAND_CNTRL_SIZE (11 * MAX_CNTRL_PARAMS + 7)
+
 /*------------------------------
     PID controllers settings
   ------------------------------*/
@@ -42,12 +49,14 @@
 /*-----------------
     Serial
   -----------------*/
-#define SERIAL_PRINT      SERIAL_PORT.print
-#define SERIAL_PRINTLN    SERIAL_PORT.println
-#define SERIAL_AVAILABLE  SERIAL_PORT.available
-#define SERIAL_READ       SERIAL_PORT.read
-#define SERIAL_FLUSH      SERIAL_PORT.flush
-#define SERIAL_BEGIN      SERIAL_PORT.begin
+#define SERIAL_PRINT            SERIAL_PORT.print
+#define SERIAL_PRINTLN          SERIAL_PORT.println
+#define SERIAL_AVAILABLE        SERIAL_PORT.available
+#define SERIAL_READ             SERIAL_PORT.read
+#define SERIAL_READ_BYTES       SERIAL_PORT.readBytes
+#define SERIAL_READ_BYTES_UNTIL SERIAL_PORT.readStringUntil
+#define SERIAL_FLUSH            SERIAL_PORT.flush
+#define SERIAL_BEGIN            SERIAL_PORT.begin
 
 /*-----------------
     Debug

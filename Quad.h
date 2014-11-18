@@ -93,9 +93,7 @@ THE SOFTWARE.
 //#include <i2c_t3.h> //For Teensy 3.0 and 3.1
 #include <SPI.h>
 
-#if defined(__AVR__)
-	#include <EEPROM.h>
-#endif
+#include <EEPROM.h>
 
 //#define DEBUG
 #include "DebugUtils.h"
