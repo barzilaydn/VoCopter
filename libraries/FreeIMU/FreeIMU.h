@@ -57,11 +57,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#define MAG_DEC -13.1603  //degrees for Flushing, NY
 
 //Number of samples to average in iCompass
-#define WINDOW_SIZE 1 //Set to 1 to turn off the Running Average
+#define WINDOW_SIZE 5 //Set to 1 to turn off the Running Average
 
 // Set filter type: 1 = Madgwick Gradient Descent, 0 - Madgwick implementation of Mahoney DCM
 // in Quaternion form, 3 = Madwick Original Paper AHRS
-#define MARG 3
+#define MARG 1
 
 // proportional gain governs rate of convergence to accelerometer/magnetometer
 // integral gain governs rate of convergence of gyroscope biases
@@ -228,7 +228,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				   || defined(FREEIMU_v03) || defined(FREEIMU_v035) || defined(FREEIMU_v035_MS) || defined(FREEIMU_v035_BMP) \
 				   || defined(FREEIMU_v04) || defined(SEN_10736) || defined(SEN_10724) || defined(SEN_10183) \
 				   || defined(ARDUIMU_v3)  || defined(APM_2_5) || defined(Mario) )
-#define HAS_AXIS_ALIGNED() (defined(Altimu10) || defined(GY_88) || defined(GEN_MPU6050) \
+#define HAS_AXIS_ALIGNED() (defined(Altimu10) || defined(GEN_MPU6050) \
 							|| defined(DFROBOT) || defined(FREEIMU_v01) || defined(FREEIMU_v02) \
 							|| defined(FREEIMU_v03) || defined(FREEIMU_v035) || defined(FREEIMU_v035_MS) \
 							|| defined(FREEIMU_v035_BMP) || defined(FREEIMU_v04) || defined(SEN_10121) \
@@ -236,7 +236,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <Wire.h>
 #include "Arduino.h"
-#include "calibration.h"
+//#include "calibration.h"
 #include <MovingAvarageFilter.h>
 
 #ifndef CALIBRATION_H
@@ -515,6 +515,9 @@ class FreeIMU
 	#elif defined(APM_2_5)	
 		int sensor_order[9] = {1,0,2,3,4,5,7,6,8};
 		int sensor_sign[9] = {1,-1,1,1,1,1,-1,1,1};
+	#elif defined(GY_88)	
+		int sensor_order[9] = {1,0,2,3,4,5,7,6,8};
+		int sensor_sign[9] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
 	#endif 	
 
 	// --------------------------------------------------------------------

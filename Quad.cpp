@@ -56,32 +56,28 @@ Quad::Quad(const double aStep, const double aNoise, const int aLookBack, const i
                 aTuneStep(aStep),
                 aTuneNoise(aNoise),
                 aTuneLookBack(aLookBack),
-                sampleTime(ST)
+                sampleTime(ST),
+                motors({ FRONT_LEFT, FRONT_RIGHT, BACK_RIGHT, BACK_LEFT }),
+                thrust({ 0 })
 {}
 
 // Maps motors to pins
-void Quad::SetupMotors(int *Motors)
-{
-    motors = new int[4];
-    thrust = new int[4];
-    
+void Quad::SetupMotors()
+{    
     QDEBUG_PRINTLN(F("DEBUG: Mapping motors to pins..."));
-    for(int i = 0; i < 4; i++)
-    {
-        pinMode(Motors[i], OUTPUT);
-        thrust[i] = baseThrust;
-    }
-    motors = Motors;
+    for(int i = 0; i < 4; i++)    
+        pinMode(motors[i], OUTPUT);    
 }
 
 // Start systems.
 void Quad::Init(bool fromSleep) 
 {
-    if(fromSleep = false)
-    {
-        int motorPins[] = { FRONT_LEFT, FRONT_RIGHT, BACK_RIGHT, BACK_LEFT };
-        Quad::SetupMotors(motorPins);
-    }
+    time_since_start = millis();
+    last_write = time_since_start;
+
+    if(fromSleep == false)
+        Quad::SetupMotors();
+    
     //--MOTORS--
     //Start motors for a sec to show activity.
     baseThrust = 60;
@@ -114,34 +110,45 @@ void Quad::Init(bool fromSleep)
     RollTune.SetControlType(PID_ATune::ZIEGLER_NICHOLS_PID);
     YawTune.SetControlType(PID_ATune::ZIEGLER_NICHOLS_PID);
     tuning = false;
+    
+    QDEBUG_PRINTLN(F("DEBUG: Init finished."));
 }
 
 bool Quad::Fly()
 {
-    if(tuning) Quad::CancelTune();
-    
-    //Update Inputs.
-    Quad::UpdateIMU();
-    
-    if(PitchPID.GetMode() != 1)
-        PitchPID.SetMode(AUTOMATIC);
-    if(RollPID.GetMode() != 1)
-        RollPID.SetMode(AUTOMATIC);
-    if(YawPID.GetMode() != 1)
-        YawPID.SetMode(AUTOMATIC);
-    
-    //Compute new output values    
-    PitchPID.Compute();
-    RollPID.Compute();
-    YawPID.Compute();
-    
-    Quad::SetMotors();
+    time_since_start = millis();
+    if(time_since_start - last_write >= SAMPLE_TIME) // Only every SAMPLE_TIME msecs.
+    {
+        if(tuning) Quad::CancelTune();
+        
+        //Update Inputs.
+        Quad::UpdateIMU();
+        
+        if(PitchPID.GetMode() != 1)
+            PitchPID.SetMode(AUTOMATIC);
+        if(RollPID.GetMode() != 1)
+            RollPID.SetMode(AUTOMATIC);
+        if(YawPID.GetMode() != 1)
+            YawPID.SetMode(AUTOMATIC);
+        
+        //Compute new output values    
+        PitchPID.Compute();
+        RollPID.Compute();
+        YawPID.Compute();
+
+        Quad::SetMotors();        
+    }
 }
 
 void Quad::SetMotors(bool forceThrust)
 {
+
+    last_write = time_since_start;
     //Smoothly get to the baseThrust set point.
-    baseThrust += forceThrust ? baseThrust_S - baseThrust : (baseThrust_S - baseThrust > 0) - (baseThrust_S - baseThrust < 0);
+    if(forceThrust)
+        baseThrust = baseThrust_S;
+    else
+        baseThrust += (baseThrust_S - baseThrust > 0) - (baseThrust_S - baseThrust < 0);
 
     //Calculate value for each motor.
     #ifdef X_CONFIG
@@ -160,7 +167,7 @@ void Quad::SetMotors(bool forceThrust)
     analogWrite(motors[0], thrust[0]);
     analogWrite(motors[1], thrust[1]);
     analogWrite(motors[2], thrust[2]);
-    analogWrite(motors[3], thrust[3]);
+    analogWrite(motors[3], thrust[3]);    
 }
 
 bool Quad::Stop()
@@ -185,7 +192,7 @@ bool Quad::Stop()
         PitchPID.SetMode(0);
         RollPID.SetMode(0);
         YawPID.SetMode(0);   
-
+        
         return true; //Finished.
     }
     
@@ -258,6 +265,8 @@ bool Quad::TunePID(int axis)
         (*pid).SetTunings((*tuner).GetKp(), (*tuner).GetKi(), (*tuner).GetKd());
         Quad::AutoTuneHelper(axis, false);
         
+        QDEBUG_PRINTLN(F("QDEBUG: Stopped."));
+
         return true;
     }
     return false;
@@ -310,19 +319,19 @@ void Quad::AutoTuneHelper(int axis, bool start)
 
 void Quad::UpdateIMU()
 {
+    my3IMU.getQ(q, val);
+/*
     //Get Orientation.
     my3IMU.getYawPitchRoll(ypr);
-
-    #ifdef DEBUG
+    */
+    #ifdef QDEBUG
     
         //Get temp.
         temperature = my3IMU.getBaroTemperature();
         QDEBUG_PRINT(F("DEBUG: Temperature is "));
         QDEBUG_PRINT(temperature);
         QDEBUG_PRINTLN(F("C degrees."));
-    
-        my3IMU.getQ(q, val);
-        
+            
         //Get altitude.
         altitude = val[10];
         QDEBUG_PRINT(F("DEBUG: Altitude is "));
@@ -379,43 +388,52 @@ bool Quad::Calibrate()
     digitalWrite(13, LOW);
     
     QDEBUG_PRINT(F("DEBUG: acc offset: "));
-    QDEBUG_PRINT(F(my3IMU.acc_off_x));
+    QDEBUG_PRINT(my3IMU.acc_off_x);
     QDEBUG_PRINT(F(","));
-    QDEBUG_PRINT(F(my3IMU.acc_off_y));
+    QDEBUG_PRINT(my3IMU.acc_off_y);
     QDEBUG_PRINT(F(","));
-    QDEBUG_PRINTLN(F(my3IMU.acc_off_z));
+    QDEBUG_PRINTLN(my3IMU.acc_off_z);
     
     QDEBUG_PRINT(F("DEBUG: magn offset: "));
-    QDEBUG_PRINT(F(my3IMU.magn_off_x));
+    QDEBUG_PRINT(my3IMU.magn_off_x);
     QDEBUG_PRINT(F(","));
-    QDEBUG_PRINT(F(my3IMU.magn_off_y));
+    QDEBUG_PRINT(my3IMU.magn_off_y);
     QDEBUG_PRINT(F(","));
-    QDEBUG_PRINTLN(F(my3IMU.magn_off_z));
+    QDEBUG_PRINTLN(my3IMU.magn_off_z);
     
     QDEBUG_PRINT(F("DEBUG: acc scale: "));
-    QDEBUG_PRINT(F(my3IMU.acc_scale_x));
+    QDEBUG_PRINT(my3IMU.acc_scale_x);
     QDEBUG_PRINT(F(","));
-    QDEBUG_PRINT(F(my3IMU.acc_scale_y));
+    QDEBUG_PRINT(my3IMU.acc_scale_y);
     QDEBUG_PRINT(F(","));
-    QDEBUG_PRINTLN(F(my3IMU.acc_scale_z));
+    QDEBUG_PRINTLN(my3IMU.acc_scale_z);
     
     QDEBUG_PRINT(F("DEBUG: magn scale: "));
-    QDEBUG_PRINT(F(my3IMU.magn_scale_x));
+    QDEBUG_PRINT(my3IMU.magn_scale_x);
     QDEBUG_PRINT(F(","));
-    QDEBUG_PRINT(F(my3IMU.magn_scale_y));
+    QDEBUG_PRINT(my3IMU.magn_scale_y);
     QDEBUG_PRINT(F(","));
-    QDEBUG_PRINTLN(F(my3IMU.magn_scale_z));
+    QDEBUG_PRINTLN(my3IMU.magn_scale_z);
     
     return true;
 }
 
 void Quad::Test(int* PARAMS)
 {
-    switch(PARAMS[1])
+    switch(PARAMS[0])
     {
         case 1: //Motors
-            baseThrust = constrain(PARAMS[2], 0, 255);
-            Quad::SetMotors(true);
+            Quad::SetBaseThrust(PARAMS[1]);
+            Quad::Fly();
+            sprintf(str, "DEBUG: Yaw_O: %d, Pitch_O: %d, Roll_O: %d", Yaw_O, Pitch_O, Roll_O);
+            QDEBUG_PRINTLN(F(str));
+            break;
+            
+        case 2: //Motors_individual
+            analogWrite(motors[0], constrain(PARAMS[1], 0, 255));
+            analogWrite(motors[1], constrain(PARAMS[2], 0, 255));
+            analogWrite(motors[2], constrain(PARAMS[3], 0, 255));
+            analogWrite(motors[3], constrain(PARAMS[4], 0, 255));
             break;
         
         default: 
@@ -436,23 +454,27 @@ void Quad::Test(int* PARAMS)
 /*-----------------
     Getters / Setters
   -----------------*/
-int*   Quad::GetThrust()         { return thrust; }
+int*    Quad::GetThrust()         { return thrust; }
 
-void   Quad::SetBaseThrust(int t){ baseThrust_S = constrain(t, 0, 255); }
-int    Quad::GetBaseThrust()     { return baseThrust; }
+void    Quad::SetBaseThrust(int t){ baseThrust_S = map(constrain(t, 0, 100), 0, 100, 0, 255); }
+int     Quad::GetBaseThrust()     { return baseThrust; }
 
-void   Quad::SetPitchS(double p) { Pitch_S = p; }
-double Quad::GetPitchI()         { return Pitch_I; }
-double Quad::GetPitchO()         { return Pitch_O; }
+float*  Quad::GetQ()              { return q; }
 
-void   Quad::SetRollS(double p)  { Roll_S = p; }
-double Quad::GetRollI()          { return Roll_I; }
-double Quad::GetRollO()          { return Roll_O; }
+void    Quad::SetPitchS(double p) { Pitch_S = p; }
+double  Quad::GetPitchI()         { return Pitch_I; }
+double  Quad::GetPitchO()         { return Pitch_O; }
 
-void   Quad::SetYawS(double p)   { Yaw_S = p; }
-double Quad::GetYawI()           { return Yaw_I; }
-double Quad::GetYawO()           { return Yaw_O; } 
+void    Quad::SetRollS(double p)  { Roll_S = p; }
+double  Quad::GetRollI()          { return Roll_I; }
+double  Quad::GetRollO()          { return Roll_O; }
 
-int    Quad::GetTemp()           { return (int)temperature; }
-float  Quad::GetAltitude()       { return altitude; }
-float  Quad::GetHeading()        { return heading; }
+void    Quad::SetYawS(double p)   { Yaw_S = p; }
+double  Quad::GetYawI()           { return Yaw_I; }
+double  Quad::GetYawO()           { return Yaw_O; } 
+
+int     Quad::GetTemp()           { return (int)temperature; }
+float   Quad::GetAltitude()       { return altitude; }
+float   Quad::GetHeading()        { return heading; }
+
+int*    Quad::GetMotors()         { return thrust; }

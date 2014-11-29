@@ -21,10 +21,10 @@
 #define BACK_RIGHT  9
 #define BACK_LEFT   10
 
-#define GO_TO_SLEEP_TIME 30 // Seconds
+#define GO_TO_SLEEP_TIME 180 // Seconds
 
 #define MAX_CNTRL_PARAMS 10
-#define COMMAND_STAT_SIZE 84
+#define COMMAND_STAT_SIZE 256 // Calculated: 19 ("VCSTAT;;;,,,,,,,,,;") + 10 (Max INT digits) * 14 (PARAM count) ceiled to 2^X
 
 #define COMMAND_CNTRL_SIZE (11 * MAX_CNTRL_PARAMS + 7)
 
@@ -35,7 +35,7 @@
 #define OUTPUT_STEP 20
 #define NOISE 0.5
 #define LOOK_BACK_SEC 1
-#define SAMPLE_TIME 10
+#define SAMPLE_TIME 20
 
 /*--------------
     Debugging

@@ -6,15 +6,15 @@
 //     2014-07-20 - initial release
 //
 // TODO:
-//    ~* Setup for the Low Voltage Warning interrupt. Available for Teensy only.
-//     * Quad: Make more tests in Test function.
+//     * Change Teensy sleep library to Snooze (link: https://github.com/duff2013/Snooze/blob/master/examples/sleep/pushbutton_pullup_sleep/pushbutton_pullup_sleep.ino)
 //     * Quad: Verify that Test function input is valid.
+//     * Quad: Make more tests in Test function.
+//    ~* Setup for the Low Voltage Warning interrupt. Available for Teensy only.
 //    -* Quad: Make calibration real and better (check with FreeIMU software).
 //     * Verify params are good for states
 //     * Add SETTINGS state where user can change definitions (i.e motor pins).
 //     * Implement landing via altitude sensor.  
 //     * Encrypt communication.  
-//     * Think about making all Serial communication outside of the state machine (before it).
 //    ~* Change WIRE to i2c_t3
 //
 /* ============================================
@@ -123,21 +123,27 @@ THE SOFTWARE.
     Main Code
   ---------------------------------------------------------------------*/
 Quad VoCopter(OUTPUT_STEP, NOISE, LOOK_BACK_SEC, SAMPLE_TIME); // Quad(OutputStep, Noise, LookBackSec, SampleTime(ms), Configuration)
-int STATE = SLEEP;
+int STATE = FLY;
 int PARAMS[MAX_CNTRL_PARAMS];
 bool STATE_FLAG = false;
 unsigned long uptime;
 unsigned long zero_time;
-RunningAverage BatLvl(10);
+int BatLvl = 100;
 char sts_str[COMMAND_STAT_SIZE + 1];
 char cntrl_str[COMMAND_CNTRL_SIZE + 1];
 
 void setup(void)
 {
+    analogReference(EXTERNAL);
+    analogReadResolution(12);
+    analogReadAveraging(32);
     zero_time = millis();
-
+    pinMode(13, OUTPUT);
+    //pinMode(RX_PIN, INPUT_PULLUP);
     SERIAL_BEGIN(115200);
     VoCopter.Init(false);
+    
+    //attachInterrupt(RX_PIN, wakeUp, LOW);
 }
 
 
@@ -145,8 +151,8 @@ void loop(void)
 {
     UpdateBatLevel(39);
     uptime = millis();
-
-/**
+    
+/*
  * Send / Receive user data.
 */
     /// --- RECEIVE --- ///
@@ -154,54 +160,70 @@ void loop(void)
     if(SERIAL_AVAILABLE() > 0)
     {
         int i = 0;
-        for(; SERIAL_AVAILABLE() > 0 && i < COMMAND_CNTRL_SIZE; i++)          
+        for(; SERIAL_AVAILABLE() > 0 && i < COMMAND_CNTRL_SIZE; i++)
+        {
             cntrl_str[i] = SERIAL_READ();
+            delay(1); // Wait for the next byte.
+        }
         cntrl_str[i+1] = NULL; // Add null byte for end.
-            
         // FORMAT: ' VCCTRL ; STATE ; PARAMS,PARAMS,PARAMS.. '
         char* command = strtok(cntrl_str, ";");
 
-        if(command == "VCCTRL")
+        if(strcmp(command,"VCCTRL") == 0)
         {
             // Set the state.
             command = strtok(NULL, ";");
             int st = atoi(command);
-            if(st > SLEEP && st < SETTINGS)
+            if(st >= SLEEP && st <= SETTINGS)
                 STATE = st; 
             
+            command = strtok(NULL, ";"); // Find the next param in command string.
+            char* paramstr = strtok(command, ","); // Find the next param in command string.
             //Set the params.
-            for (int c = 0; command != NULL && c < MAX_CNTRL_PARAMS; c++)
+            for (int c = 0; paramstr != NULL && c < MAX_CNTRL_PARAMS; c++)
             {
-                PARAMS[c] = atoi(command);     
-                command = strtok(NULL, ";"); // Find the next param in command string.
+                PARAMS[c] = atoi(paramstr);     
+                paramstr = strtok(NULL, ","); // Find the next param in command string.
             }
             
             zero_time = uptime;
-        }    
-        
-        
-        ///  --- SEND ---  ///
-
-        // FORMAT: ' VCSTAT ; UP_TIME ; STATE ; YAW,PITCH,ROLL,HEADING,ALTITUDE ; BAT_LVL '
-        sprintf(sts_str, "VCSTAT;%u;%d;%d,%d,%d,%d,%d;%d",
-                                                        (unsigned int)(uptime * 1000),
-                                                        STATE,
-                                                        (int)VoCopter.GetYawI(),
-                                                        (int)VoCopter.GetPitchI(),
-                                                        (int)VoCopter.GetRollI(),
-                                                        (int)VoCopter.GetHeading(),
-                                                        (int)VoCopter.GetAltitude(),
-                                                        BatLvl.getAverage());
-        SERIAL_PRINTLN(sts_str);
+        }
     }
     
+    ///  --- SEND ---  ///
+    float* q = VoCopter.GetQ();
+    int* thrusts = VoCopter.GetMotors();
+    // FORMAT: ' VCSTAT ; UP_TIME ; STATE ; 100*q[0],100*q[1],100*q[2],100*q[3],HEADING,ALTITUDE ; FRONT_LEFT,FRONT_RIGHT,BACK_LEFT,BACK_RIGHT ; BAT_LVL '
+    sprintf(sts_str, "VCSTAT;%u;%d;%d,%d,%d,%d,%d,%d;%d,%d,%d,%d;%d",
+                                                    (unsigned int)(uptime / 1000),
+                                                    (int)STATE,
+                                                    (int)(q[0] * 100),
+                                                    (int)(q[1] * 100),
+                                                    (int)(q[2] * 100),
+                                                    (int)(q[3] * 100),
+                                                    (int)VoCopter.GetHeading(),
+                                                    (int)VoCopter.GetAltitude(),
+                                                    (int)thrusts[0],
+                                                    (int)thrusts[1],
+                                                    (int)thrusts[2],
+                                                    (int)thrusts[3],
+                                                    (int)BatLvl);
+    SERIAL_PRINTLN(sts_str);
+    
     // Go to sleep if too low battery.
-    if(BatLvl.getAverage() < SLEEP_BAT)
+    if(BatLvl < SLEEP_BAT)
     {
+        SERIAL_PRINTLN("VCALRT;LB"); // Low Battery
         STATE = SLEEP;
-        SERIAL_PRINTLN("VCALRT;LB");
     }
-
+    
+    // Go to sleep if no commands received for more than 30 Secs.
+    if(uptime - zero_time >= 1000 * GO_TO_SLEEP_TIME)
+    {
+        zero_time = uptime;
+        SERIAL_PRINTLN("VCALRT;TO"); // Time out
+        STATE = SLEEP;
+    }
 /**
  * The main state machine.
 */
@@ -256,11 +278,12 @@ void loop(void)
             //TODO: update PID to run as fast as possible? or at least have it with correct time samples..
             VoCopter.Fly();
             break;            
-    }
-    
-    // Go to sleep if no commands received for more than 30 Secs.
-    if(uptime - zero_time > 1000 * GO_TO_SLEEP_TIME)
-        STATE = SLEEP;    
+    }    
+
+    if((int)(uptime / 1000) % 2 == 0)    
+        digitalWrite(13, LOW);    
+    else
+        digitalWrite(13, HIGH);
 }
 
 void wakeUp()
@@ -273,9 +296,9 @@ void wakeUp()
 
 void Sleep()
 {
+    /*
     #ifdef CORE_TEENSY
         // Set DeepSleep on RX pin so that unit will wake up on SERIAL receive.
-        pinMode(RX_PIN, INPUT_PULLUP);
         LP.DeepSleep(GPIO_WAKE, PIN_RX_PIN); // Go to sleep... ZzZz
         //-- BLOCKING sleep --//
         wakeUp();
@@ -285,6 +308,8 @@ void Sleep()
         //-- BLOCKING sleep --//
         detachInterrupt(0);
     #endif
+    */
+    wakeUp();
 }
 
 /**
@@ -292,13 +317,8 @@ void Sleep()
 * @param mV : The voltage in millivolts.
 * @return Returns battery level in %.
 */
-int mVtoL(int mV) {
-    double l = -191.04 * pow(1000 * mV, 3) + 2132.6 * pow(1000 * mV, 2) - 7778.9 * 1000 * mV + 9309;
-    if (l > 100)
-        l = 100;
-    else if (l < 0)
-        l = 0;
-    return (int)l;
+int mVtoL(double mV) {
+    return (int)map(constrain(mV, 3000, 3600), 3000, 3600, 0, 100);
 }
 
 /**
@@ -307,5 +327,6 @@ int mVtoL(int mV) {
 * @return Returns the battery level measured on the pin.
 */
 void UpdateBatLevel(int pin) {
-    BatLvl.addValue(mVtoL(1195 * 4096 / analogRead(pin)));
+    uint32_t x = analogRead(39);
+    BatLvl = mVtoL((178*x*x + 2688757565 - 1184375 * x) / 372346);
 }

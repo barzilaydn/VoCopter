@@ -110,7 +110,7 @@ THE SOFTWARE.
 class Quad {
     public:
         Quad(const double, const double, const int, const int);
-        void SetupMotors(int*);
+        void SetupMotors();
         void Init(bool);
         bool TunePID(int);
         bool Fly();
@@ -123,6 +123,8 @@ class Quad {
         
         void SetBaseThrust(int);
         int GetBaseThrust();
+        
+        float* GetQ();
         
         void SetPitchS(double);
         double GetPitchI();
@@ -139,6 +141,8 @@ class Quad {
         int GetTemp();
         float GetHeading();
         float GetAltitude();
+        
+        int* GetMotors();
 
     private:     
         void UpdateIMU();
@@ -153,10 +157,12 @@ class Quad {
         void SetMotors(bool forceThrust = true);
                 
         //Motors
-        int *motors;
-        int *thrust;
+        int motors[4];
+        int thrust[4];
         int baseThrust;
         int baseThrust_S;
+        long time_since_start = 0;
+        long last_write = 0;
         
         //Tuner parameters
         byte ATuneModeRemember;
@@ -167,9 +173,9 @@ class Quad {
         const int sampleTime;
         
         //PID variables
-        double Pitch_S, Pitch_I, Pitch_O;
-        double Roll_S, Roll_I, Roll_O;
-        double Yaw_S, Yaw_I, Yaw_O;
+        double Pitch_S, Pitch_I, Pitch_O = 0;
+        double Roll_S, Roll_I, Roll_O = 0;
+        double Yaw_S, Yaw_I, Yaw_O = 0;
         
         //A PID controller for each rotation axis.
         PID       PitchPID; 
@@ -184,7 +190,7 @@ class Quad {
         //IMU
         FreeIMU my3IMU;
         float q[4];
-        float val[11];
+        float val[12];
         int raw_values[11];
         char str[128];
         float ypr[3]; // yaw pitch roll
