@@ -3,8 +3,8 @@
   -----------------*/
 
 #define SERIAL_PORT Serial3
-#define RX_PIN 11
-#define PIN_RX_PIN PIN_11
+#define DEBUG_SERIAL_PORT Serial
+#define RX_PIN 7
 
 /*-------------------------
     Quad Configuration 
@@ -24,9 +24,9 @@
 #define GO_TO_SLEEP_TIME 180 // Seconds
 
 #define MAX_CNTRL_PARAMS 10
-#define COMMAND_STAT_SIZE 256 // Calculated: 19 ("VCSTAT;;;,,,,,,,,,;") + 10 (Max INT digits) * 14 (PARAM count) ceiled to 2^X
+#define COMMAND_STAT_SIZE 128 // Calculated: 19 ("VCSTAT;;;,,,,,,,,,;") + 7 (Reasonable INT digits) * 14 (PARAM count) ceiled to 2^X
 
-#define COMMAND_CNTRL_SIZE (11 * MAX_CNTRL_PARAMS + 7)
+#define COMMAND_CNTRL_SIZE COMMAND_STAT_SIZE
 
 /*------------------------------
     PID controllers settings
@@ -42,7 +42,7 @@
   --------------*/
 
 // Enable debugging:
-//#define QDEBUG
+#define QDEBUG
 
 /**********!!!!! DON'T EDIT BELOW THIS LINE !!!!!**********/
 
@@ -51,6 +51,7 @@
 /*-----------------
     Serial
   -----------------*/
+#define SERIAL_WRITE            SERIAL_PORT.write
 #define SERIAL_PRINT            SERIAL_PORT.print
 #define SERIAL_PRINTLN          SERIAL_PORT.println
 #define SERIAL_AVAILABLE        SERIAL_PORT.available
@@ -64,10 +65,11 @@
     Debug
   -----------------*/
 #ifdef QDEBUG
-    #define QDEBUG_PRINT(x) SERIAL_PRINT(x)
-    #define QDEBUG_PRINTF(x, y) SERIAL_PRINT(x, y)
-    #define QDEBUG_PRINTLN(x) SERIAL_PRINTLN(x)
-    #define QDEBUG_PRINTLNF(x, y) SERIAL_PRINTLN(x, y)
+    #define QDEBUG_BEGIN(x) DEBUG_SERIAL_PORT.begin(x)
+    #define QDEBUG_PRINT(x) DEBUG_SERIAL_PORT.print(x)
+    #define QDEBUG_PRINTF(x, y) DEBUG_SERIAL_PORT.printf(x, y)
+    #define QDEBUG_PRINTLN(x) DEBUG_SERIAL_PORT.println(x)
+    #define QDEBUG_PRINTLNF(x, y) DEBUG_SERIAL_PORT.printlnf(x, y)
 #else
     #define QDEBUG_PRINT(x)
     #define QDEBUG_PRINTF(x, y)

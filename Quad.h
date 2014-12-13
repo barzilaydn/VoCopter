@@ -115,7 +115,7 @@ class Quad {
         bool TunePID(int);
         bool Fly();
         bool Stop();
-        bool Calibrate();
+        void Calibrate(int);
         void Test(int*);
 
         //Getters / Setters
@@ -147,7 +147,10 @@ class Quad {
     private:     
         void UpdateIMU();
         void restoreOffSets();
-
+        char serial_busy_wait();
+        void writeArr(void * varr, uint8_t arr_length, uint8_t type_bytes);
+        void writeVar(void * val, uint8_t type_bytes);
+        
         void CancelTune();
         void changeAutoTune(int);
         void AutoTuneHelper(int, bool);

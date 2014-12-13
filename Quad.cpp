@@ -116,21 +116,22 @@ void Quad::Init(bool fromSleep)
 
 bool Quad::Fly()
 {
+    if(tuning) Quad::CancelTune();
+    
+    //Update Inputs.
+    Quad::UpdateIMU();
+    
+    if(PitchPID.GetMode() != 1)
+        PitchPID.SetMode(AUTOMATIC);
+    if(RollPID.GetMode() != 1)
+        RollPID.SetMode(AUTOMATIC);
+    if(YawPID.GetMode() != 1)
+        YawPID.SetMode(AUTOMATIC);
+        
+    
     time_since_start = millis();
     if(time_since_start - last_write >= SAMPLE_TIME) // Only every SAMPLE_TIME msecs.
     {
-        if(tuning) Quad::CancelTune();
-        
-        //Update Inputs.
-        Quad::UpdateIMU();
-        
-        if(PitchPID.GetMode() != 1)
-            PitchPID.SetMode(AUTOMATIC);
-        if(RollPID.GetMode() != 1)
-            RollPID.SetMode(AUTOMATIC);
-        if(YawPID.GetMode() != 1)
-            YawPID.SetMode(AUTOMATIC);
-        
         //Compute new output values    
         PitchPID.Compute();
         RollPID.Compute();
@@ -351,71 +352,131 @@ void Quad::UpdateIMU()
     Roll_I  = ypr[2];
 }
 
-bool Quad::Calibrate()
-{    
-    if(tuning) Quad::CancelTune();
+char Quad::serial_busy_wait() {
+    while(!SERIAL_AVAILABLE()); // do nothing until ready
+    return SERIAL_READ();
+}
+
+void Quad::writeArr(void * varr, uint8_t arr_length, uint8_t type_bytes) {
+  byte * arr = (byte*) varr;
+  for(uint8_t i=0; i<arr_length; i++) {
+    writeVar(&arr[i * type_bytes], type_bytes);
+  }
+}
+
+
+// thanks to Francesco Ferrara and the Simplo project for the following code!
+void Quad::writeVar(void * val, uint8_t type_bytes) {
+  byte * addr=(byte *)(val);
+  for(uint8_t i=0; i<type_bytes; i++) { 
+    SERIAL_WRITE(addr[i]);
+  }
+}
+
+void Quad::Calibrate(int cmd)
+{
+    //QDEBUG_PRINT(F("CALIB CMD:"));
+    //QDEBUG_PRINTLN((char)cmd);
     
-    const uint8_t eepromsize = sizeof(float) * 6 + sizeof(int) * 6;
-    while(SERIAL_AVAILABLE() < eepromsize)  // Send raw data until calibration data is received.
+    switch(cmd)
     {
-        my3IMU.getValues(val);
-        for(int i=0; i<9; i++) {
-            SERIAL_PRINT(val[i], 4);
-            SERIAL_PRINT('\t');
+        case 1: //Send data for calibration
+        {
+            SERIAL_PRINTLN();
+            Quad::serial_busy_wait();
+            
+            QDEBUG_PRINTLN(F("Got ack"));
+
+            while(!SERIAL_AVAILABLE()) {
+                #if HAS_ITG3200()
+                    my3IMU.acc.readAccel(&raw_values[0], &raw_values[1], &raw_values[2]);
+                    my3IMU.gyro.readGyroRaw(&raw_values[3], &raw_values[4], &raw_values[5]);
+                    Quad::writeArr(raw_values, 6, sizeof(int)); // writes accelerometer, gyro values & mag if 9150
+                #elif HAS_MPU9150()  || HAS_MPU9250()
+                    my3IMU.getRawValues(raw_values);
+                    Quad::writeArr(raw_values, 9, sizeof(int)); // writes accelerometer, gyro values & mag if 9150
+                #elif HAS_MPU6050() || HAS_MPU6000()   // MPU6050
+                    //my3IMU.accgyro.getMotion6(&raw_values[0], &raw_values[1], &raw_values[2], &raw_values[3], &raw_values[4], &raw_values[5]);
+                    my3IMU.getRawValues(raw_values);
+                    Quad::writeArr(raw_values, 6, sizeof(int)); // writes accelerometer, gyro values & mag if 9150
+                #elif HAS_ALTIMU10()
+                    my3IMU.getRawValues(raw_values);
+                    Quad::writeArr(raw_values, 9, sizeof(int)); // writes accelerometer, gyro values & mag of Altimu 10        
+                #endif
+                    //Quad::writeArr(raw_values, 6, sizeof(int)); // writes accelerometer, gyro values & mag if 9150
+
+                #if IS_9DOM() && (!HAS_MPU9150()  && !HAS_MPU9250() && !HAS_ALTIMU10())
+                    my3IMU.magn.getValues(&raw_values[0], &raw_values[1], &raw_values[2]);
+                    Quad::writeArr(raw_values, 3, sizeof(int));
+                #endif
+                SERIAL_PRINTLN();
+            }
+            
+            QDEBUG_PRINTLN(F("Finished sending"));
+            char r = SERIAL_READ();
+            QDEBUG_PRINTLN(r);
+            break;
         }
-        #if HAS_PRESS()
-        // with baro - pressure temp
-        SERIAL_PRINT(my3IMU.getBaroTemperature()); SERIAL_PRINT(",");
-        SERIAL_PRINT('\t');
-        SERIAL_PRINT(my3IMU.getBaroPressure()); SERIAL_PRINT(",");
-        #endif
-        SERIAL_PRINT('\n');
+        case 2: // Save new calibration to EEPROM and load it
+        {
+            const uint8_t eepromsize = sizeof(float) * 6 + sizeof(int) * 6;
+            while(SERIAL_AVAILABLE() < eepromsize) ; // wait until all calibration data are received
+            
+            // Write the received calibration data to EEPROM.
+            EEPROM.write(FREEIMU_EEPROM_BASE, FREEIMU_EEPROM_SIGNATURE);
+            for(uint8_t i = 1; i<(eepromsize + 1); i++)
+                EEPROM.write(FREEIMU_EEPROM_BASE + i, (char) SERIAL_READ());
+            
+            my3IMU.calLoad(); // reload calibration
+            // toggle LED after calibration store.
+            digitalWrite(13, HIGH);
+            delay(1000);
+            digitalWrite(13, LOW);
+            
+            break;
+        }
+        case 3: // Clear saved calibration
+        {
+            EEPROM.write(FREEIMU_EEPROM_BASE, 0); // reset signature
+            my3IMU.calLoad(); // reload calibration
+            
+            break;
+        }
+        case 4: // Check calibration data
+        {
+            SERIAL_PRINT("acc offset: ");
+            SERIAL_PRINT(my3IMU.acc_off_x);
+            SERIAL_PRINT(",");
+            SERIAL_PRINT(my3IMU.acc_off_y);
+            SERIAL_PRINT(",");
+            SERIAL_PRINT(my3IMU.acc_off_z);
+            SERIAL_PRINT("\n");
+
+            SERIAL_PRINT("magn offset: ");
+            SERIAL_PRINT(my3IMU.magn_off_x);
+            SERIAL_PRINT(",");
+            SERIAL_PRINT(my3IMU.magn_off_y);
+            SERIAL_PRINT(",");
+            SERIAL_PRINT(my3IMU.magn_off_z);
+            SERIAL_PRINT("\n");
+
+            SERIAL_PRINT("acc scale: ");
+            SERIAL_PRINT(my3IMU.acc_scale_x);
+            SERIAL_PRINT(",");
+            SERIAL_PRINT(my3IMU.acc_scale_y);
+            SERIAL_PRINT(",");
+            SERIAL_PRINT(my3IMU.acc_scale_z);
+            SERIAL_PRINT("\n");
+
+            SERIAL_PRINT("magn scale: ");
+            SERIAL_PRINT(my3IMU.magn_scale_x);
+            SERIAL_PRINT(",");
+            SERIAL_PRINT(my3IMU.magn_scale_y);
+            SERIAL_PRINT(",");
+            SERIAL_PRINT(my3IMU.magn_scale_z);
+            SERIAL_PRINT("\n");
+        }
     }
-    
-    // Write the received calibration data to EEPROM.
-    EEPROM.write(FREEIMU_EEPROM_BASE, FREEIMU_EEPROM_SIGNATURE);
-    for(uint8_t i = 1; i<(eepromsize + 1); i++) {
-        EEPROM.write(FREEIMU_EEPROM_BASE + i, (char) SERIAL_READ());
-    }
-    
-    QDEBUG_PRINTLN(F("DEBUG: Restarting FreeIMU..."));
-    my3IMU.init(true);
-    my3IMU.setTempCalib(1);
-    
-    // toggle LED after calibration store.
-    digitalWrite(13, HIGH);
-    delay(1000);
-    digitalWrite(13, LOW);
-    
-    QDEBUG_PRINT(F("DEBUG: acc offset: "));
-    QDEBUG_PRINT(my3IMU.acc_off_x);
-    QDEBUG_PRINT(F(","));
-    QDEBUG_PRINT(my3IMU.acc_off_y);
-    QDEBUG_PRINT(F(","));
-    QDEBUG_PRINTLN(my3IMU.acc_off_z);
-    
-    QDEBUG_PRINT(F("DEBUG: magn offset: "));
-    QDEBUG_PRINT(my3IMU.magn_off_x);
-    QDEBUG_PRINT(F(","));
-    QDEBUG_PRINT(my3IMU.magn_off_y);
-    QDEBUG_PRINT(F(","));
-    QDEBUG_PRINTLN(my3IMU.magn_off_z);
-    
-    QDEBUG_PRINT(F("DEBUG: acc scale: "));
-    QDEBUG_PRINT(my3IMU.acc_scale_x);
-    QDEBUG_PRINT(F(","));
-    QDEBUG_PRINT(my3IMU.acc_scale_y);
-    QDEBUG_PRINT(F(","));
-    QDEBUG_PRINTLN(my3IMU.acc_scale_z);
-    
-    QDEBUG_PRINT(F("DEBUG: magn scale: "));
-    QDEBUG_PRINT(my3IMU.magn_scale_x);
-    QDEBUG_PRINT(F(","));
-    QDEBUG_PRINT(my3IMU.magn_scale_y);
-    QDEBUG_PRINT(F(","));
-    QDEBUG_PRINTLN(my3IMU.magn_scale_z);
-    
-    return true;
 }
 
 void Quad::Test(int* PARAMS)
