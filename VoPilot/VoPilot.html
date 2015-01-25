@@ -1,0 +1,935 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module VoPilot</title>
+<meta charset="utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>VoPilot</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:///C:/users/dan/google%20drive/%E1%E9%FA%20%F1%F4%F8/%EE%E7%F9%E1%E9%ED/handcopter/code/vopilot/vopilot.py">c:\users\dan\google drive\בית ספר\מחשבים\handcopter\code\vopilot\vopilot.py</a></font></td></tr></table>
+    <p><tt>#&nbsp;encoding:&nbsp;utf-8</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="PySide.QtCore.html">PySide.QtCore</a><br>
+<a href="PySide.QtGui.html">PySide.QtGui</a><br>
+</td><td width="25%" valign=top><a href="PySide.QtNetwork.html">PySide.QtNetwork</a><br>
+<a href="VoConfig.html">VoConfig</a><br>
+</td><td width="25%" valign=top><a href="math.html">math</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="PySide.QtGui.html#QMainWindow">PySide.QtGui.QMainWindow</a>(<a href="PySide.QtGui.html#QWidget">PySide.QtGui.QWidget</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="VoPilot.html#VoPilot">VoPilot</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="VoPilot">class <strong>VoPilot</strong></a>(<a href="PySide.QtGui.html#QMainWindow">PySide.QtGui.QMainWindow</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="VoPilot.html#VoPilot">VoPilot</a></dd>
+<dd><a href="PySide.QtGui.html#QMainWindow">PySide.QtGui.QMainWindow</a></dd>
+<dd><a href="PySide.QtGui.html#QWidget">PySide.QtGui.QWidget</a></dd>
+<dd><a href="PySide.QtCore.html#QObject">PySide.QtCore.QObject</a></dd>
+<dd><a href="PySide.QtGui.html#QPaintDevice">PySide.QtGui.QPaintDevice</a></dd>
+<dd>Shiboken.Object</dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="VoPilot-IPvalid"><strong>IPvalid</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="VoPilot-__init__"><strong>__init__</strong></a>(self, parent<font color="#909090">=None</font>)</dt></dl>
+
+<dl><dt><a name="VoPilot-changeState"><strong>changeState</strong></a>(self, s)</dt></dl>
+
+<dl><dt><a name="VoPilot-connectionChange"><strong>connectionChange</strong></a>(self, connected)</dt></dl>
+
+<dl><dt><a name="VoPilot-constrainAngle"><strong>constrainAngle</strong></a>(self, angle, constrain)</dt><dd><tt>#&nbsp;Create&nbsp;a&nbsp;"never&nbsp;ending"&nbsp;angle</tt></dd></dl>
+
+<dl><dt><a name="VoPilot-controlAlert"><strong>controlAlert</strong></a>(self, data, isError)</dt></dl>
+
+<dl><dt><a name="VoPilot-euler_from_matrix"><strong>euler_from_matrix</strong></a>(self, matrix, axes<font color="#909090">='sxyz'</font>)</dt><dd><tt>Return&nbsp;Euler&nbsp;angles&nbsp;from&nbsp;rotation&nbsp;matrix&nbsp;for&nbsp;specified&nbsp;axis&nbsp;sequence.<br>
+&nbsp;<br>
+axes&nbsp;:&nbsp;One&nbsp;of&nbsp;24&nbsp;axis&nbsp;sequences&nbsp;as&nbsp;string&nbsp;or&nbsp;encoded&nbsp;tuple<br>
+&nbsp;<br>
+Note&nbsp;that&nbsp;many&nbsp;Euler&nbsp;angle&nbsp;triplets&nbsp;can&nbsp;describe&nbsp;one&nbsp;matrix.<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;R0&nbsp;=&nbsp;euler_matrix(1,&nbsp;2,&nbsp;3,&nbsp;'syxz')<br>
+&gt;&gt;&gt;&nbsp;al,&nbsp;be,&nbsp;ga&nbsp;=&nbsp;<a href="#VoPilot-euler_from_matrix">euler_from_matrix</a>(R0,&nbsp;'syxz')<br>
+&gt;&gt;&gt;&nbsp;R1&nbsp;=&nbsp;euler_matrix(al,&nbsp;be,&nbsp;ga,&nbsp;'syxz')<br>
+&gt;&gt;&gt;&nbsp;numpy.allclose(R0,&nbsp;R1)<br>
+True<br>
+&gt;&gt;&gt;&nbsp;angles&nbsp;=&nbsp;(4*math.pi)&nbsp;*&nbsp;(numpy.random.random(3)&nbsp;-&nbsp;0.5)<br>
+&gt;&gt;&gt;&nbsp;for&nbsp;axes&nbsp;in&nbsp;self.<strong>_AXES2TUPLE</strong>.keys():<br>
+...&nbsp;&nbsp;&nbsp;&nbsp;R0&nbsp;=&nbsp;euler_matrix(axes=axes,&nbsp;*angles)<br>
+...&nbsp;&nbsp;&nbsp;&nbsp;R1&nbsp;=&nbsp;euler_matrix(axes=axes,&nbsp;*<a href="#VoPilot-euler_from_matrix">euler_from_matrix</a>(R0,&nbsp;axes))<br>
+...&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;not&nbsp;numpy.allclose(R0,&nbsp;R1):&nbsp;print(axes,&nbsp;"failed")</tt></dd></dl>
+
+<dl><dt><a name="VoPilot-euler_from_quaternion"><strong>euler_from_quaternion</strong></a>(self, quaternion, axes<font color="#909090">='sxyz'</font>)</dt><dd><tt>Return&nbsp;Euler&nbsp;angles&nbsp;from&nbsp;quaternion&nbsp;for&nbsp;specified&nbsp;axis&nbsp;sequence.<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;angles&nbsp;=&nbsp;<a href="#VoPilot-euler_from_quaternion">euler_from_quaternion</a>([0.99810947,&nbsp;0.06146124,&nbsp;0,&nbsp;0])<br>
+&gt;&gt;&gt;&nbsp;numpy.allclose(angles,&nbsp;[0.123,&nbsp;0,&nbsp;0])<br>
+True</tt></dd></dl>
+
+<dl><dt><a name="VoPilot-newData"><strong>newData</strong></a>(self, cmd, params)</dt><dd><tt>#&nbsp;STATUS&nbsp;FORMAT:&nbsp;'&nbsp;UP_TIME&nbsp;;&nbsp;STATE&nbsp;;&nbsp;100*q[0],100*q[1],100*q[2],100*q[3],HEADING,ALTITUDE&nbsp;;&nbsp;FRONT_LEFT,FRONT_RIGHT,BACK_LEFT,BACK_RIGHT&nbsp;;&nbsp;BAT_LVL&nbsp;'</tt></dd></dl>
+
+<dl><dt><a name="VoPilot-openConsole"><strong>openConsole</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="VoPilot-quaternion_matrix"><strong>quaternion_matrix</strong></a>(self, quaternion)</dt><dd><tt>Return&nbsp;homogeneous&nbsp;rotation&nbsp;matrix&nbsp;from&nbsp;quaternion.<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;M&nbsp;=&nbsp;<a href="#VoPilot-quaternion_matrix">quaternion_matrix</a>([0.99810947,&nbsp;0.06146124,&nbsp;0,&nbsp;0])<br>
+&gt;&gt;&gt;&nbsp;numpy.allclose(M,&nbsp;rotation_matrix(0.123,&nbsp;[1,&nbsp;0,&nbsp;0]))<br>
+True<br>
+&gt;&gt;&gt;&nbsp;M&nbsp;=&nbsp;<a href="#VoPilot-quaternion_matrix">quaternion_matrix</a>([1,&nbsp;0,&nbsp;0,&nbsp;0])<br>
+&gt;&gt;&gt;&nbsp;numpy.allclose(M,&nbsp;numpy.identity(4))<br>
+True<br>
+&gt;&gt;&gt;&nbsp;M&nbsp;=&nbsp;<a href="#VoPilot-quaternion_matrix">quaternion_matrix</a>([0,&nbsp;1,&nbsp;0,&nbsp;0])<br>
+&gt;&gt;&gt;&nbsp;numpy.allclose(M,&nbsp;numpy.diag([1,&nbsp;-1,&nbsp;-1,&nbsp;1]))<br>
+True</tt></dd></dl>
+
+<dl><dt><a name="VoPilot-sendControl"><strong>sendControl</strong></a>(self, thrust, yawChange, pitchChange, rollChange)</dt></dl>
+
+<dl><dt><a name="VoPilot-updateUI"><strong>updateUI</strong></a>(self)</dt></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>Altitude</strong> = 0</dl>
+
+<dl><dt><strong>BatLvl</strong> = 0</dl>
+
+<dl><dt><strong>Heading</strong> = 0</dl>
+
+<dl><dt><strong>Pitch</strong> = 0</dl>
+
+<dl><dt><strong>Roll</strong> = 0</dl>
+
+<dl><dt><strong>State</strong> = 0</dl>
+
+<dl><dt><strong>Thrusts</strong> = [0, 0, 0, 0]</dl>
+
+<dl><dt><strong>UpTime</strong> = 0</dl>
+
+<dl><dt><strong>Yaw</strong> = 0</dl>
+
+<dl><dt><strong>q</strong> = [0, 0, 0, 0]</dl>
+
+<dl><dt><strong>staticMetaObject</strong> = &lt;PySide.QtCore.QMetaObject object&gt;</dl>
+
+<hr>
+Methods inherited from <a href="PySide.QtGui.html#QMainWindow">PySide.QtGui.QMainWindow</a>:<br>
+<dl><dt><a name="VoPilot-addDockWidget"><strong>addDockWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-addToolBar"><strong>addToolBar</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-addToolBarBreak"><strong>addToolBarBreak</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-centralWidget"><strong>centralWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-contextMenuEvent"><strong>contextMenuEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-corner"><strong>corner</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-createPopupMenu"><strong>createPopupMenu</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-dockOptions"><strong>dockOptions</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-dockWidgetArea"><strong>dockWidgetArea</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-documentMode"><strong>documentMode</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-event"><strong>event</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-iconSize"><strong>iconSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-insertToolBar"><strong>insertToolBar</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-insertToolBarBreak"><strong>insertToolBarBreak</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isAnimated"><strong>isAnimated</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isDockNestingEnabled"><strong>isDockNestingEnabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isSeparator"><strong>isSeparator</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-menuBar"><strong>menuBar</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-menuWidget"><strong>menuWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-removeDockWidget"><strong>removeDockWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-removeToolBar"><strong>removeToolBar</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-removeToolBarBreak"><strong>removeToolBarBreak</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-restoreDockWidget"><strong>restoreDockWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-restoreState"><strong>restoreState</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-saveState"><strong>saveState</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setAnimated"><strong>setAnimated</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setCentralWidget"><strong>setCentralWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setCorner"><strong>setCorner</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setDockNestingEnabled"><strong>setDockNestingEnabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setDockOptions"><strong>setDockOptions</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setDocumentMode"><strong>setDocumentMode</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setIconSize"><strong>setIconSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setMenuBar"><strong>setMenuBar</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setMenuWidget"><strong>setMenuWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setStatusBar"><strong>setStatusBar</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setTabPosition"><strong>setTabPosition</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setTabShape"><strong>setTabShape</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setToolButtonStyle"><strong>setToolButtonStyle</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setUnifiedTitleAndToolBarOnMac"><strong>setUnifiedTitleAndToolBarOnMac</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-splitDockWidget"><strong>splitDockWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-statusBar"><strong>statusBar</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-tabPosition"><strong>tabPosition</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-tabShape"><strong>tabShape</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-tabifiedDockWidgets"><strong>tabifiedDockWidgets</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-tabifyDockWidget"><strong>tabifyDockWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-toolBarArea"><strong>toolBarArea</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-toolBarBreak"><strong>toolBarBreak</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-toolButtonStyle"><strong>toolButtonStyle</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-unifiedTitleAndToolBarOnMac"><strong>unifiedTitleAndToolBarOnMac</strong></a>(...)</dt></dl>
+
+<hr>
+Data and other attributes inherited from <a href="PySide.QtGui.html#QMainWindow">PySide.QtGui.QMainWindow</a>:<br>
+<dl><dt><strong>AllowNestedDocks</strong> = PySide.QtGui.QMainWindow.DockOption.AllowNestedDocks</dl>
+
+<dl><dt><strong>AllowTabbedDocks</strong> = PySide.QtGui.QMainWindow.DockOption.AllowTabbedDocks</dl>
+
+<dl><dt><strong>AnimatedDocks</strong> = PySide.QtGui.QMainWindow.DockOption.AnimatedDocks</dl>
+
+<dl><dt><strong>DockOption</strong> = &lt;type 'PySide.QtGui.QMainWindow.DockOption'&gt;</dl>
+
+<dl><dt><strong>DockOptions</strong> = &lt;type 'DockOptions'&gt;</dl>
+
+<dl><dt><strong>ForceTabbedDocks</strong> = PySide.QtGui.QMainWindow.DockOption.ForceTabbedDocks</dl>
+
+<dl><dt><strong>VerticalTabs</strong> = PySide.QtGui.QMainWindow.DockOption.VerticalTabs</dl>
+
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of Shiboken.ObjectType object&gt;<dd><tt>T.<a href="#VoPilot-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;object&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<dl><dt><strong>iconSizeChanged</strong> = &lt;PySide.QtCore.Signal object&gt;<dd><tt>Signal</tt></dl>
+
+<dl><dt><strong>toolButtonStyleChanged</strong> = &lt;PySide.QtCore.Signal object&gt;<dd><tt>Signal</tt></dl>
+
+<hr>
+Methods inherited from <a href="PySide.QtGui.html#QWidget">PySide.QtGui.QWidget</a>:<br>
+<dl><dt><a name="VoPilot-acceptDrops"><strong>acceptDrops</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-accessibleDescription"><strong>accessibleDescription</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-accessibleName"><strong>accessibleName</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-actionEvent"><strong>actionEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-actions"><strong>actions</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-activateWindow"><strong>activateWindow</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-addAction"><strong>addAction</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-addActions"><strong>addActions</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-adjustSize"><strong>adjustSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-autoFillBackground"><strong>autoFillBackground</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-backgroundRole"><strong>backgroundRole</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-baseSize"><strong>baseSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-changeEvent"><strong>changeEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-childAt"><strong>childAt</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-childrenRect"><strong>childrenRect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-childrenRegion"><strong>childrenRegion</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-clearFocus"><strong>clearFocus</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-clearMask"><strong>clearMask</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-close"><strong>close</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-closeEvent"><strong>closeEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-contentsMargins"><strong>contentsMargins</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-contentsRect"><strong>contentsRect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-contextMenuPolicy"><strong>contextMenuPolicy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-createWinId"><strong>createWinId</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-cursor"><strong>cursor</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-destroy"><strong>destroy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-devType"><strong>devType</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-dragEnterEvent"><strong>dragEnterEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-dragLeaveEvent"><strong>dragLeaveEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-dragMoveEvent"><strong>dragMoveEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-dropEvent"><strong>dropEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-effectiveWinId"><strong>effectiveWinId</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-ensurePolished"><strong>ensurePolished</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-enterEvent"><strong>enterEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-focusInEvent"><strong>focusInEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-focusNextChild"><strong>focusNextChild</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-focusNextPrevChild"><strong>focusNextPrevChild</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-focusOutEvent"><strong>focusOutEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-focusPolicy"><strong>focusPolicy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-focusPreviousChild"><strong>focusPreviousChild</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-focusProxy"><strong>focusProxy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-focusWidget"><strong>focusWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-font"><strong>font</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-fontInfo"><strong>fontInfo</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-fontMetrics"><strong>fontMetrics</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-foregroundRole"><strong>foregroundRole</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-frameGeometry"><strong>frameGeometry</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-frameSize"><strong>frameSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-geometry"><strong>geometry</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-getContentsMargins"><strong>getContentsMargins</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-grabGesture"><strong>grabGesture</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-grabKeyboard"><strong>grabKeyboard</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-grabMouse"><strong>grabMouse</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-grabShortcut"><strong>grabShortcut</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-graphicsEffect"><strong>graphicsEffect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-graphicsProxyWidget"><strong>graphicsProxyWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-hasFocus"><strong>hasFocus</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-hasMouseTracking"><strong>hasMouseTracking</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-height"><strong>height</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-heightForWidth"><strong>heightForWidth</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-hide"><strong>hide</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-hideEvent"><strong>hideEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-inputContext"><strong>inputContext</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-inputMethodEvent"><strong>inputMethodEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-inputMethodHints"><strong>inputMethodHints</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-inputMethodQuery"><strong>inputMethodQuery</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-insertAction"><strong>insertAction</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-insertActions"><strong>insertActions</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isActiveWindow"><strong>isActiveWindow</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isAncestorOf"><strong>isAncestorOf</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isEnabled"><strong>isEnabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isEnabledTo"><strong>isEnabledTo</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isFullScreen"><strong>isFullScreen</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isHidden"><strong>isHidden</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isLeftToRight"><strong>isLeftToRight</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isMaximized"><strong>isMaximized</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isMinimized"><strong>isMinimized</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isModal"><strong>isModal</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isRightToLeft"><strong>isRightToLeft</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isVisible"><strong>isVisible</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isVisibleTo"><strong>isVisibleTo</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isWindow"><strong>isWindow</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isWindowModified"><strong>isWindowModified</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-keyPressEvent"><strong>keyPressEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-keyReleaseEvent"><strong>keyReleaseEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-languageChange"><strong>languageChange</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-layout"><strong>layout</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-layoutDirection"><strong>layoutDirection</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-leaveEvent"><strong>leaveEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-locale"><strong>locale</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-lower"><strong>lower</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-mapFrom"><strong>mapFrom</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-mapFromGlobal"><strong>mapFromGlobal</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-mapFromParent"><strong>mapFromParent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-mapTo"><strong>mapTo</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-mapToGlobal"><strong>mapToGlobal</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-mapToParent"><strong>mapToParent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-mask"><strong>mask</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-maximumHeight"><strong>maximumHeight</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-maximumSize"><strong>maximumSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-maximumWidth"><strong>maximumWidth</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-metric"><strong>metric</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-minimumHeight"><strong>minimumHeight</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-minimumSize"><strong>minimumSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-minimumSizeHint"><strong>minimumSizeHint</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-minimumWidth"><strong>minimumWidth</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-mouseDoubleClickEvent"><strong>mouseDoubleClickEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-mouseMoveEvent"><strong>mouseMoveEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-mousePressEvent"><strong>mousePressEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-mouseReleaseEvent"><strong>mouseReleaseEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-move"><strong>move</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-moveEvent"><strong>moveEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-nativeParentWidget"><strong>nativeParentWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-nextInFocusChain"><strong>nextInFocusChain</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-normalGeometry"><strong>normalGeometry</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-overrideWindowFlags"><strong>overrideWindowFlags</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-overrideWindowState"><strong>overrideWindowState</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-paintEngine"><strong>paintEngine</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-paintEvent"><strong>paintEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-palette"><strong>palette</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-parentWidget"><strong>parentWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-pos"><strong>pos</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-previousInFocusChain"><strong>previousInFocusChain</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-raise_"><strong>raise_</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-rect"><strong>rect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-releaseKeyboard"><strong>releaseKeyboard</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-releaseMouse"><strong>releaseMouse</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-releaseShortcut"><strong>releaseShortcut</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-removeAction"><strong>removeAction</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-render"><strong>render</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-repaint"><strong>repaint</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-resetInputContext"><strong>resetInputContext</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-resize"><strong>resize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-resizeEvent"><strong>resizeEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-restoreGeometry"><strong>restoreGeometry</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-saveGeometry"><strong>saveGeometry</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-scroll"><strong>scroll</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setAcceptDrops"><strong>setAcceptDrops</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setAccessibleDescription"><strong>setAccessibleDescription</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setAccessibleName"><strong>setAccessibleName</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setAttribute"><strong>setAttribute</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setAutoFillBackground"><strong>setAutoFillBackground</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setBackgroundRole"><strong>setBackgroundRole</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setBaseSize"><strong>setBaseSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setContentsMargins"><strong>setContentsMargins</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setContextMenuPolicy"><strong>setContextMenuPolicy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setCursor"><strong>setCursor</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setDisabled"><strong>setDisabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setEnabled"><strong>setEnabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setFixedHeight"><strong>setFixedHeight</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setFixedSize"><strong>setFixedSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setFixedWidth"><strong>setFixedWidth</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setFocus"><strong>setFocus</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setFocusPolicy"><strong>setFocusPolicy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setFocusProxy"><strong>setFocusProxy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setFont"><strong>setFont</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setForegroundRole"><strong>setForegroundRole</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setGeometry"><strong>setGeometry</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setGraphicsEffect"><strong>setGraphicsEffect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setHidden"><strong>setHidden</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setInputContext"><strong>setInputContext</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setInputMethodHints"><strong>setInputMethodHints</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setLayout"><strong>setLayout</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setLayoutDirection"><strong>setLayoutDirection</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setLocale"><strong>setLocale</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setMask"><strong>setMask</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setMaximumHeight"><strong>setMaximumHeight</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setMaximumSize"><strong>setMaximumSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setMaximumWidth"><strong>setMaximumWidth</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setMinimumHeight"><strong>setMinimumHeight</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setMinimumSize"><strong>setMinimumSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setMinimumWidth"><strong>setMinimumWidth</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setMouseTracking"><strong>setMouseTracking</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setPalette"><strong>setPalette</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setParent"><strong>setParent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setShortcutAutoRepeat"><strong>setShortcutAutoRepeat</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setShortcutEnabled"><strong>setShortcutEnabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setSizeIncrement"><strong>setSizeIncrement</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setSizePolicy"><strong>setSizePolicy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setStatusTip"><strong>setStatusTip</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setStyle"><strong>setStyle</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setStyleSheet"><strong>setStyleSheet</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setToolTip"><strong>setToolTip</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setUpdatesEnabled"><strong>setUpdatesEnabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setVisible"><strong>setVisible</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setWhatsThis"><strong>setWhatsThis</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setWindowFilePath"><strong>setWindowFilePath</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setWindowFlags"><strong>setWindowFlags</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setWindowIcon"><strong>setWindowIcon</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setWindowIconText"><strong>setWindowIconText</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setWindowModality"><strong>setWindowModality</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setWindowModified"><strong>setWindowModified</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setWindowOpacity"><strong>setWindowOpacity</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setWindowRole"><strong>setWindowRole</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setWindowState"><strong>setWindowState</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setWindowTitle"><strong>setWindowTitle</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-show"><strong>show</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-showEvent"><strong>showEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-showFullScreen"><strong>showFullScreen</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-showMaximized"><strong>showMaximized</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-showMinimized"><strong>showMinimized</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-showNormal"><strong>showNormal</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-size"><strong>size</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-sizeHint"><strong>sizeHint</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-sizeIncrement"><strong>sizeIncrement</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-sizePolicy"><strong>sizePolicy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-stackUnder"><strong>stackUnder</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-statusTip"><strong>statusTip</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-style"><strong>style</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-styleSheet"><strong>styleSheet</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-tabletEvent"><strong>tabletEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-testAttribute"><strong>testAttribute</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-toolTip"><strong>toolTip</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-underMouse"><strong>underMouse</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-ungrabGesture"><strong>ungrabGesture</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-unsetCursor"><strong>unsetCursor</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-unsetLayoutDirection"><strong>unsetLayoutDirection</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-unsetLocale"><strong>unsetLocale</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-update"><strong>update</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-updateGeometry"><strong>updateGeometry</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-updateMicroFocus"><strong>updateMicroFocus</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-updatesEnabled"><strong>updatesEnabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-visibleRegion"><strong>visibleRegion</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-whatsThis"><strong>whatsThis</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-wheelEvent"><strong>wheelEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-width"><strong>width</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-winEvent"><strong>winEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-winId"><strong>winId</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-window"><strong>window</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-windowFilePath"><strong>windowFilePath</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-windowFlags"><strong>windowFlags</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-windowIcon"><strong>windowIcon</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-windowIconText"><strong>windowIconText</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-windowModality"><strong>windowModality</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-windowOpacity"><strong>windowOpacity</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-windowRole"><strong>windowRole</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-windowState"><strong>windowState</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-windowTitle"><strong>windowTitle</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-windowType"><strong>windowType</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-x"><strong>x</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-y"><strong>y</strong></a>(...)</dt></dl>
+
+<hr>
+Static methods inherited from <a href="PySide.QtGui.html#QWidget">PySide.QtGui.QWidget</a>:<br>
+<dl><dt><a name="VoPilot-keyboardGrabber"><strong>keyboardGrabber</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-mouseGrabber"><strong>mouseGrabber</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setTabOrder"><strong>setTabOrder</strong></a>(...)</dt></dl>
+
+<hr>
+Data and other attributes inherited from <a href="PySide.QtGui.html#QWidget">PySide.QtGui.QWidget</a>:<br>
+<dl><dt><strong>DrawChildren</strong> = PySide.QtGui.QWidget.RenderFlag.DrawChildren</dl>
+
+<dl><dt><strong>DrawWindowBackground</strong> = PySide.QtGui.QWidget.RenderFlag.DrawWindowBackground</dl>
+
+<dl><dt><strong>IgnoreMask</strong> = PySide.QtGui.QWidget.RenderFlag.IgnoreMask</dl>
+
+<dl><dt><strong>RenderFlag</strong> = &lt;type 'PySide.QtGui.QWidget.RenderFlag'&gt;</dl>
+
+<dl><dt><strong>RenderFlags</strong> = &lt;type 'RenderFlags'&gt;</dl>
+
+<dl><dt><strong>customContextMenuRequested</strong> = &lt;PySide.QtCore.Signal object&gt;<dd><tt>Signal</tt></dl>
+
+<hr>
+Methods inherited from <a href="PySide.QtCore.html#QObject">PySide.QtCore.QObject</a>:<br>
+<dl><dt><a name="VoPilot-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#VoPilot-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="VoPilot-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#VoPilot-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="VoPilot-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#VoPilot-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="VoPilot-blockSignals"><strong>blockSignals</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-childEvent"><strong>childEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-children"><strong>children</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-connectNotify"><strong>connectNotify</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-customEvent"><strong>customEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-deleteLater"><strong>deleteLater</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-disconnectNotify"><strong>disconnectNotify</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-dumpObjectInfo"><strong>dumpObjectInfo</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-dumpObjectTree"><strong>dumpObjectTree</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-dynamicPropertyNames"><strong>dynamicPropertyNames</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-emit"><strong>emit</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-eventFilter"><strong>eventFilter</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-findChild"><strong>findChild</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-findChildren"><strong>findChildren</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-inherits"><strong>inherits</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-installEventFilter"><strong>installEventFilter</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-isWidgetType"><strong>isWidgetType</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-killTimer"><strong>killTimer</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-metaObject"><strong>metaObject</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-moveToThread"><strong>moveToThread</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-objectName"><strong>objectName</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-parent"><strong>parent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-property"><strong>property</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-receivers"><strong>receivers</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-removeEventFilter"><strong>removeEventFilter</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-sender"><strong>sender</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-senderSignalIndex"><strong>senderSignalIndex</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setObjectName"><strong>setObjectName</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-setProperty"><strong>setProperty</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-signalsBlocked"><strong>signalsBlocked</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-startTimer"><strong>startTimer</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-thread"><strong>thread</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-timerEvent"><strong>timerEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-tr"><strong>tr</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-trUtf8"><strong>trUtf8</strong></a>(...)</dt></dl>
+
+<hr>
+Static methods inherited from <a href="PySide.QtCore.html#QObject">PySide.QtCore.QObject</a>:<br>
+<dl><dt><a name="VoPilot-connect"><strong>connect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-disconnect"><strong>disconnect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-registerUserData"><strong>registerUserData</strong></a>(...)</dt></dl>
+
+<hr>
+Data and other attributes inherited from <a href="PySide.QtCore.html#QObject">PySide.QtCore.QObject</a>:<br>
+<dl><dt><strong>destroyed</strong> = &lt;PySide.QtCore.Signal object&gt;<dd><tt>Signal</tt></dl>
+
+<hr>
+Methods inherited from <a href="PySide.QtGui.html#QPaintDevice">PySide.QtGui.QPaintDevice</a>:<br>
+<dl><dt><a name="VoPilot-colorCount"><strong>colorCount</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-depth"><strong>depth</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-heightMM"><strong>heightMM</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-logicalDpiX"><strong>logicalDpiX</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-logicalDpiY"><strong>logicalDpiY</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-numColors"><strong>numColors</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-paintingActive"><strong>paintingActive</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-physicalDpiX"><strong>physicalDpiX</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-physicalDpiY"><strong>physicalDpiY</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoPilot-widthMM"><strong>widthMM</strong></a>(...)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="PySide.QtGui.html#QPaintDevice">PySide.QtGui.QPaintDevice</a>:<br>
+<dl><dt><strong>painters</strong></dt>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="PySide.QtGui.html#QPaintDevice">PySide.QtGui.QPaintDevice</a>:<br>
+<dl><dt><strong>PaintDeviceMetric</strong> = &lt;type 'PySide.QtGui.QPaintDevice.PaintDeviceMetric'&gt;</dl>
+
+<dl><dt><strong>PdmDepth</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmDepth</dl>
+
+<dl><dt><strong>PdmDpiX</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmDpiX</dl>
+
+<dl><dt><strong>PdmDpiY</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmDpiY</dl>
+
+<dl><dt><strong>PdmHeight</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmHeight</dl>
+
+<dl><dt><strong>PdmHeightMM</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmHeightMM</dl>
+
+<dl><dt><strong>PdmNumColors</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmNumColors</dl>
+
+<dl><dt><strong>PdmPhysicalDpiX</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmPhysicalDpiX</dl>
+
+<dl><dt><strong>PdmPhysicalDpiY</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmPhysicalDpiY</dl>
+
+<dl><dt><strong>PdmWidth</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmWidth</dl>
+
+<dl><dt><strong>PdmWidthMM</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmWidthMM</dl>
+
+<hr>
+Data descriptors inherited from Shiboken.Object:<br>
+<dl><dt><strong>__dict__</strong></dt>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-qAlpha"><strong>qAlpha</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qBlue"><strong>qBlue</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qGray"><strong>qGray</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qGreen"><strong>qGreen</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qIsGray"><strong>qIsGray</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qRed"><strong>qRed</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qRgb"><strong>qRgb</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qRgba"><strong>qRgba</strong></a>(...)</dt></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>qApp</strong> = None</td></tr></table>
+</body></html>

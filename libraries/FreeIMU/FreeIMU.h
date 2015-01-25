@@ -120,7 +120,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // *** Define Marg= 3 factors: go to line 491       ***
 // *** Define IMU Axis Alignment: go to line 500    ***
 // ****************************************************
-#define FREEIMU_LIB_VERSION "DEV"
+#define FREEIMU_LIB_VERSION 1
 
 #define FREEIMU_DEVELOPER "Fabio Varesano - varesano.net"
 

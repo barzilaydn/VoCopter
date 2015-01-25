@@ -1,20 +1,6 @@
 // Quad.cpp
 // by Dan Barzilay (at barzilaydn @ gmail.com)
-//
-// Change log:
-//     2014-11-05 - Makeover, adjusted for FreeIMU, new states.
-//     2014-07-20 - initial release
-//
-// TODO:
-//     * Quad: Make calibration real and better (check with FreeIMU software).
-//     * Quad: Make more tests, check param if it's ok.
-//     * Verify params are good for states
-//     * Make SLEEP state.
-//     * Add SETTINGS state where user can change definitions (i.e motor pins).
-//     * Think about making all Serial communication outside of the state machine (before it).
-//     * Change WIRE to i2c_t3
-//
-/* ============================================
+/*
 VoCopter code is placed under the MIT license
 Copyright (c) 2014 Dan Barzilay
 
@@ -150,18 +136,22 @@ void Quad::SetMotors(bool forceThrust)
         baseThrust = baseThrust_S;
     else
         baseThrust += (baseThrust_S - baseThrust > 0) - (baseThrust_S - baseThrust < 0);
-
+    
+    Yaw += Yaw_O;
+    Pitch += Pitch_O;
+    Roll += Roll_O;
+    
     //Calculate value for each motor.
     #ifdef X_CONFIG
-        thrust[0] = (baseThrust != 0) ? constrain(baseThrust - Pitch_O + Roll_O + Yaw_O, 0, 255) : 0;
-        thrust[1] = (baseThrust != 0) ? constrain(baseThrust - Pitch_O - Roll_O - Yaw_O, 0, 255) : 0;
-        thrust[2] = (baseThrust != 0) ? constrain(baseThrust + Pitch_O - Roll_O + Yaw_O, 0, 255) : 0;
-        thrust[3] = (baseThrust != 0) ? constrain(baseThrust + Pitch_O + Roll_O - Yaw_O, 0, 255) : 0;
+        thrust[0] = (baseThrust != 0) ? constrain(baseThrust - Pitch + Roll + Yaw, 0, 255) : 0;
+        thrust[1] = (baseThrust != 0) ? constrain(baseThrust - Pitch - Roll - Yaw, 0, 255) : 0;
+        thrust[2] = (baseThrust != 0) ? constrain(baseThrust + Pitch - Roll + Yaw, 0, 255) : 0;
+        thrust[3] = (baseThrust != 0) ? constrain(baseThrust + Pitch + Roll - Yaw, 0, 255) : 0;
     #else
-        thrust[0] = (baseThrust != 0) ? constrain(baseThrust + Pitch_O + Yaw_O, 0, 255) : 0;
-        thrust[1] = (baseThrust != 0) ? constrain(baseThrust - Roll_O  - Yaw_O, 0, 255) : 0;
-        thrust[2] = (baseThrust != 0) ? constrain(baseThrust - Pitch_O + Yaw_O, 0, 255) : 0;
-        thrust[3] = (baseThrust != 0) ? constrain(baseThrust + Roll_O  - Yaw_O, 0, 255) : 0;
+        thrust[0] = (baseThrust != 0) ? constrain(baseThrust + Pitch + Yaw, 0, 255) : 0;
+        thrust[1] = (baseThrust != 0) ? constrain(baseThrust - Roll  - Yaw, 0, 255) : 0;
+        thrust[2] = (baseThrust != 0) ? constrain(baseThrust - Pitch + Yaw, 0, 255) : 0;
+        thrust[3] = (baseThrust != 0) ? constrain(baseThrust + Roll  - Yaw, 0, 255) : 0;
     #endif
     
     //Assign to motors.
@@ -382,7 +372,7 @@ void Quad::Calibrate(int cmd)
     {
         case 1: //Send data for calibration
         {
-            SERIAL_PRINTLN();
+            SERIAL_PRINT("\n");
             Quad::serial_busy_wait();
             
             QDEBUG_PRINTLN(F("Got ack"));
@@ -409,7 +399,7 @@ void Quad::Calibrate(int cmd)
                     my3IMU.magn.getValues(&raw_values[0], &raw_values[1], &raw_values[2]);
                     Quad::writeArr(raw_values, 3, sizeof(int));
                 #endif
-                SERIAL_PRINTLN();
+                SERIAL_PRINT("\n");
             }
             
             QDEBUG_PRINTLN(F("Finished sending"));
@@ -479,18 +469,22 @@ void Quad::Calibrate(int cmd)
     }
 }
 
-void Quad::Test(int* PARAMS)
+void Quad::Test(int32_t* PARAMS)
 {
     switch(PARAMS[0])
     {
-        case 1: //Motors
-            Quad::SetBaseThrust(PARAMS[1]);
+        case 1: //PID
+            Quad::SetBaseThrust(constrain(PARAMS[1], 0, 255));
             Quad::Fly();
-            sprintf(str, "DEBUG: Yaw_O: %d, Pitch_O: %d, Roll_O: %d", Yaw_O, Pitch_O, Roll_O);
-            QDEBUG_PRINTLN(F(str));
+            SERIAL_PRINTLN(Q_TEST, 3, (int32_t)Yaw_O, (int32_t)Pitch_O, (int32_t)Roll_O);
             break;
             
         case 2: //Motors_individual
+            thrust[0] = constrain(PARAMS[1], 0, 255);
+            thrust[1] = constrain(PARAMS[1], 0, 255);
+            thrust[2] = constrain(PARAMS[1], 0, 255);
+            thrust[3] = constrain(PARAMS[1], 0, 255);
+            
             analogWrite(motors[0], constrain(PARAMS[1], 0, 255));
             analogWrite(motors[1], constrain(PARAMS[2], 0, 255));
             analogWrite(motors[2], constrain(PARAMS[3], 0, 255));
@@ -500,14 +494,22 @@ void Quad::Test(int* PARAMS)
         default: 
         case 0: //FreeIMU
             my3IMU.getRawValues(raw_values);
-            sprintf(str, "DEBUG: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", raw_values[0], raw_values[1], raw_values[2], raw_values[3], raw_values[4], raw_values[5], raw_values[6], raw_values[7], raw_values[8], raw_values[9], raw_values[10]);
-            QDEBUG_PRINTLN(F(str));
             my3IMU.getQ(q, val);
-            sprintf(str, "DEBUG: Q: %f,%f,%f,%f", q[0], q[1], q[2], q[3]);
-            QDEBUG_PRINTLN(F(str));
-            my3IMU.getYawPitchRoll(ypr);
-            sprintf(str, "DEBUG: Yaw: %d, Pitch: %d, Roll: %d", ypr[0], ypr[1], ypr[2]);
-            QDEBUG_PRINTLN(F(str));
+            SERIAL_PRINTLN(Q_TEST, 12, (int32_t)raw_values[0],
+                                       (int32_t)raw_values[1],
+                                       (int32_t)raw_values[2],
+                                       (int32_t)raw_values[3],
+                                       (int32_t)raw_values[4],
+                                       (int32_t)raw_values[5],
+                                       (int32_t)raw_values[6],
+                                       (int32_t)raw_values[7],
+                                       (int32_t)raw_values[8],
+                                       (int32_t)raw_values[9],
+                                       (int32_t)raw_values[10],
+                                       (int32_t)val[11],
+                                       (int32_t)val[12],
+                                       (int32_t)FREEIMU_LIB_VERSION);
+            
             break;        
     }
 }
@@ -515,8 +517,6 @@ void Quad::Test(int* PARAMS)
 /*-----------------
     Getters / Setters
   -----------------*/
-int*    Quad::GetThrust()         { return thrust; }
-
 void    Quad::SetBaseThrust(int t){ baseThrust_S = map(constrain(t, 0, 100), 0, 100, 0, 255); }
 int     Quad::GetBaseThrust()     { return baseThrust; }
 

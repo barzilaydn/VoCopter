@@ -6,14 +6,14 @@
 //     2014-07-20 - initial release
 //
 // TODO:
-//     * Quad: Verify that Test function input is valid.
-//     * Quad: Make more tests in Test function.
-//    -* Quad: Make calibration real and better (check with FreeIMU software).
-//     * Verify params are good for states
+//    !* Change WIFI232-T settings so that frame length is 64 bytes (use "auto-frame" option)
+//    !* Test new serial comms.
+//     * Experiment with the status of WIFI232-T (coming from pin D21)
+//     * Quad: Finish calibration.
+//     
 //     * Add SETTINGS state where user can change definitions (i.e motor pins).
 //     * Implement landing via altitude sensor.  
 //     * Encrypt communication.  
-//    ~* Change WIRE to i2c_t3
 //
 /* ============================================
 VoCopter code is placed under the MIT license
@@ -106,29 +106,18 @@ THE SOFTWARE.
 
 #include "Quad.h"
 
-/*-----------------
-    Quad States
-  -----------------*/
-#define SLEEP     0
-#define FLY       1
-#define CALIBRATE 2
-#define TUNE      3
-#define MOVE      4
-#define TEST      5
-#define SETTINGS  6
-
 /*---------------------------------------------------------------------
     Main Code
   ---------------------------------------------------------------------*/
 Quad VoCopter(OUTPUT_STEP, NOISE, LOOK_BACK_SEC, SAMPLE_TIME); // Quad(OutputStep, Noise, LookBackSec, SampleTime(ms), Configuration)
-int STATE = 0;
-int PARAMS[MAX_CNTRL_PARAMS];
+uint32_t STATE = 0;
+int32_t PARAMS[MAX_CNTRL_PARAMS];
 bool STATE_FLAG = false;
 unsigned long uptime;
 unsigned long zero_time;
 int BatLvl = 100;
-char sts_str[COMMAND_STAT_SIZE];
-char cntrl_str[COMMAND_CNTRL_SIZE];
+char sts_str[COMMAND_SIZE];
+char cntrl_str[COMMAND_SIZE];
 
 void setup(void)
 {
@@ -142,7 +131,7 @@ void setup(void)
     VoCopter.Init(false);
     
     #ifdef CORE_TEENSY
-        config.pinMode(RX_PIN, INPUT, LOW);//pin, mode, type
+        config.pinMode(RX_PIN, INPUT, LOW); //pin, mode, type
     #else
         pinMode(RX_PIN, INPUT);
     #endif
@@ -155,45 +144,35 @@ void loop(void)
     uptime = millis();
     
     // Clear params
-    for (int c = 0; c < MAX_CNTRL_PARAMS; c++)
-    {
-        PARAMS[c] = NULL;     
-    }
-/*
- * Send / Receive user data.
-*/
+    for (int c = 0; c < MAX_CNTRL_PARAMS; c++)    
+        PARAMS[c] = NULL;
+    
+    /*
+     * Send / Receive user data.
+    */
     /// --- RECEIVE --- ///
     
-    if(SERIAL_AVAILABLE() > 0)
+    if(SERIAL_AVAILABLE() >= COMMAND_SIZE)
     {
-        int i = 0;
-        for(; SERIAL_AVAILABLE() > 0 && i < COMMAND_CNTRL_SIZE; i++)
-        {
-            cntrl_str[i] = SERIAL_READ();
-            delay(1); // Wait for the next byte.
-        }
-        cntrl_str[i+1] = NULL; // Add null byte for end.
-        // FORMAT: ' VCCTRL ; STATE ; PARAMS,PARAMS,PARAMS.. '
-        char* command = strtok(cntrl_str, ";");
-
-        if(strcmp(command,"VCCTRL") == 0)
-        {
-            // Set the state.
-            command = strtok(NULL, ";");
-            int st = atoi(command);
-            if(st >= SLEEP && st <= SETTINGS)
-                STATE = st; 
-            
-            command = strtok(NULL, ";"); // Find the next param in command string.
-            char* paramstr = strtok(command, ","); // Find the next param in command string.
-            //Set the params.
-            for (int c = 0; paramstr != NULL && c < MAX_CNTRL_PARAMS; c++)
+        // Read up command:
+        SERIAL_READ_BYTES(cntrl_str, COMMAND_SIZE);
+        
+        // If matching "signature": (means that it is really a command)
+        if(cntrl_str[0] == SERIAL_HEAD[0] && cntrl_str[COMMAND_SIZE-1] == SERIAL_TAIL[1])
+            for(int i = 2; i < MAX_CNTRL_PARAMS * 2; i=i+4)
             {
-                PARAMS[c] = atoi(paramstr);     
-                paramstr = strtok(NULL, ","); // Find the next param in command string.
+                // Little-endian byte array to unsigned int conversion
+                uint32_t st = (uint32_t)cntrl_str[i] + (uint32_t)(cntrl_str[i+1] << 8)
+                                + (uint32_t)(cntrl_str[i+2] << 16) + (uint32_t)(cntrl_str[i+3] << 24);
+                
+                if(i == 2)
+                    if(st >= SLEEP && st <= NUM_STATES-1)
+                        STATE = st; 
+                else
+                    PARAMS[(i-2)/4 - 1] = (int32_t)st;
             }
-            
-        }        
+        
+        // Update time since inactive:
         zero_time = uptime;
     }
 
@@ -202,28 +181,28 @@ void loop(void)
         ///  --- SEND ---  ///
         float* q = VoCopter.GetQ();
         int* thrusts = VoCopter.GetMotors();
-        // FORMAT: ' VCSTAT ; UP_TIME ; STATE ; 100*q[0],100*q[1],100*q[2],100*q[3],HEADING,ALTITUDE ; FRONT_LEFT,FRONT_RIGHT,BACK_LEFT,BACK_RIGHT ; BAT_LVL '
-        sprintf(sts_str, "VCSTAT;%u;%d;%d,%d,%d,%d,%d,%d;%d,%d,%d,%d;%d",
-                                                        (unsigned int)(uptime / 1000),
-                                                        (int)STATE,
-                                                        (int)(q[0] * 100),
-                                                        (int)(q[1] * 100),
-                                                        (int)(q[2] * 100),
-                                                        (int)(q[3] * 100),
-                                                        (int)VoCopter.GetHeading(),
-                                                        (int)VoCopter.GetAltitude(),
-                                                        (int)thrusts[0],
-                                                        (int)thrusts[1],
-                                                        (int)thrusts[2],
-                                                        (int)thrusts[3],
-                                                        (int)BatLvl);
-        SERIAL_PRINTLN(sts_str);
+        // FORMAT: ' UP_TIME ; STATE ; 100*q[0],100*q[1],100*q[2],100*q[3],HEADING,ALTITUDE ; FRONT_LEFT,FRONT_RIGHT,BACK_LEFT,BACK_RIGHT ; BAT_LVL '
+        SERIAL_PRINTLN(Q_STATUS, 13, 
+                                    (uint32_t)(uptime / 1000),
+                                    (uint32_t)STATE,
+                                    (int32_t)(q[0] * 100),
+                                    (int32_t)(q[1] * 100),
+                                    (int32_t)(q[2] * 100),
+                                    (int32_t)(q[3] * 100),
+                                    (int32_t)VoCopter.GetHeading(),
+                                    (int32_t)VoCopter.GetAltitude(),
+                                    (int32_t)thrusts[0],
+                                    (int32_t)thrusts[1],
+                                    (int32_t)thrusts[2],
+                                    (int32_t)thrusts[3],
+                                    (int32_t)BatLvl);
     }
+    
     // Go to sleep if too low battery.
     if(BatLvl < SLEEP_BAT)
     {
-        SERIAL_PRINTLN("VCALRT;LB"); // Low Battery
-        QDEBUG_PRINTLN("VCALRT;LB"); // Low Battery
+        SERIAL_PRINTLN(Q_ALERT,1,Q_LOW_BAT); // ALERT: Low Battery, BatLvl
+        QDEBUG_PRINTLN("Low Battery"); // Low Battery
         STATE = SLEEP;
     }
     
@@ -231,7 +210,7 @@ void loop(void)
     if(uptime - zero_time >= 1000 * GO_TO_SLEEP_TIME)
     {
         zero_time = uptime;
-        SERIAL_PRINTLN("VCALRT;TO"); // Time out
+        SERIAL_PRINTLN(Q_ALERT,1,Q_TIME_OUT); // // ALERT: Time out
         QDEBUG_PRINTLN("VCALRT;TO"); // Time out
         STATE = SLEEP;
     }
@@ -262,9 +241,10 @@ void loop(void)
         
         case MOVE:
             VoCopter.SetBaseThrust(PARAMS[0]);
-            VoCopter.SetPitchS(PARAMS[1]);
-            VoCopter.SetRollS(PARAMS[2]);
-            VoCopter.SetYawS(PARAMS[3]);
+            VoCopter.SetYawS(PARAMS[1]);
+            VoCopter.SetPitchS(PARAMS[2]);
+            VoCopter.SetRollS(PARAMS[3]);
+            VoCopter.Fly();
             STATE = FLY;
             break;
             
@@ -272,7 +252,7 @@ void loop(void)
             //Land, if finished -> sleep..
             if(VoCopter.Stop())
             {
-                SERIAL_PRINTLN("VCSLEP;OK"); // "OK SLEEPING"
+                SERIAL_PRINTLN(Q_SLEEPING, 0); // "OK SLEEPING"
                 QDEBUG_PRINTLN("VCSLEP;OK"); // "OK SLEEPING"
                 Sleep();
             }
@@ -304,7 +284,7 @@ void wakeUp()
     // On wake up
     VoCopter.Init(true); //Restart systems.
     STATE = FLY;
-    SERIAL_PRINTLN("VCSLEP;WAKEUP"); // "WAKEUP"
+    SERIAL_PRINTLN(Q_ALERT, 1, Q_WOKE_UP); // "WOKE UP"
 }
 
 void Sleep()
@@ -338,6 +318,38 @@ int mVtoL(double mV) {
 * @return Returns the battery level measured on the pin.
 */
 void UpdateBatLevel(int pin) {
-    uint32_t x = analogRead(39);
+    uint32_t x = analogRead(pin);
     BatLvl = mVtoL((178*x*x + 2688757565 - 1184375 * x) / 372346);
+}
+
+/*------------------------------
+    Serial command builder
+  ------------------------------*/
+
+void SERIAL_PRINTLN(uint32_t cmd, int len, ...)
+{
+    //Declare a va_list macro and initialize it with va_start
+    va_list argList;
+    va_start(argList, len);
+    
+    //Send head bytes
+    SERIAL_WRITE(SERIAL_HEAD, 2);
+    
+    //Send CMD
+    SERIAL_WRITE(cmd);
+    
+    //Send arguments
+    int count;
+    for(count = 0; count < len; count++) 
+        if(count < MAX_CNTRL_PARAMS)
+            SERIAL_WRITE(va_arg(argList, int32_t));
+    
+    //Fill up buffer
+    for(; count < MAX_CNTRL_PARAMS; count++)
+        SERIAL_WRITE(0x00);
+    
+    //Send end bytes
+    SERIAL_WRITE(SERIAL_TAIL, 2);
+    
+    va_end(argList);
 }

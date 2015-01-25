@@ -1,20 +1,6 @@
 // Quad.h
 // by Dan Barzilay (at barzilaydn @ gmail.com)
-//
-// Change log:
-//     2014-11-05 - Makeover, adjusted for FreeIMU, new states.
-//     2014-07-20 - initial release
-//
-// TODO:
-//     * Quad: Make calibration real and better (check with FreeIMU software).
-//     * Quad: Make more tests, check param if it's ok.
-//     * Verify params are good for states
-//     * Make SLEEP state.
-//     * Add SETTINGS state where user can change definitions (i.e motor pins).
-//     * Think about making all Serial communication outside of the state machine (before it).
-//     * Change WIRE to i2c_t3
-//
-/* ============================================
+/*
 VoCopter code is placed under the MIT license
 Copyright (c) 2014 Dan Barzilay
 
@@ -116,11 +102,9 @@ class Quad {
         bool Fly();
         bool Stop();
         void Calibrate(int);
-        void Test(int*);
+        void Test(int32_t*);
 
-        //Getters / Setters
-        int* GetThrust();
-        
+        //Getters / Setters   
         void SetBaseThrust(int);
         int GetBaseThrust();
         
@@ -176,9 +160,10 @@ class Quad {
         const int sampleTime;
         
         //PID variables
-        double Pitch_S, Pitch_I, Pitch_O = 0;
-        double Roll_S, Roll_I, Roll_O = 0;
-        double Yaw_S, Yaw_I, Yaw_O = 0;
+        double Yaw  , Pitch  , Roll   = 0;          
+        double Yaw_S, Pitch_S, Roll_S = 0;          
+        double Yaw_I, Pitch_I, Roll_I = 0;
+        double Yaw_O, Pitch_O, Roll_O = 0;
         
         //A PID controller for each rotation axis.
         PID       PitchPID; 
@@ -200,5 +185,6 @@ class Quad {
         float temperature;
         float heading;
         float altitude;
+
 };
 #endif

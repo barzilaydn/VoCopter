@@ -1,0 +1,1077 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module VoConsole</title>
+<meta charset="utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>VoConsole</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:///C:/users/dan/google%20drive/%E1%E9%FA%20%F1%F4%F8/%EE%E7%F9%E1%E9%ED/handcopter/code/vopilot/voconsole.py">c:\users\dan\google drive\בית ספר\מחשבים\handcopter\code\vopilot\voconsole.py</a></font></td></tr></table>
+    <p><tt>#&nbsp;encoding:&nbsp;utf-8</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="PySide.QtCore.html">PySide.QtCore</a><br>
+<a href="PySide.QtGui.html">PySide.QtGui</a><br>
+</td><td width="25%" valign=top><a href="PySide.QtNetwork.html">PySide.QtNetwork</a><br>
+<a href="VoConfig.html">VoConfig</a><br>
+</td><td width="25%" valign=top><a href="time.html">time</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="PySide.QtCore.html#QObject">PySide.QtCore.QObject</a>(Shiboken.Object)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="VoConsole.html#commsSignals">commsSignals</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="PySide.QtGui.html#QMainWindow">PySide.QtGui.QMainWindow</a>(<a href="PySide.QtGui.html#QWidget">PySide.QtGui.QWidget</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="VoConsole.html#VoConsole">VoConsole</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="VoConsole.html#VoComms">VoComms</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="VoComms">class <strong>VoComms</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="VoComms-ComConnect"><strong>ComConnect</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="VoComms-ComConnected"><strong>ComConnected</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="VoComms-ComDisconnect"><strong>ComDisconnect</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="VoComms-ComDisconnected"><strong>ComDisconnected</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="VoComms-__init__"><strong>__init__</strong></a>(self, parent<font color="#909090">=None</font>)</dt></dl>
+
+<dl><dt><a name="VoComms-handleError"><strong>handleError</strong></a>(self, socketError)</dt></dl>
+
+<dl><dt><a name="VoComms-readCmd"><strong>readCmd</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="VoComms-toggleConnection"><strong>toggleConnection</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="VoComms-writeCmd"><strong>writeCmd</strong></a>(self, cmd, *argv)</dt></dl>
+
+<dl><dt><a name="VoComms-writeToLog"><strong>writeToLog</strong></a>(self, data)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="VoConsole">class <strong>VoConsole</strong></a>(<a href="PySide.QtGui.html#QMainWindow">PySide.QtGui.QMainWindow</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="VoConsole.html#VoConsole">VoConsole</a></dd>
+<dd><a href="PySide.QtGui.html#QMainWindow">PySide.QtGui.QMainWindow</a></dd>
+<dd><a href="PySide.QtGui.html#QWidget">PySide.QtGui.QWidget</a></dd>
+<dd><a href="PySide.QtCore.html#QObject">PySide.QtCore.QObject</a></dd>
+<dd><a href="PySide.QtGui.html#QPaintDevice">PySide.QtGui.QPaintDevice</a></dd>
+<dd>Shiboken.Object</dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="VoConsole-__init__"><strong>__init__</strong></a>(self, parent<font color="#909090">=None</font>)</dt></dl>
+
+<dl><dt><a name="VoConsole-logChange"><strong>logChange</strong></a>(self, data)</dt></dl>
+
+<dl><dt><a name="VoConsole-saveLog"><strong>saveLog</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="VoConsole-sendCmd"><strong>sendCmd</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="VoConsole-validateCmd"><strong>validateCmd</strong></a>(self)</dt></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>cmd</strong> = 0</dl>
+
+<dl><dt><strong>params</strong> = []</dl>
+
+<dl><dt><strong>staticMetaObject</strong> = &lt;PySide.QtCore.QMetaObject object&gt;</dl>
+
+<hr>
+Methods inherited from <a href="PySide.QtGui.html#QMainWindow">PySide.QtGui.QMainWindow</a>:<br>
+<dl><dt><a name="VoConsole-addDockWidget"><strong>addDockWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-addToolBar"><strong>addToolBar</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-addToolBarBreak"><strong>addToolBarBreak</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-centralWidget"><strong>centralWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-contextMenuEvent"><strong>contextMenuEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-corner"><strong>corner</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-createPopupMenu"><strong>createPopupMenu</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-dockOptions"><strong>dockOptions</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-dockWidgetArea"><strong>dockWidgetArea</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-documentMode"><strong>documentMode</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-event"><strong>event</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-iconSize"><strong>iconSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-insertToolBar"><strong>insertToolBar</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-insertToolBarBreak"><strong>insertToolBarBreak</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isAnimated"><strong>isAnimated</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isDockNestingEnabled"><strong>isDockNestingEnabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isSeparator"><strong>isSeparator</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-menuBar"><strong>menuBar</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-menuWidget"><strong>menuWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-removeDockWidget"><strong>removeDockWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-removeToolBar"><strong>removeToolBar</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-removeToolBarBreak"><strong>removeToolBarBreak</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-restoreDockWidget"><strong>restoreDockWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-restoreState"><strong>restoreState</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-saveState"><strong>saveState</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setAnimated"><strong>setAnimated</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setCentralWidget"><strong>setCentralWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setCorner"><strong>setCorner</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setDockNestingEnabled"><strong>setDockNestingEnabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setDockOptions"><strong>setDockOptions</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setDocumentMode"><strong>setDocumentMode</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setIconSize"><strong>setIconSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setMenuBar"><strong>setMenuBar</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setMenuWidget"><strong>setMenuWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setStatusBar"><strong>setStatusBar</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setTabPosition"><strong>setTabPosition</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setTabShape"><strong>setTabShape</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setToolButtonStyle"><strong>setToolButtonStyle</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setUnifiedTitleAndToolBarOnMac"><strong>setUnifiedTitleAndToolBarOnMac</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-splitDockWidget"><strong>splitDockWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-statusBar"><strong>statusBar</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-tabPosition"><strong>tabPosition</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-tabShape"><strong>tabShape</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-tabifiedDockWidgets"><strong>tabifiedDockWidgets</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-tabifyDockWidget"><strong>tabifyDockWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-toolBarArea"><strong>toolBarArea</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-toolBarBreak"><strong>toolBarBreak</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-toolButtonStyle"><strong>toolButtonStyle</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-unifiedTitleAndToolBarOnMac"><strong>unifiedTitleAndToolBarOnMac</strong></a>(...)</dt></dl>
+
+<hr>
+Data and other attributes inherited from <a href="PySide.QtGui.html#QMainWindow">PySide.QtGui.QMainWindow</a>:<br>
+<dl><dt><strong>AllowNestedDocks</strong> = PySide.QtGui.QMainWindow.DockOption.AllowNestedDocks</dl>
+
+<dl><dt><strong>AllowTabbedDocks</strong> = PySide.QtGui.QMainWindow.DockOption.AllowTabbedDocks</dl>
+
+<dl><dt><strong>AnimatedDocks</strong> = PySide.QtGui.QMainWindow.DockOption.AnimatedDocks</dl>
+
+<dl><dt><strong>DockOption</strong> = &lt;type 'PySide.QtGui.QMainWindow.DockOption'&gt;</dl>
+
+<dl><dt><strong>DockOptions</strong> = &lt;type 'DockOptions'&gt;</dl>
+
+<dl><dt><strong>ForceTabbedDocks</strong> = PySide.QtGui.QMainWindow.DockOption.ForceTabbedDocks</dl>
+
+<dl><dt><strong>VerticalTabs</strong> = PySide.QtGui.QMainWindow.DockOption.VerticalTabs</dl>
+
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of Shiboken.ObjectType object&gt;<dd><tt>T.<a href="#VoConsole-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;object&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<dl><dt><strong>iconSizeChanged</strong> = &lt;PySide.QtCore.Signal object&gt;<dd><tt>Signal</tt></dl>
+
+<dl><dt><strong>toolButtonStyleChanged</strong> = &lt;PySide.QtCore.Signal object&gt;<dd><tt>Signal</tt></dl>
+
+<hr>
+Methods inherited from <a href="PySide.QtGui.html#QWidget">PySide.QtGui.QWidget</a>:<br>
+<dl><dt><a name="VoConsole-acceptDrops"><strong>acceptDrops</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-accessibleDescription"><strong>accessibleDescription</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-accessibleName"><strong>accessibleName</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-actionEvent"><strong>actionEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-actions"><strong>actions</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-activateWindow"><strong>activateWindow</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-addAction"><strong>addAction</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-addActions"><strong>addActions</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-adjustSize"><strong>adjustSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-autoFillBackground"><strong>autoFillBackground</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-backgroundRole"><strong>backgroundRole</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-baseSize"><strong>baseSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-changeEvent"><strong>changeEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-childAt"><strong>childAt</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-childrenRect"><strong>childrenRect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-childrenRegion"><strong>childrenRegion</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-clearFocus"><strong>clearFocus</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-clearMask"><strong>clearMask</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-close"><strong>close</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-closeEvent"><strong>closeEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-contentsMargins"><strong>contentsMargins</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-contentsRect"><strong>contentsRect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-contextMenuPolicy"><strong>contextMenuPolicy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-createWinId"><strong>createWinId</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-cursor"><strong>cursor</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-destroy"><strong>destroy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-devType"><strong>devType</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-dragEnterEvent"><strong>dragEnterEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-dragLeaveEvent"><strong>dragLeaveEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-dragMoveEvent"><strong>dragMoveEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-dropEvent"><strong>dropEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-effectiveWinId"><strong>effectiveWinId</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-ensurePolished"><strong>ensurePolished</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-enterEvent"><strong>enterEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-focusInEvent"><strong>focusInEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-focusNextChild"><strong>focusNextChild</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-focusNextPrevChild"><strong>focusNextPrevChild</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-focusOutEvent"><strong>focusOutEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-focusPolicy"><strong>focusPolicy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-focusPreviousChild"><strong>focusPreviousChild</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-focusProxy"><strong>focusProxy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-focusWidget"><strong>focusWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-font"><strong>font</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-fontInfo"><strong>fontInfo</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-fontMetrics"><strong>fontMetrics</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-foregroundRole"><strong>foregroundRole</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-frameGeometry"><strong>frameGeometry</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-frameSize"><strong>frameSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-geometry"><strong>geometry</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-getContentsMargins"><strong>getContentsMargins</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-grabGesture"><strong>grabGesture</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-grabKeyboard"><strong>grabKeyboard</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-grabMouse"><strong>grabMouse</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-grabShortcut"><strong>grabShortcut</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-graphicsEffect"><strong>graphicsEffect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-graphicsProxyWidget"><strong>graphicsProxyWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-hasFocus"><strong>hasFocus</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-hasMouseTracking"><strong>hasMouseTracking</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-height"><strong>height</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-heightForWidth"><strong>heightForWidth</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-hide"><strong>hide</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-hideEvent"><strong>hideEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-inputContext"><strong>inputContext</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-inputMethodEvent"><strong>inputMethodEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-inputMethodHints"><strong>inputMethodHints</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-inputMethodQuery"><strong>inputMethodQuery</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-insertAction"><strong>insertAction</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-insertActions"><strong>insertActions</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isActiveWindow"><strong>isActiveWindow</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isAncestorOf"><strong>isAncestorOf</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isEnabled"><strong>isEnabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isEnabledTo"><strong>isEnabledTo</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isFullScreen"><strong>isFullScreen</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isHidden"><strong>isHidden</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isLeftToRight"><strong>isLeftToRight</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isMaximized"><strong>isMaximized</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isMinimized"><strong>isMinimized</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isModal"><strong>isModal</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isRightToLeft"><strong>isRightToLeft</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isVisible"><strong>isVisible</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isVisibleTo"><strong>isVisibleTo</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isWindow"><strong>isWindow</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isWindowModified"><strong>isWindowModified</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-keyPressEvent"><strong>keyPressEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-keyReleaseEvent"><strong>keyReleaseEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-languageChange"><strong>languageChange</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-layout"><strong>layout</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-layoutDirection"><strong>layoutDirection</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-leaveEvent"><strong>leaveEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-locale"><strong>locale</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-lower"><strong>lower</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-mapFrom"><strong>mapFrom</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-mapFromGlobal"><strong>mapFromGlobal</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-mapFromParent"><strong>mapFromParent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-mapTo"><strong>mapTo</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-mapToGlobal"><strong>mapToGlobal</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-mapToParent"><strong>mapToParent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-mask"><strong>mask</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-maximumHeight"><strong>maximumHeight</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-maximumSize"><strong>maximumSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-maximumWidth"><strong>maximumWidth</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-metric"><strong>metric</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-minimumHeight"><strong>minimumHeight</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-minimumSize"><strong>minimumSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-minimumSizeHint"><strong>minimumSizeHint</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-minimumWidth"><strong>minimumWidth</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-mouseDoubleClickEvent"><strong>mouseDoubleClickEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-mouseMoveEvent"><strong>mouseMoveEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-mousePressEvent"><strong>mousePressEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-mouseReleaseEvent"><strong>mouseReleaseEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-move"><strong>move</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-moveEvent"><strong>moveEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-nativeParentWidget"><strong>nativeParentWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-nextInFocusChain"><strong>nextInFocusChain</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-normalGeometry"><strong>normalGeometry</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-overrideWindowFlags"><strong>overrideWindowFlags</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-overrideWindowState"><strong>overrideWindowState</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-paintEngine"><strong>paintEngine</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-paintEvent"><strong>paintEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-palette"><strong>palette</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-parentWidget"><strong>parentWidget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-pos"><strong>pos</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-previousInFocusChain"><strong>previousInFocusChain</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-raise_"><strong>raise_</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-rect"><strong>rect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-releaseKeyboard"><strong>releaseKeyboard</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-releaseMouse"><strong>releaseMouse</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-releaseShortcut"><strong>releaseShortcut</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-removeAction"><strong>removeAction</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-render"><strong>render</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-repaint"><strong>repaint</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-resetInputContext"><strong>resetInputContext</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-resize"><strong>resize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-resizeEvent"><strong>resizeEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-restoreGeometry"><strong>restoreGeometry</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-saveGeometry"><strong>saveGeometry</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-scroll"><strong>scroll</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setAcceptDrops"><strong>setAcceptDrops</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setAccessibleDescription"><strong>setAccessibleDescription</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setAccessibleName"><strong>setAccessibleName</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setAttribute"><strong>setAttribute</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setAutoFillBackground"><strong>setAutoFillBackground</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setBackgroundRole"><strong>setBackgroundRole</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setBaseSize"><strong>setBaseSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setContentsMargins"><strong>setContentsMargins</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setContextMenuPolicy"><strong>setContextMenuPolicy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setCursor"><strong>setCursor</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setDisabled"><strong>setDisabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setEnabled"><strong>setEnabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setFixedHeight"><strong>setFixedHeight</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setFixedSize"><strong>setFixedSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setFixedWidth"><strong>setFixedWidth</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setFocus"><strong>setFocus</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setFocusPolicy"><strong>setFocusPolicy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setFocusProxy"><strong>setFocusProxy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setFont"><strong>setFont</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setForegroundRole"><strong>setForegroundRole</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setGeometry"><strong>setGeometry</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setGraphicsEffect"><strong>setGraphicsEffect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setHidden"><strong>setHidden</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setInputContext"><strong>setInputContext</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setInputMethodHints"><strong>setInputMethodHints</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setLayout"><strong>setLayout</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setLayoutDirection"><strong>setLayoutDirection</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setLocale"><strong>setLocale</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setMask"><strong>setMask</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setMaximumHeight"><strong>setMaximumHeight</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setMaximumSize"><strong>setMaximumSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setMaximumWidth"><strong>setMaximumWidth</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setMinimumHeight"><strong>setMinimumHeight</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setMinimumSize"><strong>setMinimumSize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setMinimumWidth"><strong>setMinimumWidth</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setMouseTracking"><strong>setMouseTracking</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setPalette"><strong>setPalette</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setParent"><strong>setParent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setShortcutAutoRepeat"><strong>setShortcutAutoRepeat</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setShortcutEnabled"><strong>setShortcutEnabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setSizeIncrement"><strong>setSizeIncrement</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setSizePolicy"><strong>setSizePolicy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setStatusTip"><strong>setStatusTip</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setStyle"><strong>setStyle</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setStyleSheet"><strong>setStyleSheet</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setToolTip"><strong>setToolTip</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setUpdatesEnabled"><strong>setUpdatesEnabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setVisible"><strong>setVisible</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setWhatsThis"><strong>setWhatsThis</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setWindowFilePath"><strong>setWindowFilePath</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setWindowFlags"><strong>setWindowFlags</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setWindowIcon"><strong>setWindowIcon</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setWindowIconText"><strong>setWindowIconText</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setWindowModality"><strong>setWindowModality</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setWindowModified"><strong>setWindowModified</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setWindowOpacity"><strong>setWindowOpacity</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setWindowRole"><strong>setWindowRole</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setWindowState"><strong>setWindowState</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setWindowTitle"><strong>setWindowTitle</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-show"><strong>show</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-showEvent"><strong>showEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-showFullScreen"><strong>showFullScreen</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-showMaximized"><strong>showMaximized</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-showMinimized"><strong>showMinimized</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-showNormal"><strong>showNormal</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-size"><strong>size</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-sizeHint"><strong>sizeHint</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-sizeIncrement"><strong>sizeIncrement</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-sizePolicy"><strong>sizePolicy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-stackUnder"><strong>stackUnder</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-statusTip"><strong>statusTip</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-style"><strong>style</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-styleSheet"><strong>styleSheet</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-tabletEvent"><strong>tabletEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-testAttribute"><strong>testAttribute</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-toolTip"><strong>toolTip</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-underMouse"><strong>underMouse</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-ungrabGesture"><strong>ungrabGesture</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-unsetCursor"><strong>unsetCursor</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-unsetLayoutDirection"><strong>unsetLayoutDirection</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-unsetLocale"><strong>unsetLocale</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-update"><strong>update</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-updateGeometry"><strong>updateGeometry</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-updateMicroFocus"><strong>updateMicroFocus</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-updatesEnabled"><strong>updatesEnabled</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-visibleRegion"><strong>visibleRegion</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-whatsThis"><strong>whatsThis</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-wheelEvent"><strong>wheelEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-width"><strong>width</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-winEvent"><strong>winEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-winId"><strong>winId</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-window"><strong>window</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-windowFilePath"><strong>windowFilePath</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-windowFlags"><strong>windowFlags</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-windowIcon"><strong>windowIcon</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-windowIconText"><strong>windowIconText</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-windowModality"><strong>windowModality</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-windowOpacity"><strong>windowOpacity</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-windowRole"><strong>windowRole</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-windowState"><strong>windowState</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-windowTitle"><strong>windowTitle</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-windowType"><strong>windowType</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-x"><strong>x</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-y"><strong>y</strong></a>(...)</dt></dl>
+
+<hr>
+Static methods inherited from <a href="PySide.QtGui.html#QWidget">PySide.QtGui.QWidget</a>:<br>
+<dl><dt><a name="VoConsole-keyboardGrabber"><strong>keyboardGrabber</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-mouseGrabber"><strong>mouseGrabber</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setTabOrder"><strong>setTabOrder</strong></a>(...)</dt></dl>
+
+<hr>
+Data and other attributes inherited from <a href="PySide.QtGui.html#QWidget">PySide.QtGui.QWidget</a>:<br>
+<dl><dt><strong>DrawChildren</strong> = PySide.QtGui.QWidget.RenderFlag.DrawChildren</dl>
+
+<dl><dt><strong>DrawWindowBackground</strong> = PySide.QtGui.QWidget.RenderFlag.DrawWindowBackground</dl>
+
+<dl><dt><strong>IgnoreMask</strong> = PySide.QtGui.QWidget.RenderFlag.IgnoreMask</dl>
+
+<dl><dt><strong>RenderFlag</strong> = &lt;type 'PySide.QtGui.QWidget.RenderFlag'&gt;</dl>
+
+<dl><dt><strong>RenderFlags</strong> = &lt;type 'RenderFlags'&gt;</dl>
+
+<dl><dt><strong>customContextMenuRequested</strong> = &lt;PySide.QtCore.Signal object&gt;<dd><tt>Signal</tt></dl>
+
+<hr>
+Methods inherited from <a href="PySide.QtCore.html#QObject">PySide.QtCore.QObject</a>:<br>
+<dl><dt><a name="VoConsole-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#VoConsole-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="VoConsole-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#VoConsole-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="VoConsole-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#VoConsole-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="VoConsole-blockSignals"><strong>blockSignals</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-childEvent"><strong>childEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-children"><strong>children</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-connectNotify"><strong>connectNotify</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-customEvent"><strong>customEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-deleteLater"><strong>deleteLater</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-disconnectNotify"><strong>disconnectNotify</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-dumpObjectInfo"><strong>dumpObjectInfo</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-dumpObjectTree"><strong>dumpObjectTree</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-dynamicPropertyNames"><strong>dynamicPropertyNames</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-emit"><strong>emit</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-eventFilter"><strong>eventFilter</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-findChild"><strong>findChild</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-findChildren"><strong>findChildren</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-inherits"><strong>inherits</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-installEventFilter"><strong>installEventFilter</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-isWidgetType"><strong>isWidgetType</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-killTimer"><strong>killTimer</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-metaObject"><strong>metaObject</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-moveToThread"><strong>moveToThread</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-objectName"><strong>objectName</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-parent"><strong>parent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-property"><strong>property</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-receivers"><strong>receivers</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-removeEventFilter"><strong>removeEventFilter</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-sender"><strong>sender</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-senderSignalIndex"><strong>senderSignalIndex</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setObjectName"><strong>setObjectName</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-setProperty"><strong>setProperty</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-signalsBlocked"><strong>signalsBlocked</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-startTimer"><strong>startTimer</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-thread"><strong>thread</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-timerEvent"><strong>timerEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-tr"><strong>tr</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-trUtf8"><strong>trUtf8</strong></a>(...)</dt></dl>
+
+<hr>
+Static methods inherited from <a href="PySide.QtCore.html#QObject">PySide.QtCore.QObject</a>:<br>
+<dl><dt><a name="VoConsole-connect"><strong>connect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-disconnect"><strong>disconnect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-registerUserData"><strong>registerUserData</strong></a>(...)</dt></dl>
+
+<hr>
+Data and other attributes inherited from <a href="PySide.QtCore.html#QObject">PySide.QtCore.QObject</a>:<br>
+<dl><dt><strong>destroyed</strong> = &lt;PySide.QtCore.Signal object&gt;<dd><tt>Signal</tt></dl>
+
+<hr>
+Methods inherited from <a href="PySide.QtGui.html#QPaintDevice">PySide.QtGui.QPaintDevice</a>:<br>
+<dl><dt><a name="VoConsole-colorCount"><strong>colorCount</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-depth"><strong>depth</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-heightMM"><strong>heightMM</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-logicalDpiX"><strong>logicalDpiX</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-logicalDpiY"><strong>logicalDpiY</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-numColors"><strong>numColors</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-paintingActive"><strong>paintingActive</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-physicalDpiX"><strong>physicalDpiX</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-physicalDpiY"><strong>physicalDpiY</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="VoConsole-widthMM"><strong>widthMM</strong></a>(...)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="PySide.QtGui.html#QPaintDevice">PySide.QtGui.QPaintDevice</a>:<br>
+<dl><dt><strong>painters</strong></dt>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="PySide.QtGui.html#QPaintDevice">PySide.QtGui.QPaintDevice</a>:<br>
+<dl><dt><strong>PaintDeviceMetric</strong> = &lt;type 'PySide.QtGui.QPaintDevice.PaintDeviceMetric'&gt;</dl>
+
+<dl><dt><strong>PdmDepth</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmDepth</dl>
+
+<dl><dt><strong>PdmDpiX</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmDpiX</dl>
+
+<dl><dt><strong>PdmDpiY</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmDpiY</dl>
+
+<dl><dt><strong>PdmHeight</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmHeight</dl>
+
+<dl><dt><strong>PdmHeightMM</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmHeightMM</dl>
+
+<dl><dt><strong>PdmNumColors</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmNumColors</dl>
+
+<dl><dt><strong>PdmPhysicalDpiX</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmPhysicalDpiX</dl>
+
+<dl><dt><strong>PdmPhysicalDpiY</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmPhysicalDpiY</dl>
+
+<dl><dt><strong>PdmWidth</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmWidth</dl>
+
+<dl><dt><strong>PdmWidthMM</strong> = PySide.QtGui.QPaintDevice.PaintDeviceMetric.PdmWidthMM</dl>
+
+<hr>
+Data descriptors inherited from Shiboken.Object:<br>
+<dl><dt><strong>__dict__</strong></dt>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="commsSignals">class <strong>commsSignals</strong></a>(<a href="PySide.QtCore.html#QObject">PySide.QtCore.QObject</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="VoConsole.html#commsSignals">commsSignals</a></dd>
+<dd><a href="PySide.QtCore.html#QObject">PySide.QtCore.QObject</a></dd>
+<dd>Shiboken.Object</dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>cmdAvailable</strong> = &lt;PySide.QtCore.Signal object&gt;<dd><tt>Signal</tt></dl>
+
+<dl><dt><strong>connectionChange</strong> = &lt;PySide.QtCore.Signal object&gt;<dd><tt>Signal</tt></dl>
+
+<dl><dt><strong>logChange</strong> = &lt;PySide.QtCore.Signal object&gt;<dd><tt>Signal</tt></dl>
+
+<dl><dt><strong>staticMetaObject</strong> = &lt;PySide.QtCore.QMetaObject object&gt;</dl>
+
+<hr>
+Methods inherited from <a href="PySide.QtCore.html#QObject">PySide.QtCore.QObject</a>:<br>
+<dl><dt><a name="commsSignals-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#commsSignals-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="commsSignals-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#commsSignals-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="commsSignals-__init__"><strong>__init__</strong></a>(...)</dt><dd><tt>x.<a href="#commsSignals-__init__">__init__</a>(...)&nbsp;initializes&nbsp;x;&nbsp;see&nbsp;help(type(x))&nbsp;for&nbsp;signature</tt></dd></dl>
+
+<dl><dt><a name="commsSignals-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#commsSignals-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="commsSignals-blockSignals"><strong>blockSignals</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-childEvent"><strong>childEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-children"><strong>children</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-connectNotify"><strong>connectNotify</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-customEvent"><strong>customEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-deleteLater"><strong>deleteLater</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-disconnectNotify"><strong>disconnectNotify</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-dumpObjectInfo"><strong>dumpObjectInfo</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-dumpObjectTree"><strong>dumpObjectTree</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-dynamicPropertyNames"><strong>dynamicPropertyNames</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-emit"><strong>emit</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-event"><strong>event</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-eventFilter"><strong>eventFilter</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-findChild"><strong>findChild</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-findChildren"><strong>findChildren</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-inherits"><strong>inherits</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-installEventFilter"><strong>installEventFilter</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-isWidgetType"><strong>isWidgetType</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-killTimer"><strong>killTimer</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-metaObject"><strong>metaObject</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-moveToThread"><strong>moveToThread</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-objectName"><strong>objectName</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-parent"><strong>parent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-property"><strong>property</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-receivers"><strong>receivers</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-removeEventFilter"><strong>removeEventFilter</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-sender"><strong>sender</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-senderSignalIndex"><strong>senderSignalIndex</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-setObjectName"><strong>setObjectName</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-setParent"><strong>setParent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-setProperty"><strong>setProperty</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-signalsBlocked"><strong>signalsBlocked</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-startTimer"><strong>startTimer</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-thread"><strong>thread</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-timerEvent"><strong>timerEvent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-tr"><strong>tr</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-trUtf8"><strong>trUtf8</strong></a>(...)</dt></dl>
+
+<hr>
+Static methods inherited from <a href="PySide.QtCore.html#QObject">PySide.QtCore.QObject</a>:<br>
+<dl><dt><a name="commsSignals-connect"><strong>connect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-disconnect"><strong>disconnect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="commsSignals-registerUserData"><strong>registerUserData</strong></a>(...)</dt></dl>
+
+<hr>
+Data and other attributes inherited from <a href="PySide.QtCore.html#QObject">PySide.QtCore.QObject</a>:<br>
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of Shiboken.ObjectType object&gt;<dd><tt>T.<a href="#commsSignals-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;object&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<dl><dt><strong>destroyed</strong> = &lt;PySide.QtCore.Signal object&gt;<dd><tt>Signal</tt></dl>
+
+<hr>
+Data descriptors inherited from Shiboken.Object:<br>
+<dl><dt><strong>__dict__</strong></dt>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-QT_TRANSLATE_NOOP"><strong>QT_TRANSLATE_NOOP</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-QT_TRANSLATE_NOOP3"><strong>QT_TRANSLATE_NOOP3</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-QT_TRANSLATE_NOOP_UTF8"><strong>QT_TRANSLATE_NOOP_UTF8</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-QT_TR_NOOP"><strong>QT_TR_NOOP</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-QT_TR_NOOP_UTF8"><strong>QT_TR_NOOP_UTF8</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-SIGNAL"><strong>SIGNAL</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-SLOT"><strong>SLOT</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qAbs"><strong>qAbs</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qAcos"><strong>qAcos</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qAddPostRoutine"><strong>qAddPostRoutine</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qAlpha"><strong>qAlpha</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qAsin"><strong>qAsin</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qAtan"><strong>qAtan</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qAtan2"><strong>qAtan2</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qBlue"><strong>qBlue</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qChecksum"><strong>qChecksum</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qCritical"><strong>qCritical</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qDebug"><strong>qDebug</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qExp"><strong>qExp</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qFabs"><strong>qFabs</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qFastCos"><strong>qFastCos</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qFastSin"><strong>qFastSin</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qFatal"><strong>qFatal</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qFuzzyCompare"><strong>qFuzzyCompare</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qFuzzyIsNull"><strong>qFuzzyIsNull</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qGray"><strong>qGray</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qGreen"><strong>qGreen</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qInstallMsgHandler"><strong>qInstallMsgHandler</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qIsFinite"><strong>qIsFinite</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qIsGray"><strong>qIsGray</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qIsInf"><strong>qIsInf</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qIsNaN"><strong>qIsNaN</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qIsNull"><strong>qIsNull</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qRed"><strong>qRed</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qRegisterResourceData"><strong>qRegisterResourceData</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qRgb"><strong>qRgb</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qRgba"><strong>qRgba</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qRound"><strong>qRound</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qTan"><strong>qTan</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qUnregisterResourceData"><strong>qUnregisterResourceData</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qVersion"><strong>qVersion</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qWarning"><strong>qWarning</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qrand"><strong>qrand</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qsrand"><strong>qsrand</strong></a>(...)</dt></dl>
+ <dl><dt><a name="-qtTrId"><strong>qtTrId</strong></a>(...)</dt></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>LicensedDeclarative</strong> = PySide.QtCore.QtValidLicenseForDeclarativeModule.LicensedDeclarative<br>
+<strong>LicensedMultimedia</strong> = PySide.QtCore.QtValidLicenseForMultimediaModule.LicensedMultimedia<br>
+<strong>LicensedOpenVG</strong> = PySide.QtCore.QtValidLicenseForOpenVGModule.LicensedOpenVG<br>
+<strong>QtCriticalMsg</strong> = PySide.QtCore.QtMsgType.QtCriticalMsg<br>
+<strong>QtDebugMsg</strong> = PySide.QtCore.QtMsgType.QtDebugMsg<br>
+<strong>QtFatalMsg</strong> = PySide.QtCore.QtMsgType.QtFatalMsg<br>
+<strong>QtSystemMsg</strong> = PySide.QtCore.QtMsgType.QtSystemMsg<br>
+<strong>QtWarningMsg</strong> = PySide.QtCore.QtMsgType.QtWarningMsg<br>
+<strong>qApp</strong> = None</td></tr></table>
+</body></html>
