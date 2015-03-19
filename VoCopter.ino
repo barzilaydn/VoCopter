@@ -6,6 +6,8 @@
 //     2014-07-20 - initial release
 //
 // TODO:
+//    !* Re-think PID logic, look at what Crazyflie is doing.
+//    !* Re-do PID tuning, copy from ArduCopter: https://github.com/diydrones/ardupilot/blob/master/ArduCopter/control_autotune.pde
 //    !* Change WIFI232-T settings so that frame length is 64 bytes (use "auto-frame" option)
 //    !* Test new serial comms.
 //     * Experiment with the status of WIFI232-T (coming from pin D21)

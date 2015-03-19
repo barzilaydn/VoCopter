@@ -34,7 +34,7 @@
 #define OUTPUT_STEP 20
 #define NOISE 0.5
 #define LOOK_BACK_SEC 1
-#define SAMPLE_TIME 20
+#define SAMPLE_TIME 100
 
 /*--------------
     Debugging
@@ -46,7 +46,7 @@
 /**********!!!!! DON'T EDIT BELOW THIS LINE !!!!!**********/
 
 #define MAX_CNTRL_PARAMS 14
-#define COMMAND_SIZE 8+MAX_CNTRL_PARAMS*4 // Calculated: 2 (HEADER BYTES = 0xDA0B) + 2 (CMD) + 13 (PARAM count) * 2 (int_16 size) + 2 (END BYTES = 0xB0AD)
+#define COMMAND_SIZE 8+MAX_CNTRL_PARAMS*4 // Calculated: 2 (HEADER BYTES = 0xDA0B) + 4 (CMD | int_32) + [PARAM count] * 4 (int_32 size) + 2 (END BYTES = 0xB0AD)
 
 /*-----------------
     Quad States

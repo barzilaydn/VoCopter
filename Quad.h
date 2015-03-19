@@ -159,21 +159,31 @@ class Quad {
         const int aTuneLookBack;
         const int sampleTime;
         
-        //PID variables
-        double Yaw  , Pitch  , Roll   = 0;          
-        double Yaw_S, Pitch_S, Roll_S = 0;          
-        double Yaw_I, Pitch_I, Roll_I = 0;
-        double Yaw_O, Pitch_O, Roll_O = 0;
+        //PID variables:
+        double Yaw   , Pitch   , Roll    = 0;
+            // Earth-ref angle PIDs
+        double EYaw_S, EPitch_S, ERoll_S = 0;          
+        double EYaw_I, EPitch_I, ERoll_I = 0;
+        double EYaw_O, EPitch_O, ERoll_O = 0;        
+            // Body-ref rate PIDs
+        double BYawRate_S, BPitchRate_S, BRollRate_S = 0;          
+        double BYawRate_I, BPitchRate_I, BRollRate_I = 0;
+        double BYawRate_O, BPitchRate_O, BRollRate_O = 0;
         
-        //A PID controller for each rotation axis.
-        PID       PitchPID; 
-        PID_ATune PitchTune;
+        //A PID controller for each rotation axis:
+            // Earth-ref angle PIDs
+        PID       EPitchPID;
+        PID       ERollPID;
+        PID       EYawPID;
+            // Body-ref angle PIDs
+        PID       BPitchRatePID;
+        PID_ATune BPitchRate;
+        
+        PID       BRollRatePID;
+        PID_ATune BRollRateTune;
 
-        PID       RollPID; 
-        PID_ATune RollTune;
-
-        PID       YawPID;
-        PID_ATune YawTune;
+        PID       BYawRatePID;
+        PID_ATune BYawRateTune;
         
         //IMU
         FreeIMU my3IMU;
@@ -182,6 +192,7 @@ class Quad {
         int raw_values[11];
         char str[128];
         float ypr[3]; // yaw pitch roll
+        float brpy[3]; // body yaw pitch roll rate
         float temperature;
         float heading;
         float altitude;

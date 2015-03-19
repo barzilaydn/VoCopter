@@ -33,12 +33,17 @@ THE SOFTWARE.
 
 //Constructor
 Quad::Quad(const double aStep, const double aNoise, const int aLookBack, const int ST) :
-                PitchPID(&Pitch_I, &Pitch_O, &Pitch_S, 1.0, 0.0, 0.0, DIRECT),
-                PitchTune(&Pitch_I, &Pitch_O),
-                RollPID(&Roll_I, &Roll_O, &Roll_S, 1.0, 0.0, 0.0, DIRECT),
-                RollTune(&Roll_I , &Roll_O),
-                YawPID(&Yaw_I, &Yaw_O, &Yaw_S, 1.0, 0.0, 0.0, DIRECT),
-                YawTune(&Yaw_I  , &Yaw_O),
+                EPitchPID(&EPitch_I, &EPitch_O, &EPitch_S, 1.0, 0.0, 0.0, DIRECT),
+                ERollPID(&ERoll_I, &ERoll_O, &ERoll_S, 1.0, 0.0, 0.0, DIRECT),
+                EYawPID(&EYaw_I, &EYaw_O, &EYaw_S, 1.0, 0.0, 0.0, DIRECT),
+                
+                BPitchRatePID(&BPitchRate_I, &BPitchRate_O, &BPitchRate_S, 1.0, 0.0, 0.0, DIRECT),
+                BPitchRateTune(&BPitchRate_I, &BPitchRate_O),
+                BRollRatePID(&BRollRate_I, &BRollRate_O, &BRollRate_S, 1.0, 0.0, 0.0, DIRECT),
+                BRollRateTune(&BRollRate_I , &BRollRate_O),
+                BYawRatePID(&BYawRate_I, &BYawRate_O, &BYawRate_S, 1.0, 0.0, 0.0, DIRECT),
+                BYawRateTune(&BYawRate_I  , &BYawRate_O),
+                
                 aTuneStep(aStep),
                 aTuneNoise(aNoise),
                 aTuneLookBack(aLookBack),
@@ -87,9 +92,12 @@ void Quad::Init(bool fromSleep)
     //--PID--
     QDEBUG_PRINTLN(F("DEBUG: Configuring PIDs and Tuners..."));
     //Prepare the PID controllers:
-    PitchPID.SetSampleTime(sampleTime);
-    RollPID.SetSampleTime(sampleTime);
-    YawPID.SetSampleTime(sampleTime);
+    EPitchPID.SetSampleTime(sampleTime);
+    ERollPID.SetSampleTime(sampleTime);
+    EYawPID.SetSampleTime(sampleTime);
+    BPitchRatePID.SetSampleTime(sampleTime);
+    BRollRatePID.SetSampleTime(sampleTime);
+    BYawRatePID.SetSampleTime(sampleTime);
     
     //Prepare the PID controller tuners:
     PitchTune.SetControlType(PID_ATune::ZIEGLER_NICHOLS_PID);
@@ -104,32 +112,55 @@ bool Quad::Fly()
 {
     if(tuning) Quad::CancelTune();
     
-    //Update Inputs.
+    // Update Inputs
     Quad::UpdateIMU();
     
-    if(PitchPID.GetMode() != 1)
-        PitchPID.SetMode(AUTOMATIC);
-    if(RollPID.GetMode() != 1)
-        RollPID.SetMode(AUTOMATIC);
-    if(YawPID.GetMode() != 1)
-        YawPID.SetMode(AUTOMATIC);
-        
+    // Enable PIDs:
+    if(EPitchPID.GetMode() != 1)
+        EPitchPID.SetMode(AUTOMATIC);
+    if(ERollPID.GetMode() != 1)
+        ERollPID.SetMode(AUTOMATIC);
+    if(EYawPID.GetMode() != 1)
+        EYawPID.SetMode(AUTOMATIC);
+    if(BPitchRatePID.GetMode() != 1)
+        BPitchRatePID.SetMode(AUTOMATIC);
+    if(BRollRatePID.GetMode() != 1)
+        BRollRatePID.SetMode(AUTOMATIC);
+    if(BYawRatePID.GetMode() != 1)
+        BYawRatePID.SetMode(AUTOMATIC);
     
+    // Check dT > sampleTime
     time_since_start = millis();
     if(time_since_start - last_write >= SAMPLE_TIME) // Only every SAMPLE_TIME msecs.
     {
         //Compute new output values    
-        PitchPID.Compute();
-        RollPID.Compute();
-        YawPID.Compute();
-
+        ERollPID.Compute();
+        EPitchPID.Compute();
+        EYawPID.Compute();
+        
+        float rates_earth[3];
+        float rates_body[3];
+        
+        rates_earth[0] += ERoll_O;
+        rates_earth[1] += EPitch_O;
+        rates_earth[2] += EYaw_O;
+        
+        frame_conversion_ef_to_bf(rates_earth, rates_body);
+        
+        BRollRate_S = rates_body[0];
+        BPitchRate_S = rates_body[1];
+        BYawRate_S = rates_body[2];
+        
+        BRollRatePID.Compute();
+        BPitchRatePID.Compute();
+        BYawRatePID.Compute();
+        
         Quad::SetMotors();        
     }
 }
 
 void Quad::SetMotors(bool forceThrust)
 {
-
     last_write = time_since_start;
     //Smoothly get to the baseThrust set point.
     if(forceThrust)
@@ -137,9 +168,9 @@ void Quad::SetMotors(bool forceThrust)
     else
         baseThrust += (baseThrust_S - baseThrust > 0) - (baseThrust_S - baseThrust < 0);
     
-    Yaw += Yaw_O;
-    Pitch += Pitch_O;
-    Roll += Roll_O;
+    Yaw = BYawRate_O;
+    Pitch = BPitchRate_O;
+    Roll = BRollRate_O;
     
     //Calculate value for each motor.
     #ifdef X_CONFIG
@@ -311,10 +342,18 @@ void Quad::AutoTuneHelper(int axis, bool start)
 void Quad::UpdateIMU()
 {
     my3IMU.getQ(q, val);
-/*
-    //Get Orientation.
-    my3IMU.getYawPitchRoll(ypr);
-    */
+    
+    // Get orientation from FreeIMU:
+        // Earth-ref:
+    my3IMU.getYawPitchRollRadAHRS(ypr, q);
+        // Body-ref rates:
+    brpy[0] = val[3]; // Roll rate.
+    brpy[1] = val[4]; // Pitch rate.
+    brpy[2] = val[5]; // Yaw rate.
+    
+    // Convert to degrees.
+    arr3_rad_to_deg(ypr);
+    
     #ifdef QDEBUG
     
         //Get temp.
@@ -337,9 +376,12 @@ void Quad::UpdateIMU()
         
     #endif
     
-    Yaw_I   = ypr[0];
-    Pitch_I = ypr[1];
-    Roll_I  = ypr[2];
+    EYaw_I   = ypr[0];
+    EPitch_I = ypr[1];
+    ERoll_I  = ypr[2];    
+    BRollRate_I  = brpy[0];
+    BPitchRate_I = brpy[1];
+    BYawRate_I   = brpy[2];
 }
 
 char Quad::serial_busy_wait() {
@@ -539,3 +581,20 @@ float   Quad::GetAltitude()       { return altitude; }
 float   Quad::GetHeading()        { return heading; }
 
 int*    Quad::GetMotors()         { return thrust; }
+
+/*-----------------
+    Help functions
+  -----------------*/
+/**
+ * Converts a 3 elements array arr of angles expressed in radians into degrees
+*/
+void arr3_rad_to_deg(float * arr) {
+  arr[0] *= 180/M_PI;
+  arr[1] *= 180/M_PI;
+  arr[2] *= 180/M_PI;
+}
+
+void frame_conversion_ef_to_bf(float * ef, float * bf)
+{
+    //TODO
+}

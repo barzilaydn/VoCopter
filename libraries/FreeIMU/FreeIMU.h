@@ -48,7 +48,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define GY_88  //GY-88 Sensor Board from eBay
 //#define GY_87  //GY-87 Sensor Board from eBay, NOTE: Pressusre sensor is BMP180 but BMP085 library should work
 //#define Mario   // MPU-9150 plus Altitude/Pressure Sensor Breakout - MPL3115A2  https://www.sparkfun.com/products/11084
-//#define APM_2_5  //  APM 2.5.2 (EBAY)
+//#define APM_2_5  //  APMM 2.5.2 (EBAY)
+//#define Microduino
 
 //#define DISABLE_MAGN // Uncomment this line to disable the magnetometer in the sensor fusion algorithm
 
@@ -57,7 +58,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#define MAG_DEC -13.1603  //degrees for Flushing, NY
 
 //Number of samples to average in iCompass
-#define WINDOW_SIZE 5 //Set to 1 to turn off the Running Average
+#define WINDOW_SIZE 1 //Set to 1 to turn off the Running Average
 
 // Set filter type: 1 = Madgwick Gradient Descent, 0 - Madgwick implementation of Mahoney DCM
 // in Quaternion form, 3 = Madwick Original Paper AHRS
@@ -98,6 +99,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	#define twoKpDef  (2.0f * 0.5f)
 	#define twoKiDef  (2.0f * 0.25f)
 	#define betaDef	  0.015f	//was 0.015
+#elif defined(Microduino)
+	#define twoKpDef  (2.0f * 0.75f)	//works with and without mag enabled
+	#define twoKiDef  (2.0f * 0.1625f)
+	#define betaDef  0.015f
 #else
 	#define twoKpDef  (2.0f * 0.5f)
 	#define twoKiDef  (2.0f * 0.1f)
@@ -120,7 +125,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // *** Define Marg= 3 factors: go to line 491       ***
 // *** Define IMU Axis Alignment: go to line 500    ***
 // ****************************************************
-#define FREEIMU_LIB_VERSION 1
+#define FREEIMU_LIB_VERSION "DEV"
 
 #define FREEIMU_DEVELOPER "Fabio Varesano - varesano.net"
 
@@ -186,6 +191,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   #define FREEIMU_ID "APM 2.5.2 (EBAY)" 
 #elif  defined(Mario)
   #define FREEIMU_ID "MPU-9150 plus MPL3115A2" 
+#elif defined(Microduino)
+  #define FREEIMU_ID "Microduino IMU" 
 #endif
 
 // define imu sensors
@@ -197,14 +204,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 					  || defined(FREEIMU_v03) || defined(SEN_10121) || defined(SEN_10736) \
 					  || defined(SEN_10724) || defined(SEN_10183))
 #define HAS_BMA180() (defined(FREEIMU_v035) || defined(FREEIMU_v035_MS) || defined(FREEIMU_v035_BMP))
-#define HAS_MPU6050() (defined(GY_87) ||defined(GY_88) || defined(FREEIMU_v04) || defined(GEN_MPU6050))
+#define HAS_MPU6050() (defined(Microduino) || defined(GY_87) ||defined(GY_88) || defined(FREEIMU_v04) || defined(GEN_MPU6050))
 #define HAS_MPU9150() (defined(GEN_MPU9150) )
 #define HAS_MPU9250() (defined(MPU9250_5611) || defined(GEN_MPU9250)  || defined(Mario) || defined(MPU9250_5611)) 
 #define HAS_HMC5883L() (defined(GY_87) ||defined(GY_88) || defined(DFROBOT) || defined(FREEIMU_v01) || defined(FREEIMU_v02) \
 					   || defined(FREEIMU_v03) || defined(FREEIMU_v035) || defined(FREEIMU_v035_MS) \
 					   || defined(FREEIMU_v035_BMP) || defined(FREEIMU_v04) || defined(SEN_10736) \
 					   || defined(SEN_10724) || defined(SEN_10183) || defined(ARDUIMU_v3) \
-					   || defined(APM_2_5))
+					   || defined(APM_2_5) || defined(Microduino) )
 #define HAS_MPU6000() (defined(ARDUIMU_v3) || defined(APM_2_5))
 #define HAS_APM25()	(defined(APM_2_5))
 #define HAS_ALTIMU10() (defined(Altimu10))
@@ -213,30 +220,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define HAS_MS5611() (defined(MPU9250_5611) || defined(FREEIMU_v035_MS) || defined(FREEIMU_v04) \
 					 || defined(APM_2_5))
-#define HAS_BMP085() (defined(GY_88) || defined(GY_88) || defined(DFROBOT))
+#define HAS_BMP085() (defined(GY_88) || defined(GY_88) || defined(DFROBOT) || defined(Microduino))
 #define HAS_LPS331() (defined(Altimu10))
 #define HAS_MPL3115A2() defined(Mario)
 #define HAS_PRESS() (defined(Altimu10) || defined(MPU9250_5611) || defined(FREEIMU_v035_MS) \
 					|| defined(FREEIMU_v04) || defined(FREEIMU_v035) || defined(FREEIMU_v035_MS) \
 					|| defined(FREEIMU_v035_BMP) || defined(FREEIMU_v035_MS) || defined(FREEIMU_v04) \
 					|| defined(GY_87) ||defined(GY_88) || defined(DFROBOT) || defined(APM_2_5) \
-					|| defined(Mario) )
+					|| defined(Mario) || defined(Microduino) )
 					
 #define IS_6DOM() (defined(SEN_10121) || defined(GEN_MPU6050))
 #define IS_9DOM() (defined(GY_87) ||defined(GY_88) || defined(Altimu10) || defined(GEN_MPU9250) || defined(MPU9250_5611) \
 				   || defined(GEN_MPU9150) || defined(DFROBOT) || defined(FREEIMU_v01) || defined(FREEIMU_v02) \
 				   || defined(FREEIMU_v03) || defined(FREEIMU_v035) || defined(FREEIMU_v035_MS) || defined(FREEIMU_v035_BMP) \
 				   || defined(FREEIMU_v04) || defined(SEN_10736) || defined(SEN_10724) || defined(SEN_10183) \
-				   || defined(ARDUIMU_v3)  || defined(APM_2_5) || defined(Mario) )
-#define HAS_AXIS_ALIGNED() (defined(Altimu10) || defined(GEN_MPU6050) \
+				   || defined(ARDUIMU_v3)  || defined(APM_2_5) || defined(Mario) || defined(Microduino) )
+#define HAS_AXIS_ALIGNED() (defined(Altimu10) || defined(GY_88) || defined(GEN_MPU6050) \
 							|| defined(DFROBOT) || defined(FREEIMU_v01) || defined(FREEIMU_v02) \
 							|| defined(FREEIMU_v03) || defined(FREEIMU_v035) || defined(FREEIMU_v035_MS) \
 							|| defined(FREEIMU_v035_BMP) || defined(FREEIMU_v04) || defined(SEN_10121) \
-							|| defined(SEN_10736) || defined(GY_87) )
+							|| defined(SEN_10736) || defined(GY_87) || defined(Microduino) )
 
 #include <Wire.h>
 #include "Arduino.h"
-//#include "calibration.h"
+#include "calibration.h"
 #include <MovingAvarageFilter.h>
 
 #ifndef CALIBRATION_H
@@ -513,11 +520,8 @@ class FreeIMU
 		int sensor_order[9] = {0,1,2,3,4,5,7,6,8};
 		int sensor_sign[9] = {1,1,1,1,1,1,1,-1};	
 	#elif defined(APM_2_5)	
-		int sensor_order[9] = {1,0,2,3,4,5,7,6,8};
-		int sensor_sign[9] = {1,-1,1,1,1,1,-1,1,1};
-	#elif defined(GY_88)	
-		int sensor_order[9] = {0,1,2,3,4,5,6,7,8};
-		int sensor_sign[9] = {1,-1,1,1,-1,1,1,-1,1};
+		int sensor_order[9] = {1,0,2,4,3,5,7,6,8};
+		int sensor_sign[9] = {1,-1,1,1,-1,1,-1,1,1};
 	#endif 	
 
 	// --------------------------------------------------------------------
@@ -551,7 +555,7 @@ class FreeIMU
 
 	#if(MARG == 0)
 		void AHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);
-		void AHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az);
+		//void AHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az);
   	#elif(MARG == 1)
 		void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);
 		void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az);
