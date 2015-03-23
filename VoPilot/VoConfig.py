@@ -8,8 +8,8 @@ DEFAULT_IP       = "10.10.100.254"
 PORT             = 8899
 MAX_CNTRL_PARAMS = 14
 
-CMD_HEAD         = 55819 # {0xDA, 0x0B}
-CMD_TAIL         = 45229 # {0xB0, 0xAD}
+CMD_HEAD         = '\xda\x0b' # 55819 # {0xDA, 0x0B}
+CMD_TAIL         = '\xb0\xad' # 45229 # {0xB0, 0xAD}
 COMMAND_SIZE     = 8 + MAX_CNTRL_PARAMS*4
 
 # Joystick:
@@ -42,4 +42,4 @@ Q_TEST_PID       = 1
 Q_TEST_MOTORS    = 2
 
 # Define UI:
-QOffset          = [185, 95, -2, 88]
+QOffset          = [0, 0, 0, 0]

@@ -16,6 +16,7 @@ import VoConfig
 from VoCopter3D import VoCopter3D
 
 class VoPilot(QMainWindow):
+    newYaw = 0
     Yaw = 0
     Pitch = 0
     Roll = 0
@@ -75,21 +76,24 @@ class VoPilot(QMainWindow):
                 self.ui.verticalLayoutWidget_5.findChild(QPushButton, "state"+str(s)).released.connect(partial(self.changeState,s))
                 
     def sendControl(self, thrust, yawChange, pitchChange, rollChange):
-        newYaw = self.constrainAngle(yawChange + self.Yaw, 360)
+        self.newYaw = self.constrainAngle(yawChange + self.newYaw)
         newPitch = pitchChange
         newRoll = rollChange
-        self.ui.Y.setText(str(newYaw))
+        self.ui.Y.setText(str(self.newYaw))
         self.ui.P.setText(str(newPitch))
         self.ui.R.setText(str(newRoll))
 
         if self.State == VoConfig.MOVE:
-            self.comms.writeCmd(VoConfig.MOVE, thrust, newYaw, newPitch, newRoll)
+            self.comms.writeCmd(VoConfig.MOVE, thrust, self.newYaw, newPitch, newRoll)
     
     # Create a "never ending" angle
-    def constrainAngle(self, angle, constrain):
-        if angle >= constrain:
-            return constrainAngle(angle - constrain, constrain)
-        return angle
+    def constrainAngle(self, angle):
+        if angle > 180:
+            return angle - 360
+        if angle < -180:
+            return angle + 360
+        else:
+            return angle
     
     def controlAlert(self, data, isError):
         self.comms.writeToLog(data)
@@ -115,8 +119,8 @@ class VoPilot(QMainWindow):
         # if command is a STATUS, update local data
         if cmd == VoConfig.Q_STATUS:
             self.UpTime = params[0]
-            self.State = params[1]
-            self.q = [x / 100 for x in params[2:6]]
+            self.State = params[1]            
+            self.q = [float(x) / 10000 for x in params[2:6]]
             self.Yaw,self.Pitch,self.Roll = [30, 20, 30]#[x for x in self.euler_from_quaternion(self.q, "szyx")] # Yaw = Z Axis, Pitch = Y Axis, Roll = X Axis
             self.Heading = params[6]
             self.Altitude = params[7]
@@ -145,7 +149,7 @@ class VoPilot(QMainWindow):
             elif params[0] == VoConfig.Q_TEST_PID:
                 self.VoTest_i.PID(params)
         else:
-            self.comms.writeToLog("ERROR: Unknown command was received. Command ID: "+cmd)
+            self.comms.writeToLog("ERROR: Unknown command was received. Command ID: {}".format(cmd))
     
     def updateUI(self):
         self.ui.batLvl.setProperty("value", self.BatLvl)
