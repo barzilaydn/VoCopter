@@ -142,14 +142,15 @@ class Quad {
         PID_ATune* ChooseTuner(int);
         
         void SetMotors(bool forceThrust = true);
-                
+        
+        void arr3_rad_to_deg(float * arr);
+        void frame_conversion_ef_to_bf(float * ef, float * bf);
+        
         //Motors
         int motors[4];
         int thrust[4];
         int baseThrust;
         int baseThrust_S;
-        long time_since_start = 0;
-        long last_write = 0;
         
         //Tuner parameters
         byte ATuneModeRemember;
@@ -177,7 +178,7 @@ class Quad {
         PID       EYawPID;
             // Body-ref angle PIDs
         PID       BPitchRatePID;
-        PID_ATune BPitchRate;
+        PID_ATune BPitchRateTune;
         
         PID       BRollRatePID;
         PID_ATune BRollRateTune;
@@ -196,6 +197,7 @@ class Quad {
         float temperature;
         float heading;
         float altitude;
+        float starting_altitude;
 
 };
 #endif

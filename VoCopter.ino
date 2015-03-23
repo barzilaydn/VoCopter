@@ -6,11 +6,9 @@
 //     2014-07-20 - initial release
 //
 // TODO:
-//    !* Re-think PID logic, look at what Crazyflie is doing.
+//    !* Test if angles should be YPR or Euler.
+//    !* Create easy to change constants for P.I.D and use same P (I,D=0) for angle to rate controllers.
 //    !* Re-do PID tuning, copy from ArduCopter: https://github.com/diydrones/ardupilot/blob/master/ArduCopter/control_autotune.pde
-//    !* Change WIFI232-T settings so that frame length is 64 bytes (use "auto-frame" option)
-//    !* Test new serial comms.
-//     * Experiment with the status of WIFI232-T (coming from pin D21)
 //     * Quad: Finish calibration.
 //     
 //     * Add SETTINGS state where user can change definitions (i.e motor pins).
@@ -112,7 +110,7 @@ THE SOFTWARE.
     Main Code
   ---------------------------------------------------------------------*/
 Quad VoCopter(OUTPUT_STEP, NOISE, LOOK_BACK_SEC, SAMPLE_TIME); // Quad(OutputStep, Noise, LookBackSec, SampleTime(ms), Configuration)
-uint32_t STATE = 0;
+int32_t STATE = 0;
 int32_t PARAMS[MAX_CNTRL_PARAMS];
 bool STATE_FLAG = false;
 unsigned long uptime;
@@ -128,6 +126,7 @@ void setup(void)
     analogReadAveraging(32);
     zero_time = millis();
     pinMode(13, OUTPUT);
+    pinMode(21, INPUT);
     QDEBUG_BEGIN(115200);
     SERIAL_BEGIN(230400);
     VoCopter.Init(false);
@@ -164,8 +163,8 @@ void loop(void)
             for(int i = 2; i < MAX_CNTRL_PARAMS * 2; i=i+4)
             {
                 // Little-endian byte array to unsigned int conversion
-                uint32_t st = (uint32_t)cntrl_str[i] + (uint32_t)(cntrl_str[i+1] << 8)
-                                + (uint32_t)(cntrl_str[i+2] << 16) + (uint32_t)(cntrl_str[i+3] << 24);
+                int32_t st = (int32_t)cntrl_str[i] + (int32_t)(cntrl_str[i+1] << 8)
+                                + (int32_t)(cntrl_str[i+2] << 16) + (int32_t)(cntrl_str[i+3] << 24);
                 
                 if(i == 2)
                     if(st >= SLEEP && st <= NUM_STATES-1)
@@ -183,21 +182,21 @@ void loop(void)
         ///  --- SEND ---  ///
         float* q = VoCopter.GetQ();
         int* thrusts = VoCopter.GetMotors();
-        // FORMAT: ' UP_TIME ; STATE ; 100*q[0],100*q[1],100*q[2],100*q[3],HEADING,ALTITUDE ; FRONT_LEFT,FRONT_RIGHT,BACK_LEFT,BACK_RIGHT ; BAT_LVL '
+        // FORMAT: ' UP_TIME ; STATE ; 10000*q[0],10000*q[1],10000*q[2],10000*q[3],HEADING,ALTITUDE ; FRONT_LEFT,FRONT_RIGHT,BACK_LEFT,BACK_RIGHT ; BAT_LVL '
         SERIAL_PRINTLN(Q_STATUS, 13, 
-                                    (uint32_t)(uptime / 1000),
-                                    (uint32_t)STATE,
-                                    (int32_t)(q[0] * 100),
-                                    (int32_t)(q[1] * 100),
-                                    (int32_t)(q[2] * 100),
-                                    (int32_t)(q[3] * 100),
-                                    (int32_t)VoCopter.GetHeading(),
-                                    (int32_t)VoCopter.GetAltitude(),
-                                    (int32_t)thrusts[0],
-                                    (int32_t)thrusts[1],
-                                    (int32_t)thrusts[2],
-                                    (int32_t)thrusts[3],
-                                    (int32_t)BatLvl);
+                                    static_cast<int32_t>((uptime / 1000)),
+                                    static_cast<int32_t>(STATE),
+                                    static_cast<int32_t>((q[0] * 10000)),
+                                    static_cast<int32_t>((q[1] * 10000)),
+                                    static_cast<int32_t>((q[2] * 10000)),
+                                    static_cast<int32_t>((q[3] * 10000)),
+                                    static_cast<int32_t>(VoCopter.GetHeading()),
+                                    static_cast<int32_t>(VoCopter.GetAltitude()),
+                                    static_cast<int32_t>(thrusts[0]),
+                                    static_cast<int32_t>(thrusts[1]),
+                                    static_cast<int32_t>(thrusts[2]),
+                                    static_cast<int32_t>(thrusts[3]),
+                                    static_cast<int32_t>(BatLvl));
     }
     
     // Go to sleep if too low battery.
@@ -271,7 +270,7 @@ void loop(void)
             break;            
     }    
 
-    if((int)(uptime / 1000) % (STATE+1) == 0)
+    if((int)(uptime / 1000) % (STATE+1) == 0 || digitalRead(21))
     {
         digitalWrite(13, HIGH);
         //QDEBUG_PRINT(F("STATE:"));
@@ -320,7 +319,7 @@ int mVtoL(double mV) {
 * @return Returns the battery level measured on the pin.
 */
 void UpdateBatLevel(int pin) {
-    uint32_t x = analogRead(pin);
+    int32_t x = analogRead(pin);
     BatLvl = mVtoL((178*x*x + 2688757565 - 1184375 * x) / 372346);
 }
 
@@ -328,30 +327,54 @@ void UpdateBatLevel(int pin) {
     Serial command builder
   ------------------------------*/
 
-void SERIAL_PRINTLN(uint32_t cmd, int len, ...)
+void SERIAL_PRINTLN(unsigned long cmd, int len, ...)
 {
     //Declare a va_list macro and initialize it with va_start
     va_list argList;
     va_start(argList, len);
     
+    unsigned char buffer[COMMAND_SIZE];
+    int count;
+    int32_t param;
+    
     //Send head bytes
-    SERIAL_WRITE(SERIAL_HEAD, 2);
+    insertToCmdBuffer(buffer, 2, SERIAL_HEAD, 0);
+    //SERIAL_WRITE(SERIAL_HEAD, 2);
     
     //Send CMD
-    SERIAL_WRITE(cmd);
+    param = static_cast<int32_t>(cmd);
+    insertToCmdBuffer(buffer, 4, reinterpret_cast<const unsigned char*>(&param), 2);
+    //SERIAL_WRITE(reinterpret_cast<const unsigned char*>(cmd), 4);
     
     //Send arguments
-    int count;
-    for(count = 0; count < len; count++) 
+    for(count = 0; count < len; count++)
+    {
         if(count < MAX_CNTRL_PARAMS)
-            SERIAL_WRITE(va_arg(argList, int32_t));
+        {
+            param = va_arg(argList, int32_t);
+            insertToCmdBuffer(buffer, 4, reinterpret_cast<const unsigned char*>(&param), 6 + 4 * count);
+            //SERIAL_WRITE(va_arg(argList, const unsigned char*), 4);
+        }
+    }
     
     //Fill up buffer
     for(; count < MAX_CNTRL_PARAMS; count++)
-        SERIAL_WRITE(0x00);
+        insertToCmdBuffer(buffer, 4, SERIAL_EMPTY, 6 + 4 * count);
+        //SERIAL_WRITE(SERIAL_EMPTY, 4);
     
     //Send end bytes
-    SERIAL_WRITE(SERIAL_TAIL, 2);
+    insertToCmdBuffer(buffer, 2, SERIAL_TAIL, COMMAND_SIZE-2);
+    //SERIAL_WRITE(SERIAL_TAIL, 2);
+    
+    // Send the data:
+    SERIAL_WRITE(buffer, COMMAND_SIZE);
     
     va_end(argList);
+}
+
+void insertToCmdBuffer (unsigned char buffer[], int dataLen,  const unsigned char data[], int startingFrom)
+{
+    for(int i = 0; i < dataLen; i++)    
+        if(startingFrom + i < COMMAND_SIZE)
+            buffer[startingFrom + i] = data[i];   
 }

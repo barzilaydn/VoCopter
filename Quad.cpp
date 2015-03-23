@@ -63,9 +63,6 @@ void Quad::SetupMotors()
 // Start systems.
 void Quad::Init(bool fromSleep) 
 {
-    time_since_start = millis();
-    last_write = time_since_start;
-
     if(fromSleep == false)
         Quad::SetupMotors();
     
@@ -85,24 +82,26 @@ void Quad::Init(bool fromSleep)
     QDEBUG_PRINTLN(F("DEBUG: Starting FreeIMU..."));
     my3IMU.init(true);
     my3IMU.setTempCalib(1);   
-
+    starting_altitude = 0;
+    
     char str[128];
     sprintf(str, "DEBUG: FreeIMU library by %s, FREQ:%s, LIB_VERSION: %s, IMU: %s", FREEIMU_DEVELOPER, FREEIMU_FREQ, FREEIMU_LIB_VERSION, FREEIMU_ID);
     QDEBUG_PRINTLN(F(str));    
+    
     //--PID--
     QDEBUG_PRINTLN(F("DEBUG: Configuring PIDs and Tuners..."));
     //Prepare the PID controllers:
     EPitchPID.SetSampleTime(sampleTime);
     ERollPID.SetSampleTime(sampleTime);
     EYawPID.SetSampleTime(sampleTime);
-    BPitchRatePID.SetSampleTime(sampleTime);
-    BRollRatePID.SetSampleTime(sampleTime);
-    BYawRatePID.SetSampleTime(sampleTime);
+    BPitchRatePID.SetSampleTime((int)(sampleTime / 2));
+    BRollRatePID.SetSampleTime((int)(sampleTime / 2));
+    BYawRatePID.SetSampleTime((int)(sampleTime / 2));
     
     //Prepare the PID controller tuners:
-    PitchTune.SetControlType(PID_ATune::ZIEGLER_NICHOLS_PID);
-    RollTune.SetControlType(PID_ATune::ZIEGLER_NICHOLS_PID);
-    YawTune.SetControlType(PID_ATune::ZIEGLER_NICHOLS_PID);
+    BPitchRateTune.SetControlType(PID_ATune::ZIEGLER_NICHOLS_PID);
+    BRollRateTune.SetControlType(PID_ATune::ZIEGLER_NICHOLS_PID);
+    BYawRateTune.SetControlType(PID_ATune::ZIEGLER_NICHOLS_PID);
     tuning = false;
     
     QDEBUG_PRINTLN(F("DEBUG: Init finished."));
@@ -129,39 +128,37 @@ bool Quad::Fly()
     if(BYawRatePID.GetMode() != 1)
         BYawRatePID.SetMode(AUTOMATIC);
     
-    // Check dT > sampleTime
-    time_since_start = millis();
-    if(time_since_start - last_write >= SAMPLE_TIME) // Only every SAMPLE_TIME msecs.
-    {
-        //Compute new output values    
-        ERollPID.Compute();
-        EPitchPID.Compute();
-        EYawPID.Compute();
-        
-        float rates_earth[3];
-        float rates_body[3];
-        
-        rates_earth[0] += ERoll_O;
-        rates_earth[1] += EPitch_O;
-        rates_earth[2] += EYaw_O;
-        
-        frame_conversion_ef_to_bf(rates_earth, rates_body);
-        
-        BRollRate_S = rates_body[0];
-        BPitchRate_S = rates_body[1];
-        BYawRate_S = rates_body[2];
-        
-        BRollRatePID.Compute();
-        BPitchRatePID.Compute();
-        BYawRatePID.Compute();
-        
-        Quad::SetMotors();        
-    }
+    //Compute new output values
+    ERollPID.Compute();
+    EPitchPID.Compute();
+    EYawPID.Compute();
+    
+/*     float rates_earth[3];
+    float rates_body[3];
+    
+    rates_earth[0] += ERoll_O;
+    rates_earth[1] += EPitch_O;
+    rates_earth[2] += EYaw_O;
+    
+    frame_conversion_ef_to_bf(rates_earth, rates_body);
+    
+    BRollRate_S = rates_body[0];
+    BPitchRate_S = rates_body[1];
+    BYawRate_S = rates_body[2]; */
+    
+    BRollRate_S += ERoll_O;
+    BPitchRate_S += EPitch_O;
+    BYawRate_S += EYaw_O;
+    
+    BRollRatePID.Compute();
+    BPitchRatePID.Compute();
+    BYawRatePID.Compute();
+    
+    Quad::SetMotors();    
 }
 
 void Quad::SetMotors(bool forceThrust)
 {
-    last_write = time_since_start;
     //Smoothly get to the baseThrust set point.
     if(forceThrust)
         baseThrust = baseThrust_S;
@@ -211,9 +208,12 @@ bool Quad::Stop()
     if(baseThrust == 0)
     {
         //Turn off PID controllers.
-        PitchPID.SetMode(0);
-        RollPID.SetMode(0);
-        YawPID.SetMode(0);   
+        BPitchRatePID.SetMode(0);
+        BRollRatePID.SetMode(0);
+        BYawRatePID.SetMode(0);   
+        EPitchPID.SetMode(0);
+        ERollPID.SetMode(0);
+        EYawPID.SetMode(0);   
         
         return true; //Finished.
     }
@@ -237,12 +237,12 @@ PID* Quad::ChoosePID(int axis)
     switch(axis)
     {
         case PITCH:
-            return &PitchPID;
+            return &BPitchRatePID;
         case ROLL:
-            return &RollPID;
+            return &BRollRatePID;
         default:
         case YAW:
-            return &YawPID;
+            return &BYawRatePID;
     }
 }
 
@@ -251,12 +251,12 @@ PID_ATune* Quad::ChooseTuner(int axis)
     switch(axis)
     {
         case PITCH:
-            return &PitchTune;
+            return &BPitchRateTune;
         case ROLL:
-            return &RollTune;
+            return &BRollRateTune;
         default:
         case YAW:
-            return &YawTune;
+            return &BYawRateTune;
     }
 }
 
@@ -306,9 +306,9 @@ void Quad::changeAutoTune(int axis)
     if (!tuning)
     {
         // Set the outputs to their default values.
-        Pitch_O = 0;
-        Roll_O = 0;
-        Yaw_O = 0;
+        BPitchRate_O = 0;
+        BRollRate_O = 0;
+        BYawRate_O = 0;
         
         (*tuner).SetNoiseBand(aTuneNoise);
         (*tuner).SetOutputStep(aTuneStep);
@@ -345,7 +345,7 @@ void Quad::UpdateIMU()
     
     // Get orientation from FreeIMU:
         // Earth-ref:
-    my3IMU.getYawPitchRollRadAHRS(ypr, q);
+    my3IMU.getYawPitchRollRadAHRS(ypr, q); // @TODO: check if need to replace with euler angles.
         // Body-ref rates:
     brpy[0] = val[3]; // Roll rate.
     brpy[1] = val[4]; // Pitch rate.
@@ -354,31 +354,26 @@ void Quad::UpdateIMU()
     // Convert to degrees.
     arr3_rad_to_deg(ypr);
     
-    #ifdef QDEBUG
+    //Get temp.
+    temperature = my3IMU.getBaroTemperature();
     
-        //Get temp.
-        temperature = my3IMU.getBaroTemperature();
-        QDEBUG_PRINT(F("DEBUG: Temperature is "));
-        QDEBUG_PRINT(temperature);
-        QDEBUG_PRINTLN(F("C degrees."));
-            
-        //Get altitude.
-        altitude = val[10];
-        QDEBUG_PRINT(F("DEBUG: Altitude is "));
-        QDEBUG_PRINT(altitude);
-        QDEBUG_PRINTLN(F("m."));    
-        
-        //Get heading.
-        heading = val[9];
-        QDEBUG_PRINT(F("DEBUG: Heading is "));
-        QDEBUG_PRINT(heading);
-        QDEBUG_PRINTLN(F(" degrees."));
-        
-    #endif
+    //Get altitude.
+    altitude = val[10];
+    if (starting_altitude == 0 && altitude != 0)
+        starting_altitude = altitude;
     
-    EYaw_I   = ypr[0];
-    EPitch_I = ypr[1];
-    ERoll_I  = ypr[2];    
+    //Get heading.
+    heading = val[9];
+
+    EYaw_I       = ypr[0];    
+    // Fix Yaw:
+    if (EYaw_I > 180.0)
+        EYaw_I -= 360.0;
+    else if (EYaw_I < -180.0)
+        EYaw_I += 360.0;
+    
+    EPitch_I     = ypr[1];
+    ERoll_I      = ypr[2];    
     BRollRate_I  = brpy[0];
     BPitchRate_I = brpy[1];
     BYawRate_I   = brpy[2];
@@ -518,7 +513,7 @@ void Quad::Test(int32_t* PARAMS)
         case 1: //PID
             Quad::SetBaseThrust(constrain(PARAMS[1], 0, 255));
             Quad::Fly();
-            SERIAL_PRINTLN(Q_TEST, 3, (int32_t)Yaw_O, (int32_t)Pitch_O, (int32_t)Roll_O);
+            SERIAL_PRINTLN(Q_TEST, 3, (int32_t)EYaw_O, (int32_t)EPitch_O, (int32_t)ERoll_O);
             break;
             
         case 2: //Motors_individual
@@ -564,20 +559,20 @@ int     Quad::GetBaseThrust()     { return baseThrust; }
 
 float*  Quad::GetQ()              { return q; }
 
-void    Quad::SetPitchS(double p) { Pitch_S = p; }
-double  Quad::GetPitchI()         { return Pitch_I; }
-double  Quad::GetPitchO()         { return Pitch_O; }
+void    Quad::SetPitchS(double p) { EPitch_S = p; }
+double  Quad::GetPitchI()         { return EPitch_I; }
+double  Quad::GetPitchO()         { return EPitch_O; }
 
-void    Quad::SetRollS(double p)  { Roll_S = p; }
-double  Quad::GetRollI()          { return Roll_I; }
-double  Quad::GetRollO()          { return Roll_O; }
+void    Quad::SetRollS(double p)  { ERoll_S = p; }
+double  Quad::GetRollI()          { return ERoll_I; }
+double  Quad::GetRollO()          { return ERoll_O; }
 
-void    Quad::SetYawS(double p)   { Yaw_S = p; }
-double  Quad::GetYawI()           { return Yaw_I; }
-double  Quad::GetYawO()           { return Yaw_O; } 
+void    Quad::SetYawS(double p)   { EYaw_S = p; }
+double  Quad::GetYawI()           { return EYaw_I; }
+double  Quad::GetYawO()           { return EYaw_O; } 
 
 int     Quad::GetTemp()           { return (int)temperature; }
-float   Quad::GetAltitude()       { return altitude; }
+float   Quad::GetAltitude()       { return 100 * (altitude - starting_altitude); } // Relative altitude in cm.
 float   Quad::GetHeading()        { return heading; }
 
 int*    Quad::GetMotors()         { return thrust; }
@@ -588,13 +583,13 @@ int*    Quad::GetMotors()         { return thrust; }
 /**
  * Converts a 3 elements array arr of angles expressed in radians into degrees
 */
-void arr3_rad_to_deg(float * arr) {
+void Quad::arr3_rad_to_deg(float * arr) {
   arr[0] *= 180/M_PI;
   arr[1] *= 180/M_PI;
   arr[2] *= 180/M_PI;
 }
 
-void frame_conversion_ef_to_bf(float * ef, float * bf)
+void Quad::frame_conversion_ef_to_bf(float * ef, float * bf)
 {
     //TODO
 }

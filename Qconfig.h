@@ -91,6 +91,7 @@
 
 const unsigned char SERIAL_HEAD[] = {0xDA, 0x0B};
 const unsigned char SERIAL_TAIL[] = {0xB0, 0xAD};
+const unsigned char SERIAL_EMPTY[] = {0x00, 0x00, 0x00, 0x00};
 void SERIAL_PRINTLN(uint32_t, int, ...);
 
 /*-----------------
