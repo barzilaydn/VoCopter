@@ -1,12 +1,12 @@
 /*
  ||
  || @file 		Snooze.h
- || @version 	0
+ || @version 	.5
  || @author 	duff
  || @contact    http://forum.pjrc.com/members/25610-duff
  ||
  || @description
- || # Low Power Library for Teensy 3.0/3.1.
+ || # Low Power Library for Teensy 3.x/LC.
  ||
  || @license
  || | Copyright (c) 2014 Colin Duffy
@@ -30,16 +30,18 @@
 #define Snooze_h
 
 #if(!defined(__arm__) && defined(TEENSYDUINO))
-#error Teensyduino 1.20 and Teensy 3.x only.
+#error Teensy 3.x and TeensyLC only.
 #endif
 
 #include "Arduino.h"
 #include "utility/lvd.h"
 #include "utility/mcg.h"
 #include "utility/smc.h"
+#ifdef KINETISK
 #include "utility/rtc.h"
-#include "utility/cmp.h"
+#endif
 #include "utility/tsi.h"
+#include "utility/cmp.h"
 #include "utility/util.h"
 #include "utility/llwu.h"
 #include "utility/lptmr.h"
@@ -79,12 +81,14 @@ typedef enum {
 class SnoozeBlock {
 private:
     friend class SnoozeClass;
-    typedef void* ISR;
+    typedef void*       ISR;
     digital_mask_t      digital_mask;
     lptmr_mask_t        lptmr_mask;
     llwu_mask_t         llwu_mask;
     tsi_mask_t          tsi_mask;
+#ifdef KINETISK
     rtc_mask_t          rtc_mask;
+#endif
     cmp_mask_t          cmp_mask;
     lvd_mask_t          lvd_mask;
     /* Peripherals */
@@ -99,14 +103,20 @@ private:
         void operator = ( const SCGC6_ON_t &rhs  ) { peripheral_configure_scgc6_mask( rhs, &periph_on_mask ); }
     };
 public:
-    SnoozeBlock( void ) { };
+    SnoozeBlock( void ) {
+#if defined(KINETISL)
+        //digital_configure_pin_mask( 17, OUTPUT, LOW, &digital_mask );
+#endif
+    };
     /* GPIO, TSI, COMPARE Config */
     void pinMode ( int pin, int mode, int val );
     void pinMode ( int pin, int mode, int type, double val );
     /* LPTMR Config */
     void setTimer( uint32_t period );
+#ifdef KINETISK
     /* RTC Config */
     void setAlarm( uint8_t hours, uint8_t minutes, uint8_t seconds );
+#endif
     /* Low Voltage Config */
     void setLowVoltage( double threshold );
     /* Peripherals Config */

@@ -33,29 +33,29 @@ THE SOFTWARE.
 
 //Constructor
 Quad::Quad(const double aStep, const double aNoise, const int aLookBack, const int ST) :
+                aTuneStep(aStep),
+                aTuneNoise(aNoise),
+                aTuneLookBack(aLookBack),
+                sampleTime(ST),
+                
                 EPitchPID(&EPitch_I, &EPitch_O, &EPitch_S, 1.0, 0.0, 0.0, DIRECT),
                 ERollPID(&ERoll_I, &ERoll_O, &ERoll_S, 1.0, 0.0, 0.0, DIRECT),
                 EYawPID(&EYaw_I, &EYaw_O, &EYaw_S, 1.0, 0.0, 0.0, DIRECT),
                 
                 BPitchRatePID(&BPitchRate_I, &BPitchRate_O, &BPitchRate_S, 1.0, 0.0, 0.0, DIRECT),
                 BPitchRateTune(&BPitchRate_I, &BPitchRate_O),
+                
                 BRollRatePID(&BRollRate_I, &BRollRate_O, &BRollRate_S, 1.0, 0.0, 0.0, DIRECT),
                 BRollRateTune(&BRollRate_I , &BRollRate_O),
-                BYawRatePID(&BYawRate_I, &BYawRate_O, &BYawRate_S, 1.0, 0.0, 0.0, DIRECT),
-                BYawRateTune(&BYawRate_I  , &BYawRate_O),
                 
-                aTuneStep(aStep),
-                aTuneNoise(aNoise),
-                aTuneLookBack(aLookBack),
-                sampleTime(ST),
-                motors({ FRONT_LEFT, FRONT_RIGHT, BACK_RIGHT, BACK_LEFT }),
-                thrust({ 0 })
+                BYawRatePID(&BYawRate_I, &BYawRate_O, &BYawRate_S, 1.0, 0.0, 0.0, DIRECT),
+                BYawRateTune(&BYawRate_I  , &BYawRate_O)
 {}
 
 // Maps motors to pins
 void Quad::SetupMotors()
 {    
-    QDEBUG_PRINTLN(F("DEBUG: Mapping motors to pins..."));
+    QDEBUG_PRINTLN(F("Mapping motors to pins..."));
     for(int i = 0; i < 4; i++)    
         pinMode(motors[i], OUTPUT);    
 }
@@ -79,17 +79,13 @@ void Quad::Init(bool fromSleep)
     //--IMU--
     Wire.begin(); //Start I2C Master mode. Later on FreeIMU switches to 400kHz :)
  
-    QDEBUG_PRINTLN(F("DEBUG: Starting FreeIMU..."));
+    QDEBUG_PRINTLN(F("Starting FreeIMU..."));
     my3IMU.init(true);
     my3IMU.setTempCalib(1);   
-    starting_altitude = 0;
-    
-    char str[128];
-    sprintf(str, "DEBUG: FreeIMU library by %s, FREQ:%s, LIB_VERSION: %s, IMU: %s", FREEIMU_DEVELOPER, FREEIMU_FREQ, FREEIMU_LIB_VERSION, FREEIMU_ID);
-    QDEBUG_PRINTLN(F(str));    
+    starting_altitude = 0;   
     
     //--PID--
-    QDEBUG_PRINTLN(F("DEBUG: Configuring PIDs and Tuners..."));
+    QDEBUG_PRINTLN(F("Configuring PIDs and Tuners..."));
     //Prepare the PID controllers:
     EPitchPID.SetSampleTime(sampleTime);
     ERollPID.SetSampleTime(sampleTime);
@@ -104,10 +100,10 @@ void Quad::Init(bool fromSleep)
     BYawRateTune.SetControlType(PID_ATune::ZIEGLER_NICHOLS_PID);
     tuning = false;
     
-    QDEBUG_PRINTLN(F("DEBUG: Init finished."));
+    QDEBUG_PRINTLN(F("Init finished."));
 }
 
-bool Quad::Fly()
+void Quad::Fly()
 {
     if(tuning) Quad::CancelTune();
     
@@ -287,7 +283,7 @@ bool Quad::TunePID(int axis)
         (*pid).SetTunings((*tuner).GetKp(), (*tuner).GetKi(), (*tuner).GetKd());
         Quad::AutoTuneHelper(axis, false);
         
-        QDEBUG_PRINTLN(F("QDEBUG: Stopped."));
+        QDEBUG_PRINTLN(F("Stopped."));
 
         return true;
     }
@@ -301,8 +297,9 @@ bool Quad::TunePID(int axis)
 */
 void Quad::changeAutoTune(int axis)
 {
-    PID* pid = Quad::ChoosePID(axis);
+    //PID* pid = Quad::ChoosePID(axis);
     PID_ATune* tuner = Quad::ChooseTuner(axis);
+    
     if (!tuning)
     {
         // Set the outputs to their default values.
@@ -346,7 +343,8 @@ void Quad::UpdateIMU()
     // Get orientation from FreeIMU:
         // Earth-ref:
     my3IMU.getYawPitchRollRadAHRS(ypr, q); // @TODO: check if need to replace with euler angles.
-        // Body-ref rates:
+    //my3IMU.getEulerRad(ypr);
+    // Body-ref rates:
     brpy[0] = val[3]; // Roll rate.
     brpy[1] = val[4]; // Pitch rate.
     brpy[2] = val[5]; // Yaw rate.
@@ -359,7 +357,7 @@ void Quad::UpdateIMU()
     
     //Get altitude.
     altitude = val[10];
-    if (starting_altitude == 0 && altitude != 0)
+    if (baseThrust_S == 0)
         starting_altitude = altitude;
     
     //Get heading.
@@ -409,7 +407,7 @@ void Quad::Calibrate(int cmd)
     {
         case 1: //Send data for calibration
         {
-            SERIAL_PRINT("\n");
+            SERIAL_OUT("\n");
             Quad::serial_busy_wait();
             
             QDEBUG_PRINTLN(F("Got ack"));
@@ -436,7 +434,7 @@ void Quad::Calibrate(int cmd)
                     my3IMU.magn.getValues(&raw_values[0], &raw_values[1], &raw_values[2]);
                     Quad::writeArr(raw_values, 3, sizeof(int));
                 #endif
-                SERIAL_PRINT("\n");
+                SERIAL_OUT("\n");
             }
             
             QDEBUG_PRINTLN(F("Finished sending"));
@@ -471,37 +469,37 @@ void Quad::Calibrate(int cmd)
         }
         case 4: // Check calibration data
         {
-            SERIAL_PRINT("acc offset: ");
-            SERIAL_PRINT(my3IMU.acc_off_x);
-            SERIAL_PRINT(",");
-            SERIAL_PRINT(my3IMU.acc_off_y);
-            SERIAL_PRINT(",");
-            SERIAL_PRINT(my3IMU.acc_off_z);
-            SERIAL_PRINT("\n");
+            SERIAL_OUT("acc offset: ");
+            SERIAL_OUT(my3IMU.acc_off_x);
+            SERIAL_OUT(",");
+            SERIAL_OUT(my3IMU.acc_off_y);
+            SERIAL_OUT(",");
+            SERIAL_OUT(my3IMU.acc_off_z);
+            SERIAL_OUT("\n");
 
-            SERIAL_PRINT("magn offset: ");
-            SERIAL_PRINT(my3IMU.magn_off_x);
-            SERIAL_PRINT(",");
-            SERIAL_PRINT(my3IMU.magn_off_y);
-            SERIAL_PRINT(",");
-            SERIAL_PRINT(my3IMU.magn_off_z);
-            SERIAL_PRINT("\n");
+            SERIAL_OUT("magn offset: ");
+            SERIAL_OUT(my3IMU.magn_off_x);
+            SERIAL_OUT(",");
+            SERIAL_OUT(my3IMU.magn_off_y);
+            SERIAL_OUT(",");
+            SERIAL_OUT(my3IMU.magn_off_z);
+            SERIAL_OUT("\n");
 
-            SERIAL_PRINT("acc scale: ");
-            SERIAL_PRINT(my3IMU.acc_scale_x);
-            SERIAL_PRINT(",");
-            SERIAL_PRINT(my3IMU.acc_scale_y);
-            SERIAL_PRINT(",");
-            SERIAL_PRINT(my3IMU.acc_scale_z);
-            SERIAL_PRINT("\n");
+            SERIAL_OUT("acc scale: ");
+            SERIAL_OUT(my3IMU.acc_scale_x);
+            SERIAL_OUT(",");
+            SERIAL_OUT(my3IMU.acc_scale_y);
+            SERIAL_OUT(",");
+            SERIAL_OUT(my3IMU.acc_scale_z);
+            SERIAL_OUT("\n");
 
-            SERIAL_PRINT("magn scale: ");
-            SERIAL_PRINT(my3IMU.magn_scale_x);
-            SERIAL_PRINT(",");
-            SERIAL_PRINT(my3IMU.magn_scale_y);
-            SERIAL_PRINT(",");
-            SERIAL_PRINT(my3IMU.magn_scale_z);
-            SERIAL_PRINT("\n");
+            SERIAL_OUT("magn scale: ");
+            SERIAL_OUT(my3IMU.magn_scale_x);
+            SERIAL_OUT(",");
+            SERIAL_OUT(my3IMU.magn_scale_y);
+            SERIAL_OUT(",");
+            SERIAL_OUT(my3IMU.magn_scale_z);
+            SERIAL_OUT("\n");
         }
     }
 }
@@ -549,6 +547,27 @@ void Quad::Test(int32_t* PARAMS)
             
             break;        
     }
+}
+
+/**
+* Convert millivolts to battery level in %. (Calibrated for LiPo 3.7v 300mah)
+* @param mV : The voltage in millivolts.
+* @return Returns battery level in %.
+*/
+int Quad::mVtoL(double mV)
+{
+    return static_cast<int>(map(constrain(mV, 3000, 3600), 3000, 3600, 0, 100));
+}
+
+/**
+* Read the battery level from an analog pin
+* @param pin : The number of the analog pin to read from.
+* @return Returns the battery level measured on the pin.
+*/
+int Quad::UpdateBatLevel(int pin)
+{
+    int32_t x = analogRead(pin);
+    return mVtoL((178*x*x + 2688757565 - 1184375 * x) / 372346);
 }
 
 /*-----------------

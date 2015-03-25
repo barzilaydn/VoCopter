@@ -8,9 +8,9 @@ DEFAULT_IP       = "10.10.100.254"
 PORT             = 8899
 MAX_CNTRL_PARAMS = 14
 
-CMD_HEAD         = '\xda\x0b' # 55819 # {0xDA, 0x0B}
-CMD_TAIL         = '\xb0\xad' # 45229 # {0xB0, 0xAD}
-COMMAND_SIZE     = 8 + MAX_CNTRL_PARAMS*4
+CMD_HEAD         = '\xDA'
+CMD_TAIL         = '\xB0'
+COMMAND_SIZE     = 6 + MAX_CNTRL_PARAMS*4
 
 # Joystick:
 JOYSTICK_DEADBAND= 0.4
@@ -20,6 +20,8 @@ Q_STATUS         = 1
 Q_ALERT          = 2
 Q_SLEEPING       = 3
 Q_TEST           = 4
+Q_RECV            = 99
+Q_ACK             = 98
 
 # Define ALERT TYPES:
 Q_LOW_BAT        = 1
@@ -35,6 +37,7 @@ TUNE             = 3
 MOVE             = 4
 TEST             = 5
 SETTINGS         = 6
+Q_SYN             = 97
 
 # Define Tests:
 Q_TEST_IMU       = 0

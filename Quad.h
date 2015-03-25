@@ -99,11 +99,12 @@ class Quad {
         void SetupMotors();
         void Init(bool);
         bool TunePID(int);
-        bool Fly();
+        void Fly();
         bool Stop();
         void Calibrate(int);
         void Test(int32_t*);
-
+        int  UpdateBatLevel(int pin);
+        
         //Getters / Setters   
         void SetBaseThrust(int);
         int GetBaseThrust();
@@ -146,9 +147,11 @@ class Quad {
         void arr3_rad_to_deg(float * arr);
         void frame_conversion_ef_to_bf(float * ef, float * bf);
         
+        int mVtoL(double mV);
+        
         //Motors
-        int motors[4];
-        int thrust[4];
+        int motors[4] = { FRONT_LEFT, FRONT_RIGHT, BACK_RIGHT, BACK_LEFT };
+        int thrust[4] = {0, 0, 0, 0};
         int baseThrust;
         int baseThrust_S;
         

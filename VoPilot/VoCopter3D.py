@@ -57,3 +57,10 @@ class VoCopter3D(QtGui.QMainWindow):
         self.transform.RotateWXYZ(q[0],q[1],q[2],q[3])
         self.transformFilter.SetTransform(self.transform)
         self.transformFilter.Update()
+    
+    def rotateToYPR(self, y, p, r):
+        self.transform.RotateZ(y)
+        self.transform.RotateY(p)
+        self.transform.RotateX(r)
+        self.transformFilter.SetTransform(self.transform)
+        self.transformFilter.Update()

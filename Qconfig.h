@@ -43,15 +43,15 @@
 // Enable debugging:
 #define QDEBUG
 
-/**********!!!!! DON'T EDIT BELOW THIS LINE !!!!!**********/
+/**********!!!!! NO NEED TO EDIT BELOW THIS LINE !!!!!**********/
 
 #define MAX_CNTRL_PARAMS 14
-#define COMMAND_SIZE 8+MAX_CNTRL_PARAMS*4 // Calculated: 2 (HEADER BYTES = 0xDA0B) + 4 (CMD | int_32) + [PARAM count] * 4 (int_32 size) + 2 (END BYTES = 0xB0AD)
+#define COMMAND_SIZE 6 + MAX_CNTRL_PARAMS * 4 // Calculated: 2 (HEADER BYTES = 0xDA0B) + 4 (CMD | int_32) + [PARAM count] * 4 (int_32 size) + 1 (END BYTES = 0xB0)
 
 /*-----------------
     Quad States
   -----------------*/
-#define NUM_STATES 6
+#define NUM_STATES 7
 
 #define SLEEP     0
 #define FLY       1
@@ -59,6 +59,11 @@
 #define TUNE      3
 #define MOVE      4
 #define TEST      5
+#define SETTINGS  6
+
+#define QRECV     99
+#define QACK      98
+#define QSYN      97
 
 /*-----------------
     FEEDBACK COMMANDS
@@ -81,7 +86,8 @@
     Serial
   -----------------*/
 #define SERIAL_WRITE            SERIAL_PORT.write
-#define SERIAL_PRINT            SERIAL_PORT.print
+#define SERIAL_OUT              SERIAL_PORT.print
+#define SERIAL_PEEK             SERIAL_PORT.peek
 #define SERIAL_AVAILABLE        SERIAL_PORT.available
 #define SERIAL_READ             SERIAL_PORT.read
 #define SERIAL_READ_BYTES       SERIAL_PORT.readBytes
@@ -89,8 +95,8 @@
 #define SERIAL_FLUSH            SERIAL_PORT.flush
 #define SERIAL_BEGIN            SERIAL_PORT.begin
 
-const unsigned char SERIAL_HEAD[] = {0xDA, 0x0B};
-const unsigned char SERIAL_TAIL[] = {0xB0, 0xAD};
+const unsigned char SERIAL_HEAD = 0xDA;
+const unsigned char SERIAL_TAIL = 0xB0;
 const unsigned char SERIAL_EMPTY[] = {0x00, 0x00, 0x00, 0x00};
 void SERIAL_PRINTLN(uint32_t, int, ...);
 
@@ -99,11 +105,14 @@ void SERIAL_PRINTLN(uint32_t, int, ...);
   -----------------*/
 #ifdef QDEBUG
     #define QDEBUG_BEGIN(x) DEBUG_SERIAL_PORT.begin(x)
+    #define QDEBUG_WRITE(x) DEBUG_SERIAL_PORT.write(x)
     #define QDEBUG_PRINT(x) DEBUG_SERIAL_PORT.print(x)
     #define QDEBUG_PRINTF(x, y) DEBUG_SERIAL_PORT.printf(x, y)
     #define QDEBUG_PRINTLN(x) DEBUG_SERIAL_PORT.println(x)
     #define QDEBUG_PRINTLNF(x, y) DEBUG_SERIAL_PORT.printlnf(x, y)
 #else
+    #define QDEBUG_BEGIN(x)
+    #define QDEBUG_WRITE(x)
     #define QDEBUG_PRINT(x)
     #define QDEBUG_PRINTF(x, y)
     #define QDEBUG_PRINTLN(x)

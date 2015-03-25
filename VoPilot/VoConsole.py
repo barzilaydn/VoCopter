@@ -70,7 +70,7 @@ class VoConsole(QMainWindow):
         self.parent.comms.writeCmd(self.cmd, *self.params) # Send the command, send params list as *args
 
 class VoComms():
-        
+    
     def __init__(self, parent=None):
         
         self.parent = parent
@@ -85,9 +85,10 @@ class VoComms():
         self.tcpSocket.connected.connect(self.ComConnected)
         self.tcpSocket.disconnected.connect(self.ComDisconnected)
         self.connected = 0
-    
+        self.goodConnection = False
+        
     def toggleConnection(self):
-        if not self.connected:
+        if self.connected == 0:
             self.ComConnect()
         else:
             self.ComDisconnect()
@@ -127,68 +128,94 @@ class VoComms():
         # Disconnect when faced with error:
         self.ComDisconnect()    
     
-    def readCmd(self):
-        data = QtCore.QByteArray()
-        
-        #print("bytes avail before read: {}".format(self.tcpSocket.bytesAvailable()))
-        # Check if all of the command was received:
-        if self.tcpSocket.bytesAvailable() < VoConfig.COMMAND_SIZE:
-            self.tcpSocket.readAll() # Not real data, clear it.
-            return
-        
-        data += self.tcpSocket.read(VoConfig.COMMAND_SIZE)
-        self.tcpSocket.readAll() # Not real data, clear it.
-        
-        #print("bytes avail after read: {}".format(self.tcpSocket.bytesAvailable()))
-        #print("bytes read: {}".format(len(data)))
-        
-        params = [] # List of received params.
-        head = data[:2]
-        #print("head: {}".format(head))
-        #print("defined head: {}".format(QtCore.QByteArray.fromRawData(VoConfig.CMD_HEAD)))
-        
-        # Read command only if head is valid:
-        if head == QtCore.QByteArray.fromRawData(VoConfig.CMD_HEAD):
-            stream = QtCore.QDataStream(data[2:6])
-            stream.setByteOrder(QtCore.QDataStream.LittleEndian)
-            cmd = stream.readInt32()
-            for i in range(VoConfig.MAX_CNTRL_PARAMS):
-                stream = QtCore.QDataStream(data[6+i*4:6+(i+1)*4])
-                stream.setByteOrder(QtCore.QDataStream.LittleEndian)
-                params.append(stream.readInt32())
-            tail = data[VoConfig.COMMAND_SIZE-2:VoConfig.COMMAND_SIZE]
-            #print("tail: {}".format(tail))
-            # Indicate new data only if message matches the "signature" (and therefore is real)
+    def readCmd(self):        
+        if self.tcpSocket.bytesAvailable() >= VoConfig.COMMAND_SIZE:            
+            data = QtCore.QByteArray()
+            head = QtCore.QByteArray()
+            tail = QtCore.QByteArray()
+            
+            head = self.tcpSocket.read(1)
+            
+            while head[0] != QtCore.QByteArray.fromRawData(VoConfig.CMD_HEAD):
+                if self.tcpSocket.bytesAvailable() >= VoConfig.COMMAND_SIZE:
+                    head = self.tcpSocket.read(1)
+                else:
+                    self.writeToLog("Received bad head.")
+                    return
+            
+            data = self.tcpSocket.read(VoConfig.COMMAND_SIZE - 1)            
+            params = [] # List of received params.
+            tail += data[VoConfig.COMMAND_SIZE-2]
+            
+            # Read command only if it is valid:
             if tail == QtCore.QByteArray.fromRawData(VoConfig.CMD_TAIL):
-                self.signals.cmdAvailable.emit(cmd, params)        
-                self.writeToLog("Received command: {} , Params are: {}".format(cmd, params))
-        
+                #CMD
+                stream = QtCore.QDataStream(data[0:4])
+                stream.setByteOrder(QtCore.QDataStream.LittleEndian)
+                cmd = stream.readInt32()
+                
+                #PARAMS
+                for i in range(VoConfig.MAX_CNTRL_PARAMS):
+                    stream = QtCore.QDataStream(data[4+i*4:6+(i+1)*4])
+                    stream.setByteOrder(QtCore.QDataStream.LittleEndian)
+                    params.append(stream.readInt32())
+                
+                if cmd != VoConfig.Q_ACK and cmd != VoConfig.Q_RECV and cmd != VoConfig.Q_STATUS:
+                    self.writeToLog("Received command: {} , Params are: {}".format(cmd, params))
+                self.signals.cmdAvailable.emit(cmd, params)       
+    
     def writeCmd(self, cmd, *argv):
-        self.writeToLog("Sending command: {} , Params are: {}".format(cmd, argv))
-        if self.connected:
-            outdata = QtCore.QDataStream(self.tcpSocket)
-            outdata.setVersion(QtCore.QDataStream.Qt_4_8)
-            
-            outdata.writeUInt32(cmd) # DELETE
-            
-            # outdata.writeUInt16(VoConfig.CMD_HEAD) # Send the header
-            # outdata.writeUInt32(cmd) # Send the command ID
-            
-            # # Send arguments:
-            # count = 0
-            # for arg in argv:
-                # if count < VoConfig.MAX_CNTRL_PARAMS:
-                    # outdata.writeInt32(arg)
-                    # count = count + 1
-            
-            # # Fill up rest of buffer:
-            # while count < VoConfig.MAX_CNTRL_PARAMS:
-                # outdata.writeInt32(0)
-                # count = count + 1
-            
-            # outdata.writeUInt16(VoConfig.CMD_TAIL) # Send the tail
+        if self.connected == 2 or self.connected == 1:
+            if self.goodConnection:
+                self.outputCmd(cmd, *argv)  
+            else:
+                self.writeToLog("Starting VoCopter command control. Orig CMD: {}".format(cmd))
+                self.outputCmd(VoConfig.Q_SYN, 0) # Wake it up..      
         else:
             self.writeToLog("ERROR: Command not sent, VoCopter is not connected.")
+    
+    def outputCmd(self, cmd, *params):        
+        count = 0
+        buffer = ['\x00']*VoConfig.COMMAND_SIZE
+        
+        # Add head:
+        buffer[0] = VoConfig.CMD_HEAD
+        
+        # Add CMD in Little-endian:
+        self.insertToBuffer(buffer, struct.pack("<i", cmd), 1)
+        
+        # Add arguments in Little-endian:
+        for arg in params:
+            if count < VoConfig.MAX_CNTRL_PARAMS:
+                self.insertToBuffer(buffer, struct.pack("<i", arg), 5 + 4 * count)
+                count = count + 1
+        
+        # Fill up rest of buffer:
+        while count < VoConfig.MAX_CNTRL_PARAMS:
+            self.insertToBuffer(buffer, struct.pack("<i", 0), 5 + 4 * count)
+            count = count + 1
+        
+        # Add tail:
+        self.insertToBuffer(buffer, VoConfig.CMD_TAIL, VoConfig.COMMAND_SIZE-1)
+        
+        str = ''
+        for b in buffer:
+            str += b
+        data = QtCore.QByteArray.fromRawData(str)
+        
+        # Make sure all previous data was sent:
+        self.tcpSocket.flush()
+        
+        # Send the data:
+        self.tcpSocket.write(data)
+        
+        if cmd < VoConfig.NUM_OF_STATES:
+            self.writeToLog("Sending command: {} , Params are: {}".format(cmd, params))
+    
+    def insertToBuffer(self, buffer, data, startingIndex):
+        for i in xrange(0, len(data)):
+            if startingIndex + i < len(buffer):
+                buffer[startingIndex + i] = data[i]
     
     def writeToLog(self, data):
         msg = "[{}] {}".format(time.strftime('%X'), data)
