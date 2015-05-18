@@ -16,14 +16,11 @@ unsigned char cntrl_str[COMMAND_SIZE-1];
 bool data_received = false;
 bool clientStarted = false;
 unsigned long last_recv;
+unsigned long last_cmd;
 
 /// --- RECEIVE --- ///
 void receiveData()
 {    
-    // Clear params
-    for (int c = 0; c < MAX_CNTRL_PARAMS; c++)    
-        PARAMS[c] = 0;
-    
     if(SERIAL_AVAILABLE() >= COMMAND_SIZE)
     {
         unsigned char recv_head = SERIAL_READ(); // Read first byte.
@@ -38,51 +35,76 @@ void receiveData()
             
             if(SERIAL_AVAILABLE() >= COMMAND_SIZE)            
                 recv_head = SERIAL_READ();            
-            else            
+            else
+                QDEBUG_PRINT(F("Clearing read buffer."));
+                while(SERIAL_AVAILABLE() > 0) // Clear read buffer
+                    SERIAL_READ();                
                 return;            
         }
-                
+        
         // Read up command:
         SERIAL_READ_BYTES(cntrl_str, COMMAND_SIZE - 1);
         
         // If matching "signature": (means that it is really a command)
         if(cntrl_str[COMMAND_SIZE-2] == SERIAL_TAIL)
         {
+            int32_t temp_PARAMS[MAX_CNTRL_PARAMS];
+            int32_t cmd = -1;
             for(int i = 0; i < (MAX_CNTRL_PARAMS + 1) * 4; i=i+4)
             {
                 // Little-endian byte array to signed integer conversion
                 int32_t st = (cntrl_str[i+3] << 24) | (cntrl_str[i+2] << 16) | (cntrl_str[i+1] << 8) | (cntrl_str[i]);
                 
-                if(i == 0)
+                if(i == 0)                
+                    cmd = st;
+                    if(!(cmd >= 0 && cmd <= NUM_STATES-1))
+                        break;
+                else                
+                    temp_PARAMS[i/4 - 1] = st;                
+            }
+            
+            if(cmd >= 0 && cmd <= NUM_STATES-1)
+            {
+                STATE = cmd;
+                memcpy(PARAMS, temp_PARAMS, MAX_CNTRL_PARAMS); // Copy temp params to real params
+                
+                // Debug
+                QDEBUG_PRINT(F("Changing STATE to: "));
+                QDEBUG_PRINTLN(STATE);
+                QDEBUG_PRINT(F("Params are: "));
+                for(int i=0; i < MAX_CNTRL_PARAMS - 1; i++)
                 {
-                    if(st >= 0 && st <= NUM_STATES-1)
-                    {
-                        STATE = st; 
-                        QDEBUG_PRINT(F("Changing STATE to: "));
-                        QDEBUG_PRINTLN(STATE);
-                    }
-                    else if (st == QRECV)
-                    {
-                        last_recv = uptime;
-                        data_received = true;
-                    }
-                    else if (st == QSYN)
-                    {
-                        QDEBUG_PRINTLN(F("Client connected, starting transmitting status."));
-                        clientStarted = true;
-                        last_recv = uptime;
-                        SERIAL_PRINTLN(QACK, 0, 0);
-                    }
-                    else
-                    {
-                        QDEBUG_PRINT(F("ST: "));
-                        QDEBUG_PRINTLN(st);
-                    }
+                    QDEBUG_PRINT(PARAMS[i]);
+                    QDEBUG_PRINT(F("; "));
                 }
-                else
-                {
-                    PARAMS[i/4 - 1] = st;
-                }
+                QDEBUG_PRINTLN(PARAMS[MAX_CNTRL_PARAMS - 1]);
+            }
+            else if (cmd == Q_ACK)
+            {
+                last_recv = uptime;
+                data_received = true;
+            }
+            else if (cmd == Q_SYN)
+            {
+                // Clear params
+                for (int c = 0; c < MAX_CNTRL_PARAMS; c++)    
+                    PARAMS[c] = 0;
+                STATE = FLY;
+                QDEBUG_PRINTLN(F("Client connected, setting STATE to FLY."));
+                clientStarted = true;
+                data_received = true;
+            }
+            else
+            {
+                QDEBUG_PRINT(F("Unknown command: "));
+                QDEBUG_PRINTLN(cmd);
+            }
+            
+            if (cmd != Q_ACK)
+            {
+                last_recv = uptime;
+                QDEBUG_PRINTLN(F("Acknowledging command."));
+                SERIAL_PRINTLN(Q_ACK, 0, 0);                
             }
         }
         else
@@ -111,10 +133,16 @@ void sendStatus()
     if(!clientStarted)
         last_recv = uptime;
     
-    if((uptime - last_recv) / 1000 > 5) // Reset data_received every 5s.    
-        data_received = true;
+    if(!data_received && ((uptime - last_recv) / 1000 > 5)) // Go to sleep if no acknowledge for more than 5 secs.    
+    {
+        QDEBUG_PRINT(F("Client did not acknowledge message "));
+        QDEBUG_PRINT(last_cmd);
+        QDEBUG_PRINTLN(F(" within 5secs - going to sleep."));
+        STATE = SLEEP;
+        return;
+    }
         
-    if(STATE != CALIBRATE && data_received && clientStarted)
+    if(STATE == FLY && clientStarted && data_received)
     {
         int* thrusts = VoCopter.GetMotors();
         // FORMAT: ' UP_TIME ; STATE ; YAW,PITCH,ROLL,TEMP,HEADING,ALTITUDE ; FRONT_LEFT,FRONT_RIGHT,BACK_LEFT,BACK_RIGHT ; BAT_LVL '
@@ -133,7 +161,6 @@ void sendStatus()
                                     static_cast<int32_t>(thrusts[3]),
                                     static_cast<int32_t>(BatLvl)
         );
-        data_received = false;
     }
 }
 
@@ -154,7 +181,7 @@ void SERIAL_PRINTLN(unsigned long cmd, int len, ...)
     va_list argList;
     va_start(argList, len);
     
-    if(clientStarted)
+    if(clientStarted && (data_received || cmd == Q_ACK))
     {
         unsigned char buffer[COMMAND_SIZE];
         int count;
@@ -188,9 +215,15 @@ void SERIAL_PRINTLN(unsigned long cmd, int len, ...)
         SERIAL_FLUSH();
         
         // Send the data:
-        SERIAL_WRITE(buffer, COMMAND_SIZE);
+        SERIAL_WRITE(buffer, COMMAND_SIZE);        
+        
+        if (cmd != Q_ACK)
+        {
+            last_cmd = cmd;
+            data_received = false;
+        }
     }
-    else    
+    else if (!clientStarted)
         QDEBUG_PRINTLN(F("Client not started, cannot send command."));
     
     va_end(argList);

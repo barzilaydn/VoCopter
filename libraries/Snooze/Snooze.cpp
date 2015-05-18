@@ -11,6 +11,10 @@
 #include "Arduino.h"
 #include "util/atomic.h"
 
+SnoozeBlock::SnoozeBlock( void ) {
+
+}
+
 void SnoozeBlock::pinMode( int pin, int mode, int val ) {
     if ( mode == INPUT ) {
         digital_configure_pin_mask( pin, mode, val, &digital_mask );
@@ -115,7 +119,7 @@ int SnoozeClass::sleep( SnoozeBlock &configuration ) {
     cmp_disable( &p->cmp_mask );
     lptmr_disable( &p->lptmr_mask );
     digital_disable( &p->digital_mask );
-    return 0;
+    return wakeupSource;
 }
 //--------------------------------------DeepSleep----------------------------------------
 int SnoozeClass::deepSleep( SnoozeBlock &configuration, SLEEP_MODE mode ) {
@@ -147,7 +151,7 @@ int SnoozeClass::deepSleep( SnoozeBlock &configuration, SLEEP_MODE mode ) {
     lptmr_disable( &p->lptmr_mask );
     digital_disable( &p->digital_mask );
     cmp_disable( &p->cmp_mask );
-    return 0;
+    return wakeupSource;
 }
 //--------------------------------------Hibernate----------------------------------------
 #if defined( USE_HIBERNATE )
@@ -167,19 +171,14 @@ int SnoozeClass::hibernate( SnoozeBlock &configuration, SLEEP_MODE mode ) {
 #endif
     tsi_set( &p->tsi_mask );
     llwu_set( &p->llwu_mask );
-    
-    SIM_SOPT1CFG |= SIM_SOPT1CFG_USSWE_MASK;
-    SIM_SOPT1 |= SIM_SOPT1_USBSSTBY_MASK;
-    uint32_t PCR3 = PORTA_PCR3;
-    PORTA_PCR3 = PORT_PCR_MUX( 0 );
+    enableHibernate( );
     if ( mode == LLS )        { enter_lls( ); }
     else if ( mode == VLLS3 ) { enter_vlls3( ); }
     else if ( mode == VLLS2 ) { enter_vlls2( ); }
     else if ( mode == VLLS1 ) { enter_vlls1( ); }
     else if ( mode == VLLS0 ) { enter_vlls0( ); }
-    PORTA_PCR3 = PCR3;
-    SIM_SOPT1CFG |= SIM_SOPT1CFG_USSWE_MASK;
-    SIM_SOPT1 &= ~SIM_SOPT1_USBSSTBY_MASK;
+    disableHibernate( );
+    llwu_disable( );
     tsi_disable( &p->tsi_mask );
 #ifdef KINETISK
     rtc_disable( &p->rtc_mask );
@@ -187,7 +186,7 @@ int SnoozeClass::hibernate( SnoozeBlock &configuration, SLEEP_MODE mode ) {
     lptmr_disable( &p->lptmr_mask );
     digital_disable( &p->digital_mask );
     cmp_disable( &p->cmp_mask );
-    return 0;
+    return wakeupSource;
 }
 #endif
 //----------------------------------------wakeup------------------------------------------
@@ -196,7 +195,6 @@ void SnoozeClass::wakeupISR( void ) {
     if ( sleep_mode == LLS ) {
         __disable_irq( );
         llwuFlag = llwu_clear_flags( );// clear flags
-        __enable_irq( );
         lptmrISR( );
         cmp0ISR( );
 #ifdef KINETISK
@@ -209,6 +207,7 @@ void SnoozeClass::wakeupISR( void ) {
          * to do.
          ************************************/
         pbe_pee( );
+        __enable_irq( );
     }
 }
 /*********************************************************************************************/

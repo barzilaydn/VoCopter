@@ -20,8 +20,7 @@ Q_STATUS         = 1
 Q_ALERT          = 2
 Q_SLEEPING       = 3
 Q_TEST           = 4
-Q_RECV            = 99
-Q_ACK             = 98
+Q_ACK            = 99
 
 # Define ALERT TYPES:
 Q_LOW_BAT        = 1
@@ -37,7 +36,7 @@ TUNE             = 3
 MOVE             = 4
 TEST             = 5
 SETTINGS         = 6
-Q_SYN             = 97
+Q_SYN            = 98
 
 # Define Tests:
 Q_TEST_IMU       = 0

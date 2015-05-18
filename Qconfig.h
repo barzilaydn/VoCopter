@@ -61,9 +61,8 @@
 #define TEST      5
 #define SETTINGS  6
 
-#define QRECV     99
-#define QACK      98
-#define QSYN      97
+#define Q_ACK      99
+#define Q_SYN      98
 
 /*-----------------
     FEEDBACK COMMANDS
@@ -73,6 +72,14 @@
 #define Q_ALERT     2
 #define Q_SLEEPING  3
 #define Q_TEST      4
+
+/*-----------------
+    TEST types
+  -----------------*/
+  
+#define Q_TEST_IMU  0
+#define Q_TEST_PID  1
+#define Q_TEST_MOTORS 2
 
 /*-----------------
     ALERT reasons

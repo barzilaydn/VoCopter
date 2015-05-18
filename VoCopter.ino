@@ -7,7 +7,6 @@
 //
 // TODO:
 //    !* Fix comms to work with a lot of commands such that CMD size is >64bytes - filling the serial buffer. I need to keep reading the bytes as soon as they come in.
-//    !* Test if angles should be YPR or Euler.
 //    !* Create easy to change constants for P.I.D and use same P (I,D=0) for angle to rate controllers.
 //    !* Re-do PID tuning, copy from ArduCopter: https://github.com/diydrones/ardupilot/blob/master/ArduCopter/control_autotune.pde
 //     * Quad: Finish calibration.
@@ -42,22 +41,22 @@ THE SOFTWARE.
 
 /*-----------------
     Includes
-  -----------------*/
+-----------------*/
 
 #if ARDUINO < 100
-    #include "WProgram.h"
+#include "WProgram.h"
 #else
-    #include "Arduino.h"
+#include "Arduino.h"
 #endif
 
 #include "Qconfig.h"
 
 /*---LowPower---*/
 #ifdef CORE_TEENSY
-    #include <Snooze.h>
-    SnoozeBlock config;
+#include <Snooze.h>
+SnoozeBlock config;
 #else
-    //#include <LowPower.h>
+//#include <LowPower.h>
 #endif
 /*------*/
 
@@ -67,7 +66,7 @@ THE SOFTWARE.
 
 /*-----------------
     FreeIMU Includes
-  -----------------*/
+-----------------*/
 #include <AP_Math_freeimu.h>
 #include <Filter.h>    // Filter library
 #include <Butter.h>    // Butterworth filter
@@ -93,7 +92,7 @@ THE SOFTWARE.
 #include <SPI.h>
 
 /**
- * FreeIMU library serial communication protocol
+* FreeIMU library serial communication protocol
 */
 //#define DEBUG
 #include "DebugUtils.h"
@@ -107,7 +106,7 @@ THE SOFTWARE.
 
 /*---------------------------------------------------------------------
     Main Code
-  ---------------------------------------------------------------------*/
+---------------------------------------------------------------------*/
 Quad VoCopter(OUTPUT_STEP, NOISE, LOOK_BACK_SEC, SAMPLE_TIME); // Quad(OutputStep, Noise, LookBackSec, SampleTime(ms), Configuration)
 int32_t STATE = SLEEP;
 int32_t PARAMS[MAX_CNTRL_PARAMS];
@@ -136,9 +135,9 @@ void setup(void)
     QDEBUG_PRINTLN(F(""));
     
     #ifdef CORE_TEENSY
-        config.pinMode(RX_PIN, INPUT, LOW); //pin, mode, type
+    config.pinMode(RX_PIN, INPUT, LOW); //pin, mode, type
     #else
-        pinMode(RX_PIN, INPUT);
+    pinMode(RX_PIN, INPUT);
     #endif
     
     VoCopter.Init(false);
@@ -150,9 +149,9 @@ void loop(void)
 {    
     BatLvl = VoCopter.UpdateBatLevel(39);
     uptime = millis();
-        
+    
     /*
-     * Send / Receive user data.
+    * Send / Receive user data.
     */
     receiveData();
     sendStatus();
@@ -160,7 +159,7 @@ void loop(void)
     // Go to sleep if too low battery.
     if(BatLvl < SLEEP_BAT)
     {
-        SERIAL_PRINTLN(Q_ALERT,1,Q_LOW_BAT); // ALERT: Low Battery, BatLvl
+        SERIAL_PRINTLN(Q_ALERT, 1, Q_LOW_BAT); // ALERT: Low Battery, BatLvl
         QDEBUG_PRINTLN(F("Low Battery")); // Low Battery
         STATE = SLEEP;
     }
@@ -169,13 +168,13 @@ void loop(void)
     if(uptime - zero_time >= 1000 * GO_TO_SLEEP_TIME)
     {
         zero_time = uptime;
-        SERIAL_PRINTLN(Q_ALERT,1,Q_TIME_OUT); // // ALERT: Time out
+        SERIAL_PRINTLN(Q_ALERT, 1, Q_TIME_OUT); // // ALERT: Time out
         QDEBUG_PRINTLN(F("Alert: Time out.")); // Time out
         STATE = SLEEP;
     }
     
     /**
-     * The main state machine.
+    * The main state machine.
     */
     switch(STATE)
     {
@@ -194,11 +193,11 @@ void loop(void)
                 }
             }
             break;
-        
+            
         case CALIBRATE:
             VoCopter.Calibrate(PARAMS[0]);
             break;
-        
+            
         case MOVE:
             VoCopter.SetBaseThrust(PARAMS[0]);
             VoCopter.SetYawS(PARAMS[1]);
@@ -210,16 +209,22 @@ void loop(void)
             
         case SLEEP:
             //Land, if finished -> sleep..
+            QDEBUG_PRINTLN(F("Stopping VoCopter."));
             if(VoCopter.Stop())
             {
-                SERIAL_PRINTLN(Q_SLEEPING, 0); // "OK SLEEPING"
+                SERIAL_PRINTLN(Q_SLEEPING, 0, 0); // "OK SLEEPING"
                 QDEBUG_PRINTLN(F("Going to sleep.")); // "OK SLEEPING"
                 Sleep();
             }
             break;
-        
+            
         case TEST:
             VoCopter.Test(PARAMS);
+            break;
+        
+        case SETTINGS:
+            QDEBUG_PRINTLN(F("Not implemented yet."));
+            STATE = FLY;
             break;
         
         default:
@@ -237,12 +242,12 @@ void loop(void)
         //QDEBUG_PRINTLN(STATE);
     }
     else
-        digitalWrite(13, LOW);    
+    digitalWrite(13, LOW);    
 }
 
 /*------------------------------
     Power Management
-  ------------------------------*/
+------------------------------*/
 
 void wakeUp()
 {
@@ -256,13 +261,18 @@ void wakeUp()
     while(SERIAL_AVAILABLE() > 0) // Clear read buffer
         SERIAL_READ();
     
-    QDEBUG_PRINTLN(F("Client connected, starting transmitting status."));
-    clientStarted = true;
-    data_received = false;
-    last_recv = uptime;
-    SERIAL_PRINTLN(QACK, 0, 0);
-    
+    // Clear params
+    for (int c = 0; c < MAX_CNTRL_PARAMS; c++)    
+        PARAMS[c] = 0;
     STATE = FLY;
+    QDEBUG_PRINTLN(F("Client connected, setting STATE to FLY."));
+    clientStarted = true;
+    data_received = true;
+    
+    last_recv = uptime;
+    QDEBUG_PRINTLN(F("Acknowledging command."));
+    SERIAL_PRINTLN(Q_ACK, 0, 0);
+
     QDEBUG_PRINTLN(F("Woke up.")); // "OK SLEEPING"
 }
 
@@ -270,14 +280,14 @@ void Sleep()
 {    
     digitalWrite(13, HIGH);
     #ifdef CORE_TEENSY
-        // Set DeepSleep on RX pin so that unit will wake up on SERIAL receive.
-        Snooze.deepSleep( config );
-        //-- BLOCKING sleep --//
-        wakeUp();
+    // Set DeepSleep on RX pin so that unit will wake up on SERIAL receive.
+    Snooze.deepSleep( config );
+    //-- BLOCKING sleep --//
+    wakeUp();
     #else
-        attachInterrupt(RX_PIN, wakeUp, LOW);
-        LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF); 
-        //-- BLOCKING sleep --//
-        detachInterrupt(0);
+    attachInterrupt(RX_PIN, wakeUp, LOW);
+    LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF); 
+    //-- BLOCKING sleep --//
+    detachInterrupt(0);
     #endif    
 }

@@ -63,7 +63,7 @@ void Quad::SetupMotors()
 // Start systems.
 void Quad::Init(bool fromSleep) 
 {
-    if(fromSleep == false)
+    if(!fromSleep)
         Quad::SetupMotors();
     
     //--MOTORS--
@@ -83,6 +83,9 @@ void Quad::Init(bool fromSleep)
     my3IMU.init(true);
     my3IMU.setTempCalib(1);   
     starting_altitude = 0;   
+    
+    delay(1000);
+    my3IMU.RESET_Q();
     
     //--PID--
     QDEBUG_PRINTLN(F("Configuring PIDs and Tuners..."));
@@ -342,8 +345,8 @@ void Quad::UpdateIMU()
     
     // Get orientation from FreeIMU:
         // Earth-ref:
-    my3IMU.getYawPitchRollRadAHRS(ypr, q); // @TODO: check if need to replace with euler angles.
-    //my3IMU.getEulerRad(ypr);
+    // my3IMU.getYawPitchRollRadAHRS(ypr, q); // @TODO: check if need to replace with euler angles.
+    my3IMU.getEulerRad(ypr, q);
     // Body-ref rates:
     brpy[0] = val[3]; // Roll rate.
     brpy[1] = val[4]; // Pitch rate.
@@ -365,10 +368,10 @@ void Quad::UpdateIMU()
 
     EYaw_I       = ypr[0];    
     // Fix Yaw:
-    if (EYaw_I > 180.0)
-        EYaw_I -= 360.0;
-    else if (EYaw_I < -180.0)
-        EYaw_I += 360.0;
+    if (EYaw_I > 180.)
+        EYaw_I -= 360.;
+    else if (EYaw_I < -180.)
+        EYaw_I += 360.;
     
     EPitch_I     = ypr[1];
     ERoll_I      = ypr[2];    
@@ -508,13 +511,17 @@ void Quad::Test(int32_t* PARAMS)
 {
     switch(PARAMS[0])
     {
-        case 1: //PID
+        case Q_TEST_PID: //PID
             Quad::SetBaseThrust(constrain(PARAMS[1], 0, 255));
             Quad::Fly();
-            SERIAL_PRINTLN(Q_TEST, 3, (int32_t)EYaw_O, (int32_t)EPitch_O, (int32_t)ERoll_O);
+            SERIAL_PRINTLN(Q_TEST, 4, Q_TEST_PID,
+                                      (int32_t)EYaw_O,
+                                      (int32_t)EPitch_O,
+                                      (int32_t)ERoll_O
+            );
             break;
             
-        case 2: //Motors_individual
+        case Q_TEST_MOTORS: //Motors_individual
             thrust[0] = constrain(PARAMS[1], 0, 255);
             thrust[1] = constrain(PARAMS[1], 0, 255);
             thrust[2] = constrain(PARAMS[1], 0, 255);
@@ -527,10 +534,11 @@ void Quad::Test(int32_t* PARAMS)
             break;
         
         default: 
-        case 0: //FreeIMU
+        case Q_TEST_IMU: //FreeIMU
             my3IMU.getRawValues(raw_values);
             my3IMU.getQ(q, val);
-            SERIAL_PRINTLN(Q_TEST, 12, (int32_t)raw_values[0],
+            SERIAL_PRINTLN(Q_TEST, 12, Q_TEST_IMU,
+                                       (int32_t)raw_values[0],
                                        (int32_t)raw_values[1],
                                        (int32_t)raw_values[2],
                                        (int32_t)raw_values[3],
@@ -540,10 +548,8 @@ void Quad::Test(int32_t* PARAMS)
                                        (int32_t)raw_values[7],
                                        (int32_t)raw_values[8],
                                        (int32_t)raw_values[9],
-                                       (int32_t)raw_values[10],
-                                       (int32_t)val[11],
-                                       (int32_t)val[12],
-                                       (int32_t)FREEIMU_LIB_VERSION);
+                                       (int32_t)val[11]
+            );
             
             break;        
     }

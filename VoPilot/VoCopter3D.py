@@ -1,66 +1,61 @@
 #!/usr/bin/env python
- 
-import sys
+
 import vtk
-from PySide import QtCore, QtGui
+from PySide import QtGui
 from vtk.qt4.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
- 
+
+
 class VoCopter3D(QtGui.QMainWindow):
-    def __init__(self, filename, parent = None):
+    def __init__(self, filename, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
- 
         self.frame = QtGui.QFrame()
- 
+
         self.vl = QtGui.QVBoxLayout()
         self.vtkWidget = QVTKRenderWindowInteractor(self.frame)
         self.vl.addWidget(self.vtkWidget)
- 
+
         self.ren = vtk.vtkRenderer()
         self.vtkWidget.GetRenderWindow().AddRenderer(self.ren)
         self.iren = self.vtkWidget.GetRenderWindow().GetInteractor()
-        self.vtkWidget.RemoveObservers('LeftButtonPressEvent')
-        self.vtkWidget.RemoveObservers('RightButtonPressEvent')
-        
+        self.vtkWidget.RemoveAllObservers()
+
         reader = vtk.vtkSTLReader()
         reader.SetFileName(filename)
-        
-        # create a transform that rotates the cone
-        self.transform = vtk.vtkTransform()
-        self.transform.RotateWXYZ(0,0,0,0)
-        self.transformFilter=vtk.vtkTransformPolyDataFilter()
-        self.transformFilter.SetTransform(self.transform)
-        self.transformFilter.SetInputConnection(reader.GetOutputPort())
-        self.transformFilter.Update()
-        
+        reader.Update()
+
         mapper = vtk.vtkPolyDataMapper()
-        if vtk.VTK_MAJOR_VERSION <= 5:
-            mapper.SetInput(self.transformFilter.GetOutput())
-        else:
-            mapper.SetInputConnection(self.transformFilter.GetOutputPort())
-         
+        mapper.SetInputConnection(reader.GetOutputPort())
+
         # Create an actor
-        actor = vtk.vtkActor()
-        actor.SetMapper(mapper)
-        actor.SetMapper(mapper)
- 
-        self.ren.AddActor(actor)
- 
+        self.actor = vtk.vtkActor()
+        self.actor.SetMapper(mapper)
+        self.actor.GetProperty().SetColor(0.39, 0.27, 0.58)  # (R,G,B)
+        self.actor.SetOrigin((0, 0, 0))
+        self.actor.RotateX(185)
+        self.actor.RotateY(-4)
+        self.actor.RotateZ(4)
+        self.ren.AddActor(self.actor)
+        self.ren.SetBackground(0.94, 0.94, 0.94)
         self.ren.ResetCamera()
- 
+        camera = self.ren.GetActiveCamera()
+        camera.Zoom(1.1)
+
         self.frame.setLayout(self.vl)
         self.setCentralWidget(self.frame)
- 
+
         self.show()
         self.iren.Initialize()
-    
-    def rotateToQ(self, q):
-        self.transform.RotateWXYZ(q[0],q[1],q[2],q[3])
-        self.transformFilter.SetTransform(self.transform)
-        self.transformFilter.Update()
-    
+
     def rotateToYPR(self, y, p, r):
-        self.transform.RotateZ(y)
-        self.transform.RotateY(p)
-        self.transform.RotateX(r)
-        self.transformFilter.SetTransform(self.transform)
-        self.transformFilter.Update()
+        self.actor.SetOrigin((0, 0, 0))
+        oriantation = self.actor.GetOrientation()
+        oriantation = [-ori for ori in oriantation]
+        self.actor.SetOrientation(oriantation)
+        self.actor.SetOrigin((0, 0, 0))
+        self.actor.SetOrientation((185-p, -4.5-y, -3-r))
+        self.ren.ResetCamera()
+        camera = self.ren.GetActiveCamera()
+        camera.Zoom(1.5)
+        self.ren.Modified()
+        self.ren.Render()
+        self.iren.Initialize()

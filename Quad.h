@@ -192,7 +192,7 @@ class Quad {
         //IMU
         FreeIMU my3IMU;
         float q[4];
-        float val[12];
+        float val[10];
         int raw_values[11];
         char str[128];
         float ypr[3]; // yaw pitch roll
